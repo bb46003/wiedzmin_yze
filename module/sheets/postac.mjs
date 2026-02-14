@@ -35,5 +35,15 @@ export class postac extends api.HandlebarsApplicationMixin(
     });
     return context;
   }
+  /** @inheritDoc */
+_processFormData(event, form, formData) {
+  // Wywołaj domyślną metodę
+  const data = super._processFormData(event, form, formData);
+
+
+
+  console.log(data); // teraz powinno zawierać name
+  return data;
+}
 
 }
