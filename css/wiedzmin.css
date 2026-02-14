@@ -1,0 +1,194 @@
+.postac-sheet {
+  font-family: "Cinzel", "Times New Roman", serif;
+  background: #f4f0e6;
+  color: #2a2a2a;
+    --input-text-color: black;
+  h3 {
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #444;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+  }
+
+  .sheet-body {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .identity {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    column-gap: 30px;
+    row-gap: 10px;
+  }
+  .left-column,
+  .center-column,
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  section {
+    background: linear-gradient(#f8f3e8, #f1e6d3);
+    border: 4px solid #5c4a2e;
+    padding: 12px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    background: #fdfaf3;
+    border: 1px solid #444;
+    padding: 4px;
+    font-family: inherit;
+  }
+
+  input[type="number"] {
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  /* ============================= */
+  /* CENTRAL ATTRIBUTE RING       */
+  /* ============================= */
+
+  /* ============================= */
+  /* COMBAT                        */
+  /* ============================= */
+
+  .combat {
+    label {
+      display: block;
+      margin-top: 6px;
+      font-weight: bold;
+    }
+  }
+
+  /* ============================= */
+  /* RESOURCES                     */
+  /* ============================= */
+
+  .resources {
+    input[type="number"] {
+      width: 50px;
+      font-size: 1.1em;
+    }
+  }
+
+  /* ============================= */
+  /* CONDITIONS                    */
+  /* ============================= */
+
+  .conditions {
+    label {
+      display: block;
+      margin-top: 6px;
+      font-weight: bold;
+    }
+  }
+
+  /* ============================= */
+  /* TALENTS                       */
+  /* ============================= */
+
+  .talents {
+    textarea {
+      min-height: 120px;
+    }
+  }
+
+  /* ============================= */
+  /* EQUIPMENT                     */
+  /* ============================= */
+
+  .equipment {
+    min-height: 300px;
+
+    textarea {
+      min-height: 250px;
+    }
+  }
+
+  /* ============================= */
+  /* WEAPONS TABLE                 */
+  /* ============================= */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      border: 1px solid #5c4a2e;
+      padding: 4px;
+      text-align: center;
+    }
+
+    th {
+      background: #e6dcc6;
+      font-weight: bold;
+    }
+  }
+
+  /* ============================= */
+  /* HEADER                        */
+  /* ============================= */
+  .image-container {
+    width: 130px;
+  }
+  .sheet-header {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .identity label,
+  .personal-goals label {
+    font-weight: bold;
+    display: block;
+    margin-top: 6px;
+  }
+  .attributes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px; /* space between attribute groups */
+  }
+
+  .attribute-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .attribute-main {
+    display: flex;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    flex-direction: column;
+  }
+
+  .attribute-subskills {
+    display: flex;
+    gap: 20px; /* space between sub-skills */
+  }
+
+  .skill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 110px;
+  }
+}

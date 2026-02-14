@@ -1,0 +1,31 @@
+<section class="attributes">
+  {{#each systemFields.atrybuty as |atrybut|}}
+    <div class="attribute-group">
+      <!-- Main attribute -->
+      <div class="attribute-main">
+        <a data-action="rzut_atrybut">{{localize atrybut.label}}</a>
+        {{formInput
+          atrybut
+          value=(lookup @root.system.attributes atrybut.name)
+          type="number"
+        }}
+      </div>
+
+      <!-- Sub-skills container -->
+      <div class="attribute-subskills">
+        {{#each atrybut.options.umiejetnosci as |umiejka|}}
+          <div class="skill">
+            <a data-action="rzut_umiejka">{{localize umiejka.label}}</a>
+            {{formInput
+              umiejka
+              value=(lookup
+                (lookup @root.system.attributes atrybut.name) umiejka.name
+              )
+              type="number"
+            }}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/each}}
+</section>

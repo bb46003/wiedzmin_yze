@@ -1,0 +1,32 @@
+{
+  "wiedzmin": {
+    "atrubut": {
+      "sila": "Siła",
+      "krzepa": "Krzepa",
+      "walka_wrecz": "Walka w ręcz",
+      "wytrzymalosc": "Wytrzymałość",
+      "rozum": "Rozum",
+      "spostrzegawczosc": "Spostrzegawczość",
+      "fach": "Fach",
+      "wiedza": "Wiedza",
+      "empatia": "Empatia",
+      "wplyw": "Wpływ",
+      "manipulacja": "Manipulacja",
+      "wola": "Wola",
+      "zrecznosc": "Zręczność",
+      "zwinnosc": "Zwinność",
+      "walka_dystansowa": "Walka dystansowa",
+      "zwinne_palce": "Zwinne palce"
+    },
+    "glod": "Głód",
+    "odwodnienie": "Odwodnienie",
+    "zmeczenie": "Zmęczenie",
+    "wychlodzenie": "Wyziębienie",
+    "punktyMocy": "Punkty mocy",
+    "zycie": "Życie",
+    "adernalina": "Adrenalina",
+    "cele_osobiste": "Cele osobiste",
+    "pd": "PD",
+    "punktyFabuly": "Punkty fabuły"
+  }
+}

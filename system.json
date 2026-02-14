@@ -1,0 +1,32 @@
+{
+  "id": "wiedzmin_yze",
+  "title": "Wiedźmin YZE",
+  "description": "Wiedźmin YZE to nakładkawykorzystująca YEAR ZERO ENGINE<br>OŚWIADCZENIE! To nieoficjalny utwór fanowski. Nieautoryzowany/niewspierany przez CD PROJEKT RED.",
+  "version": "0.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351"
+  },
+  "authors": [
+    {
+      "name": "Bartek",
+      "flags": {}
+    }
+  ],
+  "esmodules": ["module/main.mjs"],
+  "styles": ["css/wiedzmin.css"],
+  "languages": [
+    {
+      "lang": "pl",
+      "name": "Polski",
+      "path": "lang/pl.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "postac": {
+        "htmlFields": ["description", "notes"]
+      }
+    }
+  }
+}
