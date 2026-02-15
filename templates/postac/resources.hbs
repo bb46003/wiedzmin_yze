@@ -1,31 +1,82 @@
 <section class="resources">
 
-  <label>Życie</label>
-  {{formInput
-    system.resources.zycie
-    value=system.resources.zycie
-    type="number"
-  }}
+<div class="zycie-wrapper">
+  <div class="zycie-label">Życie</div>
 
-  <label>Adrenalina</label>
-  {{formInput
-    system.resources.adrenalina
-    value=system.resources.adrenalina
-    type="number"
-  }}
+  <div class="zycie-track">
+   
+      <span class="zycie-zero">☠</span>
 
-  <label>Punkty Mocy</label>
-  {{formInput
-    system.resources.punktyMocy
-    value=system.resources.punktyMocy
-    type="number"
-  }}
+      {{#each (range 1 system.zycie.max) as |i|}}
 
-  <label>Punkty Fabularne</label>
+        <div class="zycie-slot">
+          <input
+            type="checkbox"
+            name="system.zycie.value"
+            value="{{i}}"
+            {{#if (lte i @root.system.zycie.value)}}checked{{/if}}
+          />
+          <span class="circle"></span>
+        </div>
+      {{/each}}
+
+  </div>
+</div>
+
+
+<div class="adrenalina-wrapper">
+  <div class="adrenalina-label">Adrenalina</div>
+
+  <div class="adrenalina-track">
+   
+      
+
+      {{#each (range 1 system.adrenalina.max) as |i|}}
+
+        <div class="adrenalina-slot">
+          <input
+            type="checkbox"
+            name="system.adrenalina.value"
+            value="{{i}}"
+            {{#if (lte i @root.system.adrenalina.value)}}checked{{/if}}
+          />
+          <span class="circle"></span>
+        </div>
+      {{/each}}
+
+  </div>
+</div>
+
+<div class="moc-wrapper">
+  <div class="moc-label">Moc</div>
+
+  <div class="moc-track">
+   
+      
+
+      {{#each (range 1 system.punkty_mocy.max) as |i|}}
+
+        <div class="moc-slot">
+          <input
+            type="checkbox"
+            name="system.punkty_mocy.value"
+            value="{{i}}"
+            {{#if (lte i @root.system.punkty_mocy.value)}}checked{{/if}}
+          />
+          <span class="circle"></span>
+        </div>
+      {{/each}}
+
+  </div>
+</div>
+<div class="moc-wrapper">
+  <div class="moc-label">Punkty Fabularne</div>
+  {{log systemFields}}
   {{formInput
-    system.resources.punktyFabularne
-    value=system.resources.punktyFabularne
+    systemFields.punkty_fabuly
+    value=system.punkty_fabuly
     type="number"
   }}
+</div>
 
 </section>

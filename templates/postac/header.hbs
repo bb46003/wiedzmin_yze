@@ -10,7 +10,7 @@
   </div>
   <div class="identity">
     <label>Miano</label>
-    <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+    <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
 
     <label>Profesja</label>
     <a>{{profesja profesja}}</a>
@@ -18,9 +18,12 @@
     <label>PD</label>
     {{formInput systemFields.pd value=system.pd type="number"}}
 
-    
-      <label>Cele Osobiste</label>
-      {{formInput systemFields.cele_osobiste value=system.cele_osobiste multiline=true}}
+    <label>Cele Osobiste</label>
+    {{formInput
+      systemFields.cele_osobiste
+      value=system.cele_osobiste
+      multiline=true
+    }}
 
   </div>
 </section>

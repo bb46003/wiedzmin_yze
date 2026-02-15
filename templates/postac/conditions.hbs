@@ -2,37 +2,44 @@
 
   <label>Ciężkie Rany</label>
   {{formInput
-    system.conditions.ciezkieRany
-    value=system.conditions.ciezkieRany
+    systemFields.ciezkie_rany
+    value=system.ciezkie_rany
     multiline=true
   }}
+  <div class="conditions-wrapper">
+    <div class="condition">
+      <label>Głód</label>
+      {{formInput systemFields.glod value=system.glod type="boolean"}}
+    </div>
+    <div class="condition">
+      <label>Pragnienie</label>
+      {{formInput
+        systemFields.odwodnienie
+        value=system.odwodnienie
+        type="boolean"
+      }}
+    </div>
+    <div class="condition">
+      <label>Zmęczenie</label>
+      {{formInput systemFields.zmeczenie value=system.zmeczenie type="boolean"}}
+    </div>
+    <div class="condition">
+      <label>Odwodnienie</label>
+      {{formInput
+        systemFields.odwodnienie
+        value=system.odwodnienie
+        type="boolean"
+      }}
+    </div>
 
-  <label>Głód</label>
-  {{formInput
-    system.conditions.glod
-    value=system.conditions.glod
-    type="number"
-  }}
+    <div class="condition">
+      <label>Wychłodzenie</label>
+      {{formInput
+        systemFields.wychlodzenie
+        value=system.wychlodzenie
+        type="boolean"
+      }}
+    </div>
 
-  <label>Odwodnienie</label>
-  {{formInput
-    system.conditions.odwodnienie
-    value=system.conditions.odwodnienie
-    type="number"
-  }}
-
-  <label>Zmęczenie</label>
-  {{formInput
-    system.conditions.zmeczenie
-    value=system.conditions.zmeczenie
-    type="number"
-  }}
-
-  <label>Wychłodzenie</label>
-  {{formInput
-    system.conditions.wychlodzenie
-    value=system.conditions.wychlodzenie
-    type="number"
-  }}
-
+  </div>
 </section>

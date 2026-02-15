@@ -2,7 +2,10 @@
   font-family: "Cinzel", "Times New Roman", serif;
   background: #f4f0e6;
   color: #2a2a2a;
-    --input-text-color: black;
+  --input-text-color: black;
+  .window-content {
+    overflow-y: scroll;
+  }
   h3 {
     text-align: center;
     font-weight: bold;
@@ -10,12 +13,30 @@
     margin-bottom: 8px;
     padding-bottom: 4px;
   }
-
+  input {
+    color: black;
+  }
   .sheet-body {
     display: grid;
     grid-template-columns: 1fr 1.2fr 1fr;
-    gap: 20px;
+    grid-template-areas:
+      "left center right"
+      "bottom bottom bottom";
+    gap: 10px;
     align-items: start;
+  }
+
+  .left-column {
+    grid-area: left;
+  }
+  .center-column {
+    grid-area: center;
+  }
+  .right-column {
+    grid-area: right;
+  }
+  .bottom-row {
+    grid-area: bottom;
   }
   .identity {
     display: grid;
@@ -28,7 +49,8 @@
   .right-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
+    height: 88%;
   }
 
   section {
@@ -37,8 +59,13 @@
     padding: 12px;
     box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
+    height: 100%;
   }
-
+  .all-attribues {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
   input,
   textarea {
     width: 100%;
@@ -146,6 +173,9 @@
   /* ============================= */
   .image-container {
     width: 130px;
+    background: #e2dbc9;
+    border: 4px solid black;
+    border-radius: 20px;
   }
   .sheet-header {
     margin-bottom: 20px;
@@ -170,6 +200,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: 2px solid black;
+    margin-bottom: 15px;
+    border-radius: 20px;
+    padding: 5px;
   }
 
   .attribute-main {
@@ -190,5 +224,91 @@
     flex-direction: column;
     align-items: center;
     width: 110px;
+  }
+  .zycie-wrapper,
+  .adrenalina-wrapper,
+  .moc-wrapper {
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .zycie-label,
+  .adrenalina-label,
+  .moc-label {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .zycie-track,
+  .adrenalina-track,
+  .moc-track {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .zycie-slot,
+  .adrenalina-slot,
+  .moc-slot {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    display: flex;
+
+    input {
+      opacity: 0;
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      margin: 0;
+      z-index: 2;
+    }
+
+    .circle {
+      width: 100%;
+      height: 100%;
+      border: 2px solid #2a2a2a;
+      border-radius: 50%;
+      background: #fdfaf3;
+      transition: all 0.15s ease;
+    }
+
+    input:hover + .circle {
+      transform: scale(1.08);
+    }
+  }
+  .adrenalina-slot input:checked + .circle {
+    background: #1f9d2f;
+  }
+
+  .zycie-slot input:checked + .circle {
+    background: #f00404;
+  }
+
+  .moc-slot input:checked + .circle {
+    background: #0000ff;
+  }
+
+  .zycie-zero {
+    font-size: 26px;
+    margin-right: 5px;
+  }
+  .conditions-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .condition {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    input {
+      border: none;
+      background: transparent;
+      width: auto;
+    }
   }
 }

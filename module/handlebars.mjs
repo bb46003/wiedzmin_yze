@@ -31,4 +31,17 @@ export function registerHandlebarsHelpers() {
     return isGM;
   });
   Handlebars.registerHelper("profesja", function (profesja) {});
+
+  Handlebars.registerHelper("range", function (start, end) {
+    start = Number(start);
+    end = Number(end);
+
+    const result = [];
+
+    for (let i = start; i <= end; i++) {
+      result.push(i);
+    }
+
+    return result;
+  });
 }
