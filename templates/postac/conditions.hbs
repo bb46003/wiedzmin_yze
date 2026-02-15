@@ -7,39 +7,22 @@
     multiline=true
   }}
   <div class="conditions-wrapper">
-    <div class="condition">
-      <label>Głód</label>
-      {{formInput systemFields.glod value=system.glod type="boolean"}}
-    </div>
-    <div class="condition">
-      <label>Pragnienie</label>
-      {{formInput
-        systemFields.odwodnienie
-        value=system.odwodnienie
-        type="boolean"
-      }}
-    </div>
-    <div class="condition">
-      <label>Zmęczenie</label>
-      {{formInput systemFields.zmeczenie value=system.zmeczenie type="boolean"}}
-    </div>
-    <div class="condition">
-      <label>Odwodnienie</label>
-      {{formInput
-        systemFields.odwodnienie
-        value=system.odwodnienie
-        type="boolean"
-      }}
-    </div>
-
-    <div class="condition">
-      <label>Wychłodzenie</label>
-      {{formInput
-        systemFields.wychlodzenie
-        value=system.wychlodzenie
-        type="boolean"
-      }}
-    </div>
-
+    <ul class="conditions-list unlist">
+			{{#each conditions}}
+				<li class="condition flexrow {{cssClass}}"	data-action="toggleCondition" data-uuid="{{reference}}" data-condition-id="{{id}}">
+					<img class="icon" src="{{img}}" alt="{{name}}"/>
+					<div class="name-stacked">
+						<span class="title">{{name}}</span>
+					</div>
+					<div class="toggle">
+						{{#if disabled}}
+							<i class="fa-solid fw fa-toggle-off"></i>
+						{{else}}
+							<i class="fa-solid fw fa-toggle-on"></i>
+            {{/if}}
+					</div>
+        </li>
+      {{/each}}
+    </ul>
   </div>
 </section>

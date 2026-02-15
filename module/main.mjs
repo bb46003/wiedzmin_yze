@@ -1,13 +1,22 @@
-import { postacDataModel } from "./data-model/postac.mjs";
 import { postac } from "./sheets/postac.mjs";
 import { registerHandlebarsHelpers } from "./handlebars.mjs";
-import { postacActor } from "./actors/postac.mjs";
-import { registerSystemSheet } from "./utils.mjs";
+import { postacActor } from "./document/actors/postac.mjs";
+import * as utils from "./utils.mjs";
+import { SYSTEM as config } from "./config/system.mjs";
+import { ActiveEffectWiedzmin_YZE } from "./document/active-effect.mjs";
+import * as models from "./data-model/_module.mjs";
+
+globalThis.wiedzmin_yze = { 
+  config: utils.moduleToObject(config),
+  models: models,
+};
+export { config };
+
 Hooks.once("init", async function () {
   CONFIG.Actor.documentClass = postacActor;
 
   CONFIG.Actor.dataModels = {
-    postac: postacDataModel,
+    postac: models.postacDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
@@ -15,8 +24,15 @@ Hooks.once("init", async function () {
     "core",
     foundry.applications.sheets.ActorSheet,
   );
+  // Active Effect
+  CONFIG.ActiveEffect.documentClass = ActiveEffectWiedzmin_YZE;
+  CONFIG.ActiveEffect.dataModels = {
+    condition: models.Condition,
+  };
+  CONFIG.ActiveEffect.legacyTransferral = false;
+  ActiveEffectWiedzmin_YZE._configureStatusEffects();
 
-  registerSystemSheet(foundry.documents.Actor, postac, "postac");
+  utils.registerSystemSheet(foundry.documents.Actor, postac, "postac");
   registerHandlebarsHelpers();
   const templates = [
     "systems/wiedzmin_yze/templates/postac/header.hbs",

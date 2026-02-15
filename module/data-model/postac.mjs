@@ -101,19 +101,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       }),
-      glod: new BooleanField({ label: "wiedzmin.glod", initial: false }),
-      odwodnienie: new BooleanField({
-        label: "wiedzmin.odwodnienie",
-        initial: false,
-      }),
-      zmeczenie: new BooleanField({
-        label: "wiedzmin.zmeczenie",
-        initial: false,
-      }),
-      wychlodzenie: new BooleanField({
-        label: "wiedzmin.wychlodzenie",
-        initial: false,
-      }),
+
       punkty_mocy: new SchemaField({
         value: new NumberField({ label: "wiedzmin.zycie", initial: undefined }),
         max: new NumberField({ label: "wiedzmin.zycie.max", initial: 5 }),
@@ -150,11 +138,33 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   prepareDerivedData() {
     super.prepareDerivedData();
     this._ustawZycie();
+    this._prepareConditions();
   }
   _ustawZycie() {
     this.zycie.max = this.atrybuty.sila.value;
     if (this.zycie.max !== 0 && this.zycie.value === undefined) {
       this.zycie.value = this.zycie.max;
     }
+  }
+  /**
+	 * Apply conditions based on the {@link Actor.statuses} so that each condition is only applied once.
+	 *
+	 * @protected
+	 */
+	_prepareConditions() {
+		/** @type {Set<ConditionId>} */
+		const statuses = this.parent.statuses;
+		this.parent;
+
+		/** @type {StatusEffectConfigMM3[]} */
+		const conditions = [...statuses]
+			.map((status) => wiedzmin_yze.config.CONDITIONS[status])
+			.filter((condition) => condition);
+for (const condition of conditions) {
+			// Remove actions from available ones when prevented by the condition
+			if (condition.preventedActions) {
+				for (const action of condition.preventedActions) this.actions?.delete(action);
+			}
+		}
   }
 }

@@ -1,3 +1,5 @@
+import { staticID } from "../utils.mjs";
+
 const { api, sheets } = foundry.applications;
 
 export class postac extends api.HandlebarsApplicationMixin(
@@ -12,7 +14,11 @@ export class postac extends api.HandlebarsApplicationMixin(
   static DEFAULT_OPTIONS = {
     classes: ["postac-sheet"],
     position: { width: 970, height: 850 },
-    actions: {},
+    actions: {
+      toggleCondition: postac._onToggleCondition,
+      rzut_atrybut: postac.#rzut_atrybut,
+      rzut_umiejka: postac.#rzut_umiejka
+    },
     form: {
       submitOnChange: true,
     },
@@ -33,7 +39,43 @@ export class postac extends api.HandlebarsApplicationMixin(
       fields: this.actor.schema.fields,
       systemFields: this.actor.system.schema.fields,
     });
+    const { conditions } = await this._prepareConditions();
+    Object.assign(context, { conditions });
     return context;
+  }
+
+  /**
+   * Prepare conditions for display.
+   *
+   * @returns {Promise<{ conditions: Record<string, unknown>[], specialConditions: Record<string, unknown>[] }>}
+   */
+  async _prepareConditions() {
+    const allEffects = {
+      ...wiedzmin_yze.config.CONDITIONS,
+      ...wiedzmin_yze.config.STATUS_EFFECTS,
+    };
+
+    const conditions = Object.entries(allEffects)
+      .filter(([, effect]) => effect.hud?.actorTypes?.includes("postac"))
+      .map(([id, effect]) => {
+        const { name, reference, img: icon } = effect;
+        const docId = staticID(`wyze${id}`);
+        const existingEffect = this.actor.effects.get(docId);
+        const { active, img } = existingEffect ?? {};
+
+        return {
+          name: game.i18n.localize(name),
+          img: img || icon || "icons/svg/mystery-man.svg",
+          id,
+          reference,
+          disabled: !active,
+          cssClass: [active ? "active" : ""].filterJoin(" "),
+          combined: "conditions" in effect,
+        };
+      })
+      .filter(Boolean);
+
+    return { conditions };
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
@@ -49,20 +91,24 @@ export class postac extends api.HandlebarsApplicationMixin(
       formData.object[name] = event.target.checked ? value : value - 1;
     }
 
-    // Zawsze przelicz oba pola na podstawie aktualnego stanu DOM
+    if(name !== "system.adrenalina.value"){
     const inputsAdrenalina = Array.from(
       form.querySelectorAll("[name='system.adrenalina.value']"),
     );
     formData.object["system.adrenalina.value"] = this.getMax(inputsAdrenalina);
-
+  }
+  if(name !== "system.zycie.value"){
     const inputsZycie = Array.from(
       form.querySelectorAll("[name='system.zycie.value']"),
     );
     formData.object["system.zycie.value"] = this.getMax(inputsZycie);
+  }
+  if(name !== "system.punkty_mocy.value"){
     const inputsMoc = Array.from(
-      form.querySelectorAll("[name='system.moc.value']"),
+      form.querySelectorAll("[name='system.punkty_mocy.value']"),
     );
-    formData.object["system.moc.value"] = this.getMax(inputsMoc);
+    formData.object["system.punkty_mocy.value"] = this.getMax(inputsMoc);
+  }
     return super._processFormData(event, form, formData);
   }
 
@@ -87,5 +133,24 @@ export class postac extends api.HandlebarsApplicationMixin(
     }
 
     return maxValue;
+  }
+  	/**
+	 * Toggle a single condition, either enabling and adding it to the actor, or disabling and removing it.
+	 *
+	 * @this {CharacterSheetMM3}}
+	 * @param {PointerEvent} event
+	 */
+	static async _onToggleCondition(event) {
+		const conditionId = event.target.closest("[data-condition-id]")?.dataset.conditionId;
+			return this.actor.toggleStatusEffect(conditionId);
+	}
+
+  static async #rzut_umiejka(ev){
+    const umiejka = ev.currentTarget.dataset.umiejka;
+    const atrybut = ev.currentTarget.dataset.atrybut;
+  }
+
+  static async #rzut_atrybut(ev){
+    const atrybut = ev.currentTarget.dataset.atrybut;
   }
 }
