@@ -8,19 +8,24 @@
   }}
   <div class="conditions-wrapper">
     <ul class="conditions-list unlist">
-			{{#each conditions}}
-				<li class="condition flexrow {{cssClass}}"	data-action="toggleCondition" data-uuid="{{reference}}" data-condition-id="{{id}}">
-					<img class="icon" src="{{img}}" alt="{{name}}"/>
-					<div class="name-stacked">
-						<span class="title">{{name}}</span>
-					</div>
-					<div class="toggle">
-						{{#if disabled}}
-							<i class="fa-solid fw fa-toggle-off"></i>
-						{{else}}
-							<i class="fa-solid fw fa-toggle-on"></i>
+      {{#each conditions}}
+        <li
+          class="condition flexrow {{cssClass}}"
+          data-action="toggleCondition"
+          data-uuid="{{reference}}"
+          data-condition-id="{{id}}"
+        >
+          <img class="icon" src="{{img}}" alt="{{name}}" />
+          <div class="name-stacked">
+            <span class="title">{{name}}</span>
+          </div>
+          <div class="toggle">
+            {{#if disabled}}
+              <i class="fa-solid fw fa-toggle-off"></i>
+            {{else}}
+              <i class="fa-solid fw fa-toggle-on"></i>
             {{/if}}
-					</div>
+          </div>
         </li>
       {{/each}}
     </ul>

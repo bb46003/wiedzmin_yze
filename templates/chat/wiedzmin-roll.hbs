@@ -1,0 +1,81 @@
+<div class="wiedzmin-roll-chat">
+
+  <h3>Wynik rzutu</h3>
+    <div class="result-summary">
+
+    {{#if isSuccess}}
+      <p><strong>Sukces!</strong></p>
+      <p>Liczba sukcesów: {{successes}}</p>
+
+      {{#if extraSuccesses}}
+        <p>Nadprogramowe sukcesy: {{extraSuccesses}}</p>
+      {{/if}}
+
+    {{else}}
+      <p><strong>Porażka</strong></p>
+    {{/if}}
+
+    {{#if pech}}
+      <p class="pech-warning">
+        ⚠ Pech! (Na kościach adrenaliny wypadła 1)
+      </p>
+    {{/if}}
+
+  </div>
+
+<div class="dice-roll" data-action="expandRoll">
+
+  <div class="dice-formula">{{formula}}</div>
+
+  <div class="dice-tooltip">
+    <div class="wrapper">
+
+      {{#if normalDice}}
+      <section class="tooltip-part">
+        <div class="dice">
+          <header class="part-header flexrow">
+            <span class="part-formula">
+               
+              Zwykłe Kosci {{normalDice.rolls.length}}d6
+            </span>
+          </header>
+
+          <ol class="dice-rolls">
+            {{log normalDice.rolls}}
+            {{#each normalDice.rolls}}
+              <li class="roll die d6 {{classes}}">
+                {{result}}
+              </li>
+            {{/each}}
+          </ol>
+        </div>
+      </section>
+      {{/if}}
+
+      {{#if adrenalinaDice}}
+      <section class="tooltip-part">
+        <div class="dice">
+          <header class="part-header flexrow">
+            <span class="part-formula">
+              Kości Adrenaliny {{adrenalinaDice.rolls.length}}d6
+            </span>
+          </header>
+
+          <ol class="dice-rolls">
+            {{#each adrenalinaDice.rolls}}
+              <li class="roll die d6 {{classes}}">
+                {{result}}
+              </li>
+            {{/each}}
+          </ol>
+        </div>
+      </section>
+      {{/if}}
+
+    </div>
+  </div>
+
+</div>
+
+  </div>
+

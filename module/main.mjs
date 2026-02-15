@@ -5,10 +5,12 @@ import * as utils from "./utils.mjs";
 import { SYSTEM as config } from "./config/system.mjs";
 import { ActiveEffectWiedzmin_YZE } from "./document/active-effect.mjs";
 import * as models from "./data-model/_module.mjs";
+import { WiedzminRoll } from "./roll/wiedzmin-roll.mjs";
 
-globalThis.wiedzmin_yze = { 
+globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
-  models: models,
+  models,
+  WiedzminRoll,
 };
 export { config };
 
@@ -31,6 +33,8 @@ Hooks.once("init", async function () {
   };
   CONFIG.ActiveEffect.legacyTransferral = false;
   ActiveEffectWiedzmin_YZE._configureStatusEffects();
+
+   CONFIG.Dice.rolls.push(WiedzminRoll);
 
   utils.registerSystemSheet(foundry.documents.Actor, postac, "postac");
   registerHandlebarsHelpers();

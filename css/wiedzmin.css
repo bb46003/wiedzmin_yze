@@ -300,26 +300,26 @@
   .conditions-wrapper {
     display: flex;
     flex-direction: column;
-    .conditions-list{
+    .conditions-list {
       padding: 0px;
     }
   }
 
   .condition {
-         display: grid;
-        justify-content: flex-end;
-        border: 2px solid black;
-        border-radius: 10px;
-        background: #e2dbc9;
-        padding: 5px;
-        grid-template-columns: 1fr 3fr 1fr;
+    display: grid;
+    justify-content: flex-end;
+    border: 2px solid black;
+    border-radius: 10px;
+    background: #e2dbc9;
+    padding: 5px;
+    grid-template-columns: 1fr 3fr 1fr;
     input {
       border: none;
       background: transparent;
       width: auto;
     }
-    .icon{
-      width : 24px;
+    .icon {
+      width: 24px;
     }
   }
 }

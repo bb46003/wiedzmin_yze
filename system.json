@@ -27,10 +27,9 @@
       "postac": {
         "htmlFields": ["description", "notes"]
       }
-      
     },
     "ActiveEffect": {
-			"condition": {}
-		}
+      "condition": {}
+    }
   }
 }

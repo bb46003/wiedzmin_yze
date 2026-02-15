@@ -3,9 +3,8 @@ import { ActiveEffectWiedzmin_YZE } from "../document/active-effect.mjs";
 const { SetField, StringField, NumberField } = foundry.data.fields;
 
 export class Condition extends foundry.abstract.TypeDataModel {
-  
-	 static metadata = Object.freeze({});
-	/** @override */
+  static metadata = Object.freeze({});
+  /** @override */
   static defineSchema() {
     return {
       targets: new SetField(new StringField({ blank: true }), {

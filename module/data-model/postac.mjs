@@ -147,24 +147,55 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
   }
   /**
-	 * Apply conditions based on the {@link Actor.statuses} so that each condition is only applied once.
-	 *
-	 * @protected
-	 */
-	_prepareConditions() {
-		/** @type {Set<ConditionId>} */
-		const statuses = this.parent.statuses;
-		this.parent;
+   * Apply conditions based on the {@link Actor.statuses} so that each condition is only applied once.
+   *
+   * @protected
+   */
+  _prepareConditions() {
+    /** @type {Set<ConditionId>} */
+    const statuses = this.parent.statuses;
+    this.parent;
 
-		/** @type {StatusEffectConfigMM3[]} */
-		const conditions = [...statuses]
-			.map((status) => wiedzmin_yze.config.CONDITIONS[status])
-			.filter((condition) => condition);
-for (const condition of conditions) {
-			// Remove actions from available ones when prevented by the condition
-			if (condition.preventedActions) {
-				for (const action of condition.preventedActions) this.actions?.delete(action);
-			}
-		}
+    /** @type {StatusEffectConfigMM3[]} */
+    const conditions = [...statuses]
+      .map((status) => wiedzmin_yze.config.CONDITIONS[status])
+      .filter((condition) => condition);
+    for (const condition of conditions) {
+      // Remove actions from available ones when prevented by the condition
+      if (condition.preventedActions) {
+        for (const action of condition.preventedActions)
+          this.actions?.delete(action);
+      }
+    }
+  }
+
+  async rzutAtrybut(atrybutKey) {
+    const attribute = this.atrybuty[atrybutKey];
+    if (!attribute) return;
+
+    const attributeValue = Number(attribute.value) || 0;
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+   await globalThis.wiedzmin_yze.WiedzminRoll.create(
+{ attribute: attributeValue, skill: 0, adrenalina: adrenalinaValue }
+    );
+
+  }
+  async rzutUmiejka(umiejkaKey, atrybutKey) {
+    const attribute = this.atrybuty[atrybutKey];
+    if (!attribute) return;
+
+    const attributeValue = Number(attribute.value) || 0;
+
+    const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
+
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create(
+      attributeValue,
+      skillValue,
+      adrenalinaValue,
+    );
+
+    if (roll) await roll.toMessage();
   }
 }

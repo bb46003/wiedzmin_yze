@@ -1,0 +1,33 @@
+<form class="wiedzmin-roll-dialog flexcol">
+
+  <div class="form-group">
+    <label>Atrybut</label>
+    <input type="number" value="{{attribute}}" readonly />
+  </div>
+
+  <div class="form-group">
+    <label>Umiejętność</label>
+    <input type="number" value="{{skill}}" readonly />
+  </div>
+
+  {{#if adrenalina}}
+    <div class="form-group">
+      <label>Adrenalina</label>
+      <input type="number" value="{{adrenalina}}" readonly />
+    </div>
+  {{/if}}
+
+  <hr />
+
+  <div class="form-group">
+    <label>Dodatkowy modyfikator</label>
+    <input type="number" name="modifier" value="0" />
+  </div>
+
+  <div class="form-group">
+    <p>
+      Liczba kości = Atrybut + Umiejętność + Modyfikator + Adrenalina
+    </p>
+  </div>
+
+</form>
