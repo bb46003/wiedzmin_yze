@@ -174,9 +174,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     if (!attribute) return;
 
     const attributeValue = Number(attribute.value) || 0;
+    const atrubutLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label)
+   
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
    await globalThis.wiedzmin_yze.WiedzminRoll.create(
-{ attribute: attributeValue, skill: 0, adrenalina: adrenalinaValue }
+{ attribute: attributeValue, skill: 0, adrenalina: adrenalinaValue, atrubutLabel: atrubutLabel, skillLabel:"" }
     );
 
   }
@@ -185,15 +187,13 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     if (!attribute) return;
 
     const attributeValue = Number(attribute.value) || 0;
-
+const atrubutLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label)
     const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
-
+const skillLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.umiejetnosci.fields[umiejkaKey].label)
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
 
     const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create(
-      attributeValue,
-      skillValue,
-      adrenalinaValue,
+     { attribute: attributeValue, skill: skillValue, adrenalina: adrenalinaValue, atrubutLabel: atrubutLabel, skillLabel:skillLabel }
     );
 
     if (roll) await roll.toMessage();

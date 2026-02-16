@@ -14,56 +14,49 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /*  Dialog Creator                              */
   /* -------------------------------------------- */
 
-  static async create({ attribute = 0, skill = 0, adrenalina = 0 } = {}) {
+  static async create({ attribute = 0, skill = 0, adrenalina = 0, atrubutLabel = "", skillLabel = "" } = {}) {
+    console.log(this)
 
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE,
       { attribute, skill, adrenalina }
     );
 
-    return new Promise(resolve => {
+    new foundry.applications.api.DialogV2({
+      window: { title: "Wiedzmin Roll" },
+      content,
+      buttons: [{
+        action: "roll",
+        label: "Roll",
+        default: true,
+        callback: async (_event, _button, dialog) => {
 
-      new foundry.applications.api.DialogV2({
-        window: { title: "Wiedzmin Roll" },
-        content,
-        buttons: [{
-          action: "roll",
-          label: "Roll",
-          default: true,
-          callback: async (_event, _button, dialog) => {
+          const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+          const basePool = attribute + skill + mod;
 
-            const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
-            const basePool = attribute + skill + mod;
+          const formula = adrenalina > 0
+            ? `${basePool}d6 + ${adrenalina}d6`
+            : `${basePool}d6`;
 
-            const formula = adrenalina > 0
-              ? `${basePool}d6 + ${adrenalina}d6`
-              : `${basePool}d6`;
+          const roll = new WiedzminRoll(formula, {}, {
+            adrenalina,
+            flavor: "Test",
+            atrubutLabel: atrubutLabel,
+            skillLabel: skillLabel
+          });
 
-            const roll = new WiedzminRoll(formula, {}, { adrenalina, flavor: "Test" });
-
-// make sure the roll is fully evaluated
- roll.evaluate({ async: true });
-
-// now it is safe to build chat data
-//const data = await this._prepareChatData(flavor, roll);
-
-// create chat message
-await roll.toMessage();
-
-            resolve(roll);
-          }
-        }]
-      }).render({ force: true });
-
-    });
+          await roll.toMessage();
+        }
+      }]
+    }).render({ force: true });
   }
 
   /* -------------------------------------------- */
-  /*  Evaluation Override                         */
+  /*  Evaluation Override (v13 style)             */
   /* -------------------------------------------- */
 
-   evaluate(options = {}) {
-    super.evaluate(options);
+  async evaluate(options = {}) {
+    await super.evaluate(options);
     this._analyze();
     return this;
   }
@@ -76,8 +69,8 @@ await roll.toMessage();
 
     const diceTerms = this.terms.filter(t => t instanceof DiceTerm);
 
-    const normalTerm      = diceTerms[0];
-    const adrenalinaTerm  = diceTerms[1];
+    const normalTerm     = diceTerms[0];
+    const adrenalinaTerm = diceTerms[1];
 
     let successes = 0;
     let pech = false;
@@ -102,9 +95,9 @@ await roll.toMessage();
     this._normalTerm     = normalTerm;
     this._adrenalinaTerm = adrenalinaTerm;
 
-    this._successes       = successes;
-    this._extraSuccesses  = Math.max(0, successes - 1);
-    this._pech            = pech;
+    this._successes      = successes;
+    this._extraSuccesses = Math.max(0, successes - 1);
+    this._pech           = pech;
   }
 
   /* -------------------------------------------- */
@@ -128,40 +121,43 @@ await roll.toMessage();
   }
 
   /* -------------------------------------------- */
-  /*  Chat Data Builder   
-                   
+  /*  Chat Data Builder                           */
   /* -------------------------------------------- */
 
- async _buildDicePart(term, type) {
-    
+  _buildDicePart(term, type) {
+    if (!term) return {};
 
-    const rolls = await term.results.forEach(roll => {
-      return {...roll, classes : roll.result === 6 ? "max" : (roll.result === 1 ? "min" : "")};
-    });
-    
-    console.log(rolls)
+    const rolls = term.results.map(roll => ({
+      ...roll,
+      classes:
+        roll.result === 6 ? "max" :
+        roll.result === 1 ? "min" :
+        ""
+    }));
+
+    return { type, rolls };
+  }
+
+  async _prepareChatData(flavor) {
+
+    // ensure analysis ran (evaluate already does it, but safe)
+    if (!this._successes && this._successes !== 0) {
+      this._analyze();
+    }
+
     return {
-        type,
-        rolls: rolls
-        
-    };
-}
+      formula: this.formula,
+      total: this.total,
+      flavor: flavor ?? this.options.flavor,
+      skillLabel: this.options.skillLabel,
+      atrubutLabel: this.options.atrubutLabel,
+      successes: this.successes,
+      extraSuccesses: this.extraSuccesses,
+      pech: this.pech,
+      isSuccess: this.isSuccess,
 
-
-  async _prepareChatData( flavor  = {}, roll) {
-    
-    return {
-      formula: roll.formula,
-      total: roll.total,
-      flavor: flavor ?? roll.options.flavor,
-
-      successes: roll.successes,
-      extraSuccesses: roll.extraSuccesses,
-      pech: roll.pech,
-      isSuccess: roll.isSuccess,
-      
-      normalDice: await this._buildDicePart(roll._normalTerm, "normal"),
-      adrenalinaDice: await this._buildDicePart(roll._adrenalinaTerm, "adrenalina")
+      normalDice: this._buildDicePart(this._normalTerm, "normal"),
+      adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina")
     };
   }
 
@@ -171,10 +167,10 @@ await roll.toMessage();
 
   async render({ flavor, template = this.constructor.CHAT_TEMPLATE } = {}) {
 
-    if (!this._evaluated) this.evaluate();
-    const roll = this;
-    const data = await this._prepareChatData( flavor , roll);
-  
+    if (!this._evaluated) await this.evaluate();
+
+    const data = await this._prepareChatData(flavor);
+
     return foundry.applications.handlebars.renderTemplate(template, data);
   }
 
@@ -184,8 +180,8 @@ await roll.toMessage();
 
   async toMessage(messageData = {}, options = {}) {
 
-    if (!this._evaluated) this.evaluate();
-    setTimeout(() => { 2500 });
+    if (!this._evaluated) await this.evaluate();
+
     const content = await this.render();
 
     return ChatMessage.create({
@@ -194,5 +190,4 @@ await roll.toMessage();
       ...messageData
     }, options);
   }
-
 }

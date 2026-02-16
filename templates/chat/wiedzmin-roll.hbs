@@ -1,11 +1,11 @@
 <div class="wiedzmin-roll-chat">
 
-  <h3>Wynik rzutu</h3>
+  <h4>Wynik rzutu na {{atrubutLabel}} {{skillLabel}}</h4>
     <div class="result-summary">
 
     {{#if isSuccess}}
-      <p><strong>Sukces!</strong></p>
-      <p>Liczba sukcesów: {{successes}}</p>
+      <h4><strong>Sukces!</strong></h4>
+      <h4>Liczba sukcesów: {{successes}}</h4>
 
       {{#if extraSuccesses}}
         <p>Nadprogramowe sukcesy: {{extraSuccesses}}</p>
@@ -41,7 +41,6 @@
           </header>
 
           <ol class="dice-rolls">
-            {{log normalDice.rolls}}
             {{#each normalDice.rolls}}
               <li class="roll die d6 {{classes}}">
                 {{result}}

@@ -2,7 +2,7 @@
   {{#each systemFields.atrybuty as |atrybut|}}
     <div class="attribute-group">
       <div class="attribute-main">
-        <a data-action="rzut_atrybut"  data-atrybut="{{atrybut.name}}">{{localize atrybut.name}}</a>
+        <a data-action="rzut_atrybut"  data-atrybut="{{atrybut.name}}">{{localize atrybut.fields.value.label}}</a>
         {{formInput
           atrybut.fields.value
           value=(lookup (lookup @root.system.atrybuty atrybut.name) "value")
@@ -17,7 +17,7 @@
         <div class="attribute-subskills">
           {{#each atrybut.fields.umiejetnosci as |umiejka|}}
             <div class="skill">
-              <a data-action="rzut_umiejka"  data-umiejka="{{umiejka.name}}" data-atrybut="{{../atrybut.name}}">{{localize umiejka.label}}</a>
+              <a data-action="rzut_umiejka"  data-umiejka="{{umiejka.name}}" data-atrybut="{{atrybut.name}}">{{localize umiejka.label}}</a>
               {{formInput
                 umiejka
                 value=(lookup skills umiejka.name)
