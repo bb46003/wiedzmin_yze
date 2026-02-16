@@ -1,11 +1,9 @@
 <section class="conditions">
 
   <label>Ciężkie Rany</label>
-  {{formInput
-    systemFields.ciezkie_rany
-    value=system.ciezkie_rany
-    multiline=true
-  }}
+  <textarea name="system.ciezkie_rany" rows="4">
+    {{system.ciezkie_rany}}
+  </textarea>
   <div class="conditions-wrapper">
     <ul class="conditions-list unlist">
       {{#each conditions}}

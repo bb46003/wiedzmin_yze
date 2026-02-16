@@ -1,12 +1,16 @@
 <div class="wiedzmin-roll-chat">
-
-  <h4>Wynik rzutu na {{atrubutLabel}} {{skillLabel}}</h4>
-    <div class="result-summary">
+  <h4>
+    {{#if (not forsowac)}}
+      Forsowany wynik rzutu na
+    {{else}}
+      Wynik rzutu na
+    {{/if}}
+    {{atrubutLabel}}
+    {{umiejkaLabel}}</h4>
+  <div class="result-summary">
 
     {{#if isSuccess}}
       <h4><strong>Sukces!</strong></h4>
-      <h4>Liczba sukcesów: {{successes}}</h4>
-
       {{#if extraSuccesses}}
         <p>Nadprogramowe sukcesy: {{extraSuccesses}}</p>
       {{/if}}
@@ -23,58 +27,64 @@
 
   </div>
 
-<div class="dice-roll" data-action="expandRoll">
+  <div class="dice-roll" data-action="expandRoll">
 
-  <div class="dice-formula">{{formula}}</div>
+    <div class="dice-formula">{{formula}}</div>
 
-  <div class="dice-tooltip">
-    <div class="wrapper">
+    <div class="dice-tooltip">
+      <div class="wrapper">
 
-      {{#if normalDice}}
-      <section class="tooltip-part">
-        <div class="dice">
-          <header class="part-header flexrow">
-            <span class="part-formula">
-               
-              Zwykłe Kosci {{normalDice.rolls.length}}d6
-            </span>
-          </header>
+        {{#if normalDice}}
+          <section class="tooltip-part">
+            <div class="dice">
+              <header class="part-header flexrow">
+                <span class="part-formula">
 
-          <ol class="dice-rolls">
-            {{#each normalDice.rolls}}
-              <li class="roll die d6 {{classes}}">
-                {{result}}
-              </li>
-            {{/each}}
-          </ol>
-        </div>
-      </section>
-      {{/if}}
+                  Zwykłe Kosci
+                  {{normalDice.rolls.length}}d6
+                </span>
+              </header>
 
-      {{#if adrenalinaDice}}
-      <section class="tooltip-part">
-        <div class="dice">
-          <header class="part-header flexrow">
-            <span class="part-formula">
-              Kości Adrenaliny {{adrenalinaDice.rolls.length}}d6
-            </span>
-          </header>
+              <ol class="dice-rolls">
+                {{#each normalDice.rolls}}
+                  <li class="roll die d6 {{classes}}">
+                    {{result}}
+                  </li>
+                {{/each}}
+              </ol>
+            </div>
+          </section>
+        {{/if}}
 
-          <ol class="dice-rolls">
-            {{#each adrenalinaDice.rolls}}
-              <li class="roll die d6 {{classes}}">
-                {{result}}
-              </li>
-            {{/each}}
-          </ol>
-        </div>
-      </section>
-      {{/if}}
+        {{#if adrenalinaDice}}
+          <section class="tooltip-part">
+            <div class="dice">
+              <header class="part-header flexrow">
+                <span class="part-formula">
+                  Kości Adrenaliny
+                  {{adrenalinaDice.rolls.length}}d6
+                </span>
+              </header>
 
+              <ol class="dice-rolls">
+                {{#each adrenalinaDice.rolls}}
+                  <li class="roll die d6 {{classes}}">
+                    {{result}}
+                  </li>
+                {{/each}}
+              </ol>
+            </div>
+          </section>
+        {{/if}}
+
+      </div>
     </div>
+
   </div>
+  {{#if (and forsowac (not pech))}}
+    <div class="forsowanie">
+      <button class="forsuj-button" data-action="forsuj">Forsuj</button>
+    </div>
+  {{/if}}
 
 </div>
-
-  </div>
-

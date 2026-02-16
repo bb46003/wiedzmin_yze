@@ -46,3 +46,26 @@ export function staticID(id) {
   if (id.length >= 16) return id.substring(0, 16);
   return id.padEnd(16, "0");
 }
+
+export function addHtmlEventListener(
+  html,
+  eventNames,
+  selector,
+  eventHandler,
+  ...extraArgs
+) {
+  const container = html.jquery ? html[0] : html;
+
+  for (const eventName of eventNames.split(" ")) {
+    const wrappedHandler = (e) => {
+      if (!e.target) return;
+
+      const target = e.target.closest(selector);
+      if (target) {
+        eventHandler.call(target, e, ...extraArgs);
+      }
+    };
+
+    container.addEventListener(eventName, wrappedHandler);
+  }
+}

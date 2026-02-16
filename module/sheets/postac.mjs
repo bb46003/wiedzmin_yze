@@ -52,7 +52,6 @@ export class postac extends api.HandlebarsApplicationMixin(
   async _prepareConditions() {
     const allEffects = {
       ...wiedzmin_yze.config.CONDITIONS,
-      ...wiedzmin_yze.config.STATUS_EFFECTS,
     };
 
     const conditions = Object.entries(allEffects)

@@ -174,28 +174,54 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     if (!attribute) return;
 
     const attributeValue = Number(attribute.value) || 0;
-    const atrubutLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label)
-   
-    const adrenalinaValue = Number(this.adrenalina.value) || 0;
-   await globalThis.wiedzmin_yze.WiedzminRoll.create(
-{ attribute: attributeValue, skill: 0, adrenalina: adrenalinaValue, atrubutLabel: atrubutLabel, skillLabel:"" }
+    const atrubutLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
     );
 
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+    await globalThis.wiedzmin_yze.WiedzminRoll.create({
+      attribute: attributeValue,
+      skill: 0,
+      adrenalina: adrenalinaValue,
+      atrubutLabel: atrubutLabel,
+      umiejkaLabel: "",
+      actorID: this.parent.id,
+      umiejkaKey: "",
+      atrybutKey: atrybutKey,
+    });
   }
   async rzutUmiejka(umiejkaKey, atrybutKey) {
     const attribute = this.atrybuty[atrybutKey];
     if (!attribute) return;
 
     const attributeValue = Number(attribute.value) || 0;
-const atrubutLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label)
-    const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
-const skillLabel = game.i18n.localize(this.schema.fields.atrybuty.fields[atrybutKey].fields.umiejetnosci.fields[umiejkaKey].label)
-    const adrenalinaValue = Number(this.adrenalina.value) || 0;
-
-    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create(
-     { attribute: attributeValue, skill: skillValue, adrenalina: adrenalinaValue, atrubutLabel: atrubutLabel, skillLabel:skillLabel }
+    const atrubutLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
     );
+    const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
+    const umiejkaLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybutKey].fields.umiejetnosci.fields[
+        umiejkaKey
+      ].label,
+    );
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create({
+      attribute: attributeValue,
+      skill: skillValue,
+      adrenalina: adrenalinaValue,
+      atrubutLabel: atrubutLabel,
+      umiejkaLabel: umiejkaLabel,
+      actorID: this.parent.id,
+      umiejkaKey: umiejkaKey,
+      atrybutKey: atrybutKey,
+    });
 
     if (roll) await roll.toMessage();
+  }
+  async zwiekszAdrenaline() {
+    this.adrenalina.value += 1;
+    await this.parent.update({
+      "system.adrenalina.value": this.adrenalina.value,
+    });
   }
 }

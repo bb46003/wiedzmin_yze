@@ -1,9 +1,8 @@
 const { DiceTerm } = foundry.dice.terms;
 
 export class WiedzminRoll extends foundry.dice.Roll {
-
   static DIALOG_TEMPLATE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-roll.hbs`;
-  static CHAT_TEMPLATE   = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
+  static CHAT_TEMPLATE = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -14,40 +13,56 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /*  Dialog Creator                              */
   /* -------------------------------------------- */
 
-  static async create({ attribute = 0, skill = 0, adrenalina = 0, atrubutLabel = "", skillLabel = "" } = {}) {
-    console.log(this)
-
+  static async create({
+    attribute = 0,
+    skill = 0,
+    adrenalina = 0,
+    atrubutLabel = "",
+    umiejkaLabel = "",
+    actorID = null,
+    umiejkaKey = "",
+    atrybutKey = "",
+  } = {}) {
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE,
-      { attribute, skill, adrenalina }
+      { attribute, skill, adrenalina },
     );
 
     new foundry.applications.api.DialogV2({
       window: { title: "Wiedzmin Roll" },
       content,
-      buttons: [{
-        action: "roll",
-        label: "Roll",
-        default: true,
-        callback: async (_event, _button, dialog) => {
+      buttons: [
+        {
+          action: "roll",
+          label: "Roll",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+            const basePool = attribute + skill + mod;
 
-          const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
-          const basePool = attribute + skill + mod;
+            const formula =
+              adrenalina > 0
+                ? `${basePool}d6 + ${adrenalina}d6`
+                : `${basePool}d6`;
 
-          const formula = adrenalina > 0
-            ? `${basePool}d6 + ${adrenalina}d6`
-            : `${basePool}d6`;
+            const roll = new WiedzminRoll(
+              formula,
+              {},
+              {
+                adrenalina,
+                flavor: "Test",
+                atrubutLabel: atrubutLabel,
+                umiejkaLabel: umiejkaLabel,
+                actorID: actorID,
+                umiejkaKey: umiejkaKey,
+                atrybutKey: atrybutKey,
+              },
+            );
 
-          const roll = new WiedzminRoll(formula, {}, {
-            adrenalina,
-            flavor: "Test",
-            atrubutLabel: atrubutLabel,
-            skillLabel: skillLabel
-          });
-
-          await roll.toMessage();
-        }
-      }]
+            await roll.toMessage();
+          },
+        },
+      ],
     }).render({ force: true });
   }
 
@@ -66,10 +81,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /* -------------------------------------------- */
 
   _analyze() {
+    const diceTerms = this.terms.filter((t) => t instanceof DiceTerm);
 
-    const diceTerms = this.terms.filter(t => t instanceof DiceTerm);
-
-    const normalTerm     = diceTerms[0];
+    const normalTerm = diceTerms[0];
     const adrenalinaTerm = diceTerms[1];
 
     let successes = 0;
@@ -92,12 +106,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
       }
     }
 
-    this._normalTerm     = normalTerm;
+    this._normalTerm = normalTerm;
     this._adrenalinaTerm = adrenalinaTerm;
 
-    this._successes      = successes;
+    this._successes = successes;
     this._extraSuccesses = Math.max(0, successes - 1);
-    this._pech           = pech;
+    this._pech = pech;
   }
 
   /* -------------------------------------------- */
@@ -127,37 +141,56 @@ export class WiedzminRoll extends foundry.dice.Roll {
   _buildDicePart(term, type) {
     if (!term) return {};
 
-    const rolls = term.results.map(roll => ({
-      ...roll,
-      classes:
-        roll.result === 6 ? "max" :
-        roll.result === 1 ? "min" :
-        ""
-    }));
+    const rolls = term.results
+      .map((roll) => ({
+        ...roll,
+        classes:
+          roll.result === 6
+            ? "max"
+            : roll.result === 1 && type === "adrenalina"
+              ? "min"
+              : "",
+      }))
+      .sort((a, b) => b.result - a.result); // malejąco
 
     return { type, rolls };
   }
 
-  async _prepareChatData(flavor) {
-
+  async _prepareChatData(flavor, options) {
     // ensure analysis ran (evaluate already does it, but safe)
     if (!this._successes && this._successes !== 0) {
       this._analyze();
     }
-
+    let forsowanie = true;
+    let formula = this._formula;
+    if (flavor === "Test") {
+      forsowanie = true;
+    } else if (flavor === "Forsowanie") {
+      forsowanie = false;
+    }
+    if (options.newFormula) {
+      formula = options.newFormula;
+    }
+    let extraSuccesses = this.extraSuccesses;
+    if (options.oldsucesses) {
+      extraSuccesses = this.extraSuccesses + options.oldsucesses;
+    }
     return {
-      formula: this.formula,
+      formula: formula,
       total: this.total,
       flavor: flavor ?? this.options.flavor,
-      skillLabel: this.options.skillLabel,
+      umiejkaLabel: this.options.umiejkaLabel,
       atrubutLabel: this.options.atrubutLabel,
+      umiejkaKey: this.options.umiejkaKey,
+      atrybutKey: this.options.atrybutKey,
       successes: this.successes,
-      extraSuccesses: this.extraSuccesses,
+      extraSuccesses: extraSuccesses,
       pech: this.pech,
       isSuccess: this.isSuccess,
-
+      forsowac: forsowanie, // TODO: logic for this from items or conditions
+      actorID: this.options.actorID,
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
-      adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina")
+      adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
     };
   }
 
@@ -165,13 +198,19 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /*  Rendering                                   */
   /* -------------------------------------------- */
 
-  async render({ flavor, template = this.constructor.CHAT_TEMPLATE } = {}) {
-
+  async render({
+    flavor,
+    template = this.constructor.CHAT_TEMPLATE,
+    options = {},
+  } = {}) {
     if (!this._evaluated) await this.evaluate();
 
-    const data = await this._prepareChatData(flavor);
-
-    return foundry.applications.handlebars.renderTemplate(template, data);
+    const data = await this._prepareChatData(flavor, options);
+    const content = await foundry.applications.handlebars.renderTemplate(
+      template,
+      data,
+    );
+    return { content, data };
   }
 
   /* -------------------------------------------- */
@@ -179,15 +218,21 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /* -------------------------------------------- */
 
   async toMessage(messageData = {}, options = {}) {
-
     if (!this._evaluated) await this.evaluate();
+    const { content, data } = await this.render({
+      flavor: this.options.flavor,
+      template: this.constructor.CHAT_TEMPLATE,
+      options,
+    });
 
-    const content = await this.render();
-
-    return ChatMessage.create({
-      content,
-      rolls: [this],
-      ...messageData
-    }, options);
+    return ChatMessage.create(
+      {
+        system: data,
+        content,
+        rolls: [this],
+        ...messageData,
+      },
+      options,
+    );
   }
 }
