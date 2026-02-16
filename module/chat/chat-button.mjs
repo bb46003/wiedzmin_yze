@@ -63,7 +63,6 @@ async function forsujRzut(event, message) {
       atrybutKey: data.atrybutKey,
     },
   );
-  console.log(newRoll, data);
   await newRoll.evaluate();
   newRoll._normalTerm.results.push(
     ...normalRolls
