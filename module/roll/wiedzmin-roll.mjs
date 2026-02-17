@@ -175,11 +175,19 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (options.oldsucesses) {
       extraSuccesses = this.extraSuccesses + options.oldsucesses;
     }
+    let umiejkaLabel = this.options.umiejkaLabel;
+    const actor = await game.actors.get(this.options.actorID);
+    const fach = game.i18n.localize(
+      wiedzmin_yze.config.fachy[actor.system.specjalizacjaFach].label,
+    );
+    if (this.options.umiejkaKey === "fach" && !umiejkaLabel.includes(fach)) {
+      umiejkaLabel += " " + fach;
+    }
     return {
       formula: formula,
       total: this.total,
       flavor: flavor ?? this.options.flavor,
-      umiejkaLabel: this.options.umiejkaLabel,
+      umiejkaLabel: umiejkaLabel,
       atrubutLabel: this.options.atrubutLabel,
       umiejkaKey: this.options.umiejkaKey,
       atrybutKey: this.options.atrybutKey,
@@ -191,6 +199,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       actorID: this.options.actorID,
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
+      iloscPrzerzuconych: options.iloscPrzerzuconych,
     };
   }
 

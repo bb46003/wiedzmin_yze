@@ -33,12 +33,12 @@ async function forsujRzut(event, message) {
 
   if (newBasePool < 0) newBasePool = 0;
 
-  // --- NOWA PULA ADRENALINY ---
-  const oldAdrenalinaCount = adrenalinaRolls.length;
-  const newAdrenalinaPool = oldAdrenalinaCount + 1;
-
   // zwiększamy poziom adrenaliny aktora
   await actor.system.zwiekszAdrenaline();
+
+  // --- NOWA PULA ADRENALINY ---
+  const updatedActor = game.actors.get(data.actorID);
+  const newAdrenalinaPool = updatedActor.system.adrenalina.value;
 
   // --- BUDOWANIE FORMUŁY ---
   let formula = "";
@@ -81,6 +81,7 @@ async function forsujRzut(event, message) {
   await newRoll.toMessage(
     {},
     {
+      iloscPrzerzuconych: `${newBasePool}d6`,
       newFormula: newFormula,
       oldsucesses: normalSuccesses + adrenalinaSuccesses,
     },

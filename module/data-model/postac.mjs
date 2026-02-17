@@ -1,3 +1,5 @@
+import { toLabelObject } from "../utils.mjs";
+
 const {
   StringField,
   BooleanField,
@@ -101,7 +103,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       }),
-
+      specjalizacjaFach: new StringField({
+        label: "wiedzmin.atrubut.specjalizacja",
+        initial: "Brak",
+        choices: toLabelObject(wiedzmin_yze.config.fachy),
+      }),
       punkty_mocy: new SchemaField({
         value: new NumberField({ label: "wiedzmin.zycie", initial: undefined }),
         max: new NumberField({ label: "wiedzmin.zycie.max", initial: 5 }),

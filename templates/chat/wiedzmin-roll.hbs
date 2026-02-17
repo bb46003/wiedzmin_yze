@@ -24,7 +24,12 @@
         ⚠ Pech! (Na kościach adrenaliny wypadła 1)
       </p>
     {{/if}}
-
+    {{#if iloscPrzerzuconych}}
+      <p>Przerzucono:
+        {{iloscPrzerzuconych}}
+        Zwykłych kości i
+        {{adrenalinaDice.rolls.length}}d6 Kości Adrenaliny</p>
+    {{/if}}
   </div>
 
   <div class="dice-roll" data-action="expandRoll">

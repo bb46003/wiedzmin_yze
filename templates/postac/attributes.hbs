@@ -23,7 +23,14 @@
                 data-action="rzut_umiejka"
                 data-umiejka="{{umiejka.name}}"
                 data-atrybut="{{atrybut.name}}"
-              >{{localize umiejka.label}}</a>
+              >{{localize umiejka.label}}
+                {{#if (eq umiejka.name "fach")}}
+                  {{formInput
+                    @root.systemFields.specjalizacjaFach
+                    value=@root.system.specjalizacjaFach
+                  }}
+                {{/if}}
+              </a>
               {{formInput
                 umiejka
                 value=(lookup skills umiejka.name)

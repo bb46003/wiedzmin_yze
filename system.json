@@ -31,5 +31,7 @@
     "ActiveEffect": {
       "condition": {}
     }
-  }
+  },
+  "manifest": "https://raw.githubusercontent.com/bb46003/wiedzmin_yze/refs/heads/main/system.json",
+  "download": "https://github.com/bb46003/wiedzmin_yze/archive/refs/heads/main.zip"
 }

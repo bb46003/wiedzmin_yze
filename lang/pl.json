@@ -16,7 +16,15 @@
       "zrecznosc": "Zręczność",
       "zwinnosc": "Zwinność",
       "walka_dystansowa": "Walka dystansowa",
-      "zwinne_palce": "Zwinne palce"
+      "zwinne_palce": "Zwinne palce",
+      "specjalizacja": {
+        "medycyna": "Medycyna",
+        "magia": "Magia",
+        "tworzenie": "Tworzenie",
+        "handel": "Handel",
+        "czarostwo": "Czarostwo",
+        "sztuka": "Sztuka"
+      }
     },
     "glod": "Głód",
     "odwodnienie": "Odwodnienie",
