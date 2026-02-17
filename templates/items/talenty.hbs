@@ -1,0 +1,56 @@
+<section class="talents-section">
+  <div class="talent-card" data-item-id="{{item.id}}">
+
+    <header class="talent-header flexrow">
+      <div class="image-container">
+        <img
+          class="profile-img"
+          src="{{item.img}}"
+          data-edit="img"
+          data-action="editImage"
+          data-edit="img"
+        />
+      </div>
+      <h3>Nazwa Talentu
+        <input
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="Name"
+        />
+      </h3>
+
+    </header>
+
+    <div class="talent-body">
+      <div class="glowne">
+        <div class="form-group">
+          <label>Poziom</label>
+          {{formInput systemFields.poziom value=system.poziom}}
+        </div>
+        <div class="form-group">
+          <label>Koszt Talentu</label>
+          {{formInput
+            systemFields.kosztTalentu
+            value=system.kosztTalentu
+            type="number"
+          }}
+        </div>
+      </div>
+      <div class="form-group enriched">
+        <label>Opis</label>
+        {{formInput
+          systemFields.opis
+          value=system.opis
+          enriched=systemFields.enriched
+          toggled="true"
+        }}
+
+      </div>
+
+
+  </div>
+</div>
+
+
+</section>

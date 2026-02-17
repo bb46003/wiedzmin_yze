@@ -1,5 +1,23 @@
 <section class="talents">
 
-  <label>Talenty</label>
-
+  <h3>Talenty</h3>
+  <div class="talents-list">
+    {{log talenty}}
+{{#each talenty as |talent key|}}
+  <div class="talent" data-itemID="{{key}}">
+    <div class="telent-img">
+      <img src="{{talent.img}}" class="talent-img" />
+    </div>
+    <label>{{talent.name}}</label>
+    {{#if talent.rzucany}}
+      <span class="rzucany" data-action="rzut_talen" data-item="{{key}}">
+        <i class="fas fa-dice"></i>
+      </span>
+    {{/if}}
+    <div class="threeDots" data-action="itemContextMenu" data-item="{{key}}">
+      <i class="fas fa-ellipsis-v"></i>
+    </div>
+  </div>
+{{/each}}
+  </div>
 </section>

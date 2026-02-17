@@ -1,0 +1,142 @@
+<section class="talent-config">
+
+  <!-- ===================== -->
+  <!-- OPCJE TALENTU (BOOL) -->
+  <!-- ===================== -->
+
+  <div class="opcje-talenty">
+
+    <div class="form-group checkbox">
+      <label>Pozwala wykonać rzut</label>
+      {{formInput systemFields.rzucany value=system.rzucany}}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Dodatkowe Forsowanie</label>
+      {{formInput
+        systemFields.dodatkoweForsowanie
+        value=system.dodatkoweForsowanie
+      }}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Zwiększone Obrażenia</label>
+      {{formInput
+        systemFields.zwiekszoneObrazenia
+        value=system.zwiekszoneObrazenia
+      }}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Podmiana Atrybutu</label>
+      {{formInput
+        systemFields.podmianaAtrybutu
+        value=system.podmianaAtrybutu
+      }}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Czerpanie Mocy</label>
+      {{formInput
+        systemFields.czerpanieMocy
+        value=system.czerpanieMocy
+      }}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Zwiększenie PM</label>
+      {{formInput
+        systemFields.zwiekszneiePM
+        value=system.zwiekszneiePM
+      }}
+    </div>
+
+    <div class="form-group checkbox">
+      <label>Rzucanie Zaklęcia ze Zwoju</label>
+      {{formInput
+        systemFields.rzucanieZakleciaZeZwoju
+        value=system.rzucanieZakleciaZeZwoju
+      }}
+    </div>
+
+  </div>
+
+
+  <!-- ===================== -->
+  <!-- WPŁYW OPCJI           -->
+  <!-- ===================== -->
+
+  <div class="wplyw-opcji">
+
+    {{#if system.rzucany}}
+      <div class="form-group">
+        <label>Powiązany atrybut do rzutu</label>
+        {{formInput
+          systemFields.powiazaneAtrybuty
+          value=system.powiazaneAtrybuty
+        }}
+      </div>
+       <div class="form-group">
+        <label>Bonus do rzutu</label>
+        {{formInput
+          systemFields.bonu
+          value=system.bonu
+        }}
+        </div>
+    {{/if}}
+
+
+    {{#if system.zwiekszoneObrazenia}}
+      <div class="form-group">
+        <label>Bonus do obrażeń</label>
+        {{formInput
+          systemFields.bonusDoObrazen
+          value=system.bonusDoObrazen
+        }}
+      </div>
+    {{/if}}
+
+
+    {{#if system.podmianaAtrybutu}}
+      <div class="form-group">
+        <label>Atrybut używany</label>
+        {{formInput
+          systemFields.atrybutDoPodmiany
+          value=system.atrybutDoPodmiany
+        }}
+      </div>
+
+      <div class="form-group">
+        <label>Atrybut zastępowany</label>
+        {{formInput
+          systemFields.atrybutPodmieniany
+          value=system.atrybutPodmieniany
+        }}
+      </div>
+    {{/if}}
+
+
+    {{#if system.czerpanieMocy}}
+      <div class="form-group">
+        <label>Dodatkowa moc przy czerpaniu</label>
+        {{formInput
+          systemFields.bonusCzerpaniaMocy
+          value=system.bonusCzerpaniaMocy
+        }}
+      </div>
+    {{/if}}
+
+
+    {{#if system.zwiekszneiePM}}
+      <div class="form-group">
+        <label>Zwiększenie PM</label>
+        {{formInput
+          systemFields.dodatkowaMoc
+          value=system.dodatkowaMoc
+        }}
+      </div>
+    {{/if}}
+
+  </div>
+
+</section>

@@ -21,20 +21,21 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         choices: { 1: "I", 2: "II", 3: "III" },
         required: true,
       }),
-      opis: new StringField({
+      opis: new HTMLField({
         label: "wiedzmin.talent.opis",
         initial: "",
         required: true,
       }),
       powiazaneAtrybuty: new StringField({
         label: "wiedzmin.talent.powiazaneAtrybuty",
-        initial: "",
+        initial: "sila",
         choices: {
-          sila: "wiedzmin.atrubut.sila",
-          zrecznosc: "wiedzmin.atrubut.zrecznosc",
-          empatia: "wiedzmin.atrubut.empatia",
-          rozum: "wiedzmin.atrubut.rozum",
+          sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+          zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+          empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
+          rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
         },
+        allowBlank: true,
       }),
       bonu: new NumberField({
         label: "wiedzmin.talent.bonu",
@@ -48,8 +49,8 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.talent.kosztTalentu",
         initial: 10,
       }),
-      zwiększoneObrazenia: new BooleanField({
-        label: "wiedzmin.talent.zwiększoneObrazenia",
+      zwiekszoneObrazenia: new BooleanField({
+        label: "wiedzmin.talent.zwiekszoneObrazenia",
         initial: false,
       }),
       bonusDoObrazen: new NumberField({
@@ -62,31 +63,35 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
       }),
       atrybutDoPodmiany: new StringField({
         label: "wiedzmin.talent.atrybutDoPodmiany",
-        initial: "",
+        initial: "sila",
         choices: {
-          sila: "wiedzmin.atrubut.sila",
-          zrecznosc: "wiedzmin.atrubut.zrecznosc",
-          rozum: "wiedzmin.atrubut.rozum",
-          empatia: "wiedzmin.atrubut.empatia",
+          sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+          zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+          rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+          empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
       }),
       atrybutPodmieniany: new StringField({
         label: "wiedzmin.talent.atrybutPodmieniany",
-        initial: "",
+        initial: "sila",
         choices: {
-          sila: "wiedzmin.atrubut.sila",
-          zrecznosc: "wiedzmin.atrubut.zrecznosc",
-          rozum: "wiedzmin.atrubut.rozum",
-          empatia: "wiedzmin.atrubut.empatia",
+          sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+          zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+          rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+          empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
       }),
       czerpanieMocy: new BooleanField({
         label: "wiedzmin.talent.czerpanieMocy",
         initial: false,
       }),
+      bonusCzerpaniaMocy: new NumberField({
+        label: "wiedzmin.talent.bonusCzerpaniaMocy",
+        initial: 0,
+      }),
       dodatkowaMoc: new NumberField({
         label: "wiedzmin.talent.dodatkowaMoc",
-        initial: 0,
+        initial: 5,
       }),
       zwiekszneiePM: new BooleanField({
         label: "wiedzmin.talent.zwiekszneiePM",
@@ -96,6 +101,20 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.talent.rzucanieZakleciaZeZwoju",
         initial: false,
       }),
+      rzucany: new BooleanField({
+        label: "wiedzmin.talent.rzucany",
+        initial: false,
+      }),
     };
+  }
+  static get schema() {
+    const schema = super.schema;
+    if (foundry.utils.isEmpty(schema))
+      console.error(`Schema for ${this.name} is empty.`);
+    return schema;
+  }
+  /** @override */
+  prepareDerivedData() {
+    super.prepareDerivedData();
   }
 }

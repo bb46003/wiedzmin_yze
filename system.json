@@ -19,7 +19,8 @@
     {
       "lang": "pl",
       "name": "Polski",
-      "path": "lang/pl.json"
+      "path": "lang/pl.json",
+      "default": true
     }
   ],
   "documentTypes": {
@@ -30,6 +31,14 @@
     },
     "ActiveEffect": {
       "condition": {}
+    },
+    "Item": {
+      "rasa": {},
+      "profesja": {},
+      "talenty": { "htmlFields": ["opis"] },
+      "bron": {},
+      "zbroja": {},
+      "czar": {}
     }
   },
   "manifest": "https://raw.githubusercontent.com/bb46003/wiedzmin_yze/refs/heads/main/system.json",

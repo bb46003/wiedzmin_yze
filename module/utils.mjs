@@ -100,3 +100,14 @@ export function toLabelObject(
   if (sort) result.sort((a, b) => a[1].localeCompare(b[1]));
   return Object.fromEntries(result);
 }
+export async function _onEditText(_event, target) {
+  const { fieldPath, propertyPath } = target.dataset;
+  // If there is a document (e.g. an item) to be found in a parent element, assume the field is relative to that
+  const doc = (await this.getDocument?.(target)) ?? this.document;
+  // Get field from schema
+  const field = doc.system.schema.getField(
+    fieldPath.replace(/^system\./, "") ?? propertyPath.replace(/^system\./, ""),
+  );
+  const editor = new TextEditorApplication({ document: doc, field });
+  editor.render({ force: true });
+}

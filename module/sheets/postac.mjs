@@ -2,7 +2,7 @@ import { staticID } from "../utils.mjs";
 
 const { api, sheets } = foundry.applications;
 
-export class postac extends api.HandlebarsApplicationMixin(
+export class postacSheet extends api.HandlebarsApplicationMixin(
   sheets.ActorSheetV2,
 ) {
   constructor(...args) {
@@ -15,9 +15,10 @@ export class postac extends api.HandlebarsApplicationMixin(
     classes: ["postac-sheet"],
     position: { width: 970, height: 850 },
     actions: {
-      toggleCondition: postac._onToggleCondition,
-      rzut_atrybut: postac.#rzut_atrybut,
-      rzut_umiejka: postac.#rzut_umiejka,
+      toggleCondition: postacSheet._onToggleCondition,
+      rzut_atrybut: postacSheet.#rzut_atrybut,
+      rzut_umiejka: postacSheet.#rzut_umiejka,
+      editText: postacSheet._onEditText,
     },
     form: {
       submitOnChange: true,
@@ -41,6 +42,8 @@ export class postac extends api.HandlebarsApplicationMixin(
     });
     const { conditions } = await this._prepareConditions();
     Object.assign(context, { conditions });
+    const talenty = await this.prepareTelenty();
+    Object.assign(context, { talenty });
     return context;
   }
 
@@ -75,6 +78,25 @@ export class postac extends api.HandlebarsApplicationMixin(
       .filter(Boolean);
 
     return { conditions };
+  }
+
+  async prepareTelenty() {
+    const talenty = this.actor.items.filter((item) => item.type === "talenty");
+    const data = {};
+    talenty.forEach(talent => {
+      const itemID = talent.id;
+      const iamge = talent.img;
+      const itemName = talent.name;
+      const rzucany = talent.system.rzucany;
+      data[itemID] = {
+        img: iamge,
+        name: itemName,
+        rzucany: rzucany
+      }
+    })
+    
+    
+    return data;
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
@@ -155,5 +177,17 @@ export class postac extends api.HandlebarsApplicationMixin(
   static async #rzut_atrybut(ev) {
     const atrybut = ev.target.dataset.atrybut;
     this.actor.system.rzutAtrybut(atrybut);
+  }
+  static async _onEditText(_event, target) {
+    const { fieldPath, propertyPath } = target.dataset;
+    // If there is a document (e.g. an item) to be found in a parent element, assume the field is relative to that
+    const doc = (await this.getDocument?.(target)) ?? this.document;
+    // Get field from schema
+    const field = doc.system.schema.getField(
+      fieldPath.replace(/^system\./, "") ??
+        propertyPath.replace(/^system\./, ""),
+    );
+    const editor = new TextEditorApplication({ document: doc, field });
+    editor.render({ force: true });
   }
 }

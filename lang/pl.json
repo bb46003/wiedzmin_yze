@@ -1,4 +1,16 @@
-{
+{"TYPES":{
+  "Actor":{
+    "postac": "Postać"
+  },
+  "Item":{
+    "rasa": "Rasa",
+    "profesja": "Profesja",
+    "talenty": "Talent",
+    "bron": "Broń",
+    "zbroja": "Zbroja",
+    "czar": "Czar"
+}
+},
   "wiedzmin": {
     "atrubut": {
       "sila": "Siła",
