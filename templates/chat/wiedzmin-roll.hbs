@@ -7,6 +7,13 @@
     {{/if}}
     {{atrubutLabel}}
     {{umiejkaLabel}}</h4>
+    {{#if (ne item.lenght 0)}}
+      <span>Wykorzytując Talenty
+        {{#each item}}   
+          <button class="openTalenet" data-itemID="{{this.id}}">{{this.itemName}}</button>"
+        {{/each}}
+      </span>  
+    {{/if}}
   <div class="result-summary">
 
     {{#if isSuccess}}
@@ -24,6 +31,7 @@
         ⚠ Pech! (Na kościach adrenaliny wypadła 1)
       </p>
     {{/if}}
+
     {{#if iloscPrzerzuconych}}
       <p>Przerzucono:
         {{iloscPrzerzuconych}}

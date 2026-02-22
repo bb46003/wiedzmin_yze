@@ -1,3 +1,5 @@
+import { toLabelObject } from "../utils.mjs";
+
 const {
   StringField,
   BooleanField,
@@ -35,7 +37,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
         },
-        allowBlank: true,
+        required:true
       }),
       bonu: new NumberField({
         label: "wiedzmin.talent.bonu",
@@ -70,6 +72,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
+        required: true
       }),
       atrybutPodmieniany: new StringField({
         label: "wiedzmin.talent.atrybutPodmieniany",
@@ -80,6 +83,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
+        required: true
       }),
       czerpanieMocy: new BooleanField({
         label: "wiedzmin.talent.czerpanieMocy",
@@ -105,6 +109,17 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.talent.rzucany",
         initial: false,
       }),
+      powiazanaUmiejka: new StringField({
+        label: "wiedzmin.atrubut.specjalizacja",
+        initial: "Brak",
+        choices: toLabelObject(wiedzmin_yze.config.umiejki),
+        required: true
+      }),
+      zapewniaBonus: new BooleanField({
+        label: "wiedzin.talenty.zapewniaBonus",
+        initial: false
+      })
+      
     };
   }
   static get schema() {

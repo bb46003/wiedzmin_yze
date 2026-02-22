@@ -23,10 +23,22 @@
     <label>Dodatkowy modyfikator</label>
     <input type="number" name="modifier" value="0" />
   </div>
-
+  {{#if (ne item.length 0) }}
+   <div class="flexcol">
+    <label>Bonusy z Talentów</label>
+    {{#each item}}
+      {{#if (ne item.system.bonu 0)}}
+      <div class="talent-bonus">
+      <label>{{this.name}}]</label>
+      <span>{{this.system.bonu}}</span>
+      </div>
+      {{/if}}
+    {{/each}}
+   </div>
+  {{/if}}
   <div class="form-group">
     <p>
-      Liczba kości = Atrybut + Umiejętność + Modyfikator + Adrenalina
+      Liczba kości = Atrybut + Umiejętność + Modyfikator + Adrenalina + Talenty
     </p>
   </div>
 

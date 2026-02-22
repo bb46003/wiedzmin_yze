@@ -15,7 +15,7 @@ export class talentySheet extends api.HandlebarsApplicationMixin(
     classes: ["talenty-sheet"],
     position: { width: 500, height: 850 },
     actions: {
-      editText: talentySheet._onEditText,
+      editText: _onEditText,
     },
     form: {
       submitOnChange: true,
@@ -41,19 +41,32 @@ export class talentySheet extends api.HandlebarsApplicationMixin(
       fields: this.item.schema.fields,
       systemFields: this.item.system.schema.fields,
     });
-    console.log("Context prepared for talentySheet:", context);
+    async function enrich(html) {
+      if (html) {
+        return await foundry.applications.ux.TextEditor.implementation.enrichHTML(html, {
+          secrets: game.user.isOwner,
+          async: true,
+        });
+      } else {
+        return html;
+      }
+    }
+    context.opis = {
+      value: this.item.system.opis,
+      enriched: await enrich(this.item.system.opis),
+      field: this.item.system.schema.fields.opis,
+    };
+    
     return context;
   }
-  static async _onEditText(_event, target) {
-    const { fieldPath, propertyPath } = target.dataset;
-    // If there is a document (e.g. an item) to be found in a parent element, assume the field is relative to that
-    const doc = (await this.getDocument?.(target)) ?? this.document;
-    // Get field from schema
-    const field = doc.system.schema.getField(
-      fieldPath.replace(/^system\./, "") ??
-        propertyPath.replace(/^system\./, ""),
-    );
-    const editor = new TextEditorApplication({ document: doc, field });
-    editor.render({ force: true });
-  }
+  
+    _processFormData(event, form, formData) {
+      const data = super._processFormData(event, form, formData);
+        const target = event.target;
+        if(target.name === "system.powiazanaUmiejka" && target.value !== ""){
+          const powiazanyAtrybut = wiedzmin_yze.config.umiejki[target.value].atrybKey
+          data.system.powiazaneAtrybuty = powiazanyAtrybut;
+        }
+        return data
+    }
 }

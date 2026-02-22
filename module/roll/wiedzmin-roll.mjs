@@ -22,10 +22,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
     actorID = null,
     umiejkaKey = "",
     atrybutKey = "",
+    item,
   } = {}) {
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE,
-      { attribute, skill, adrenalina },
+      { attribute, skill, adrenalina, item },
     );
 
     new foundry.applications.api.DialogV2({
@@ -38,8 +39,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
-            const basePool = attribute + skill + mod;
-
+            
+            const talentBonus = await bonusZtalentów(item)
+            const basePool = attribute + skill + mod + talentBonus;
             const formula =
               adrenalina > 0
                 ? `${basePool}d6 + ${adrenalina}d6`
@@ -56,6 +58,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 actorID: actorID,
                 umiejkaKey: umiejkaKey,
                 atrybutKey: atrybutKey,
+                item: item,
               },
             );
 
@@ -183,6 +186,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (this.options.umiejkaKey === "fach" && !umiejkaLabel.includes(fach)) {
       umiejkaLabel += " " + fach;
     }
+    const itemsUuid = [];
+    this.options.item.forEach(item =>{
+      itemsUuid.push({id:item.uuid, itemName: item.name})
+    })
     return {
       formula: formula,
       total: this.total,
@@ -200,6 +207,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
       iloscPrzerzuconych: options.iloscPrzerzuconych,
+      item: itemsUuid
     };
   }
 
@@ -244,4 +252,14 @@ export class WiedzminRoll extends foundry.dice.Roll {
       options,
     );
   }
+}
+
+async function bonusZtalentów(item){
+  let bonusZTalentow = 0;
+  item.forEach(telent => {
+    if(telent.system.bonu !==0){
+      bonusZTalentow++
+    }
+  })
+  return bonusZTalentow
 }

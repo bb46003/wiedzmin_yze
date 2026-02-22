@@ -107,6 +107,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.atrubut.specjalizacja",
         initial: "Brak",
         choices: toLabelObject(wiedzmin_yze.config.fachy),
+        required: true
       }),
       punkty_mocy: new SchemaField({
         value: new NumberField({ label: "wiedzmin.zycie", initial: undefined }),
@@ -175,7 +176,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
   }
 
-  async rzutAtrybut(atrybutKey) {
+  async rzutAtrybut(atrybutKey, item=[]) {
     const attribute = this.atrybuty[atrybutKey];
     if (!attribute) return;
 
@@ -183,7 +184,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const atrubutLabel = game.i18n.localize(
       this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
     );
-
+    const inneTalenty = await this.sprawdzTalenty(atrybutKey, "")
+    item = item.concat(inneTalenty)
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
     await globalThis.wiedzmin_yze.WiedzminRoll.create({
       attribute: attributeValue,
@@ -194,9 +196,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       actorID: this.parent.id,
       umiejkaKey: "",
       atrybutKey: atrybutKey,
+      item: item
     });
   }
-  async rzutUmiejka(umiejkaKey, atrybutKey) {
+  async rzutUmiejka(umiejkaKey, atrybutKey, item = []) {
     const attribute = this.atrybuty[atrybutKey];
     if (!attribute) return;
 
@@ -210,6 +213,9 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         umiejkaKey
       ].label,
     );
+
+    const inneTalenty = await this.sprawdzTalenty(atrybutKey, umiejkaKey)
+    item = item.concat(inneTalenty)
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
     const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create({
       attribute: attributeValue,
@@ -229,5 +235,34 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     await this.parent.update({
       "system.adrenalina.value": this.adrenalina.value,
     });
+  }
+
+  async sprawdzTalenty(atrybutKey, umiejkaKey){
+    const items = this.parent.items.filter((item) => item.type === "talenty");
+    const powiazaneTalenty = [];
+
+    items.forEach(item => {
+      if(item.system.powiazaneAtrybuty === atrybutKey){
+        powiazaneTalenty.push(item)
+      }
+      else if(item.system.atrybutDoPodmiany === atrybutKey){
+        powiazaneTalenty.push(item)
+      }
+      else if(item.system.powiazanaUmiejka === umiejkaKey){
+        powiazaneTalenty.push(item)
+      }
+    });
+    return powiazaneTalenty
+  }
+
+  async zwrocPD(xp, item){
+    this.parent.update({"system.pd": this.pd + xp});
+    const itemName = item.name;
+    ChatMessage.create({
+              user: game.user.id,
+              speaker: this,
+              content: `Postać ${this.name} usuną Talent ${itemName} i przywrócono ${xp}PD`
+    })
+
   }
 }

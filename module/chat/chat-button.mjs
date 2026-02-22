@@ -3,6 +3,7 @@ import { WiedzminRoll } from "../roll/wiedzmin-roll.mjs";
 
 export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".forsuj-button", forsujRzut, _app);
+  addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app)
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -88,4 +89,23 @@ async function forsujRzut(event, message) {
   );
 
   event.target.disabled = true;
+}
+async function otworzTalent(ev) {
+    const target = ev.target;
+    const item = await fromUuid(target.dataset.itemid)
+    const itemName = item.name;
+    const opis = item.system.opis;
+     new foundry.applications.api.DialogV2({
+      window: { title: `Talent ${itemName}`},
+      content:opis,
+       buttons: [
+        {
+          action:"ok",
+          label: "Zamknij",
+          default: true,
+          callback: async (_event, _button, dialog) => {dialog.close()}
+        }
+       ]
+    }).render({force:true})
+  
 }

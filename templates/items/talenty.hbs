@@ -39,10 +39,11 @@
       </div>
       <div class="form-group enriched">
         <label>Opis</label>
+        {{log opis}}
         {{formInput
-          systemFields.opis
-          value=system.opis
-          enriched=systemFields.enriched
+          opis.field
+          value=opis.value
+          enriched=opis.enriched
           toggled="true"
         }}
 

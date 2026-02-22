@@ -137,9 +137,11 @@
     display: flex;
     flex-direction: row;
     .talent{
-      display: flex;
-      align-items: center;
-      gap: 10px;
+display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            align-items: center;
+            justify-items: end;
     }
     .telent-img{
             display: flex;
@@ -379,6 +381,7 @@
     margin-bottom: 5px;
     border-radius: 20px;
     margin-top: 5px;
+    min-height: 250px;
   }
   .opcje-talenty{
         display: grid;
@@ -390,4 +393,20 @@
     justify-content: space-between;
   }
 }
+}
+.custom-context-menu {
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 120px;
+}
+
+.custom-context-menu .menu-option {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.custom-context-menu .menu-option:hover {
+  background: #444;
 }

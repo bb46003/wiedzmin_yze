@@ -12,6 +12,11 @@
     </div>
 
     <div class="form-group checkbox">
+      <label>Zapewnia bonus do Atrybutu/Umiejętności</label>
+      {{formInput systemFields.zapewniaBonus value=system.zapewniaBonus}}
+    </div>
+
+    <div class="form-group checkbox">
       <label>Dodatkowe Forsowanie</label>
       {{formInput
         systemFields.dodatkoweForsowanie
@@ -68,12 +73,19 @@
 
   <div class="wplyw-opcji">
 
-    {{#if system.rzucany}}
+    {{#if (or system.rzucany system.zapewniaBonus)}}
       <div class="form-group">
         <label>Powiązany atrybut do rzutu</label>
         {{formInput
           systemFields.powiazaneAtrybuty
           value=system.powiazaneAtrybuty
+        }}
+      </div>
+      <div class="form-group">
+        <label>Powiązana Umiejetność do rzutu</label>
+        {{formInput
+          systemFields.powiazanaUmiejka
+          value=system.powiazanaUmiejka
         }}
       </div>
        <div class="form-group">
