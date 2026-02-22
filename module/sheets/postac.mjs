@@ -20,7 +20,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       rzut_umiejka: postacSheet.#rzut_umiejka,
       editText: postacSheet._onEditText,
       rzut_talen: postacSheet.#rzut_talen,
-      itemContextMenu: postacSheet.#itemContextMenu
+      itemContextMenu: postacSheet.#itemContextMenu,
     },
     form: {
       submitOnChange: true,
@@ -85,7 +85,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   async prepareTelenty() {
     const talenty = this.actor.items.filter((item) => item.type === "talenty");
     const data = {};
-    talenty.forEach(talent => {
+    talenty.forEach((talent) => {
       const itemID = talent.id;
       const iamge = talent.img;
       const itemName = talent.name;
@@ -93,12 +93,35 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       data[itemID] = {
         img: iamge,
         name: itemName,
-        rzucany: rzucany
-      }
-    })
-    
-    
+        rzucany: rzucany,
+      };
+    });
+
     return data;
+  }
+
+  async _onDrop(event) {
+    event.preventDefault();
+    const data = event.dataTransfer;
+    const actor = this.actor;
+    if (data) {
+      const droppedItem = JSON.parse(data.getData("text/plain"));
+      const droppedType = droppedItem.type;
+      if (droppedType === "Item") {
+        const itemData = await fromUuid(droppedItem.uuid);
+        const type = itemData.type;
+        switch (type) {
+          case "talenty":
+            const wydaneXp = itemData.system.kosztTalentu;
+            actor.system.wydanieXP(wydaneXp, itemData);
+            if (itemData.system.zwiekszneiePM) {
+              actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
+            }
+            break;
+        }
+        await actor.createEmbeddedDocuments("Item", [itemData]);
+      }
+    }
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
@@ -180,65 +203,67 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = ev.target.dataset.atrybut;
     this.actor.system.rzutAtrybut(atrybut);
   }
-  static async #rzut_talen(ev){
+  static async #rzut_talen(ev) {
     const target = ev.target;
-    const itemID = target.parentNode.dataset.item
+    const itemID = target.parentNode.dataset.item;
     const item = [this.actor.items.get(itemID)];
     const atrybut = item.system.powiazaneAtrybuty;
-     this.actor.system.rzutAtrybut(atrybut, item);
+    this.actor.system.rzutAtrybut(atrybut, item);
   }
-static async #itemContextMenu(ev) {
-  ev.preventDefault();
-  ev.stopPropagation();
+  static async #itemContextMenu(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
 
-  const button = ev.target;
-  const itemId = button.parentElement.dataset.item;
+    const button = ev.target;
+    const itemId = button.parentElement.dataset.item;
 
-  // Remove old menu if exists
-  document.querySelector(".custom-context-menu")?.remove();
+    // Remove old menu if exists
+    document.querySelector(".custom-context-menu")?.remove();
 
-  // Create element instead of raw string (safer and cleaner)
-  const menu = document.createElement("div");
-  menu.classList.add("custom-context-menu");
-  menu.innerHTML = `
+    // Create element instead of raw string (safer and cleaner)
+    const menu = document.createElement("div");
+    menu.classList.add("custom-context-menu");
+    menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Talent</div>
     <div class="menu-option" data-action="delete">Usuń Talent</div>
   `;
 
-  // Position at mouse location
-  menu.style.position = "absolute";
-  menu.style.left = `${ev.pageX}px`;
-  menu.style.top = `${ev.pageY}px`;
-  menu.style.zIndex = 1000;
+    // Position at mouse location
+    menu.style.position = "absolute";
+    menu.style.left = `${ev.pageX}px`;
+    menu.style.top = `${ev.pageY}px`;
+    menu.style.zIndex = 1000;
 
-  document.body.appendChild(menu);
+    document.body.appendChild(menu);
 
-  // Attach click handler
-  menu.addEventListener("click", async (e) => {
-    const action = e.target.dataset.action;
-    if (!action) return;
+    // Attach click handler
+    menu.addEventListener("click", async (e) => {
+      const action = e.target.dataset.action;
+      if (!action) return;
 
-    if (action === "open") {
-      const item = this.actor.items.get(itemId);
-      item?.sheet.render(true);
-    }
+      if (action === "open") {
+        const item = this.actor.items.get(itemId);
+        item?.sheet.render(true);
+      }
 
-    if (action === "delete") {
-      const item = this.actor.items.get(itemId);
-      const xp = item.system.kosztTalentu;
-      await this.actor.system.zwrocPD(xp, item)
-      await item?.delete();
-    }
+      if (action === "delete") {
+        const item = this.actor.items.get(itemId);
+        const xp = item.system.kosztTalentu;
+        await this.actor.system.zwrocPD(xp, item);
+        if (item.system.zwiekszneiePM) {
+          await this.actor.system.zmniejszneieMocy(item.system.dodatkowaMoc);
+        }
+        await item?.delete();
+      }
 
-    menu.remove();
-  });
+      menu.remove();
+    });
 
-  // Close when clicking elsewhere
-  setTimeout(() => {
-    document.addEventListener("click", () => menu.remove(), { once: true });
-  }, 10);
-}
-
+    // Close when clicking elsewhere
+    setTimeout(() => {
+      document.addEventListener("click", () => menu.remove(), { once: true });
+    }, 10);
+  }
 
   static async _onEditText(_event, target) {
     const { fieldPath, propertyPath } = target.dataset;

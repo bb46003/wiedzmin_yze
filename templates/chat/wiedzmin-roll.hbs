@@ -7,13 +7,16 @@
     {{/if}}
     {{atrubutLabel}}
     {{umiejkaLabel}}</h4>
-    {{#if (ne item.lenght 0)}}
-      <span>Wykorzytując Talenty
-        {{#each item}}   
-          <button class="openTalenet" data-itemID="{{this.id}}">{{this.itemName}}</button>"
-        {{/each}}
-      </span>  
-    {{/if}}
+  {{#if (ne item.lenght 0)}}
+    <span>Wykorzytując Talenty
+      {{#each item}}
+        <button
+          class="openTalenet"
+          data-itemID="{{this.uuid}}"
+        >{{this.name}}</button>
+      {{/each}}
+    </span>
+  {{/if}}
   <div class="result-summary">
 
     {{#if isSuccess}}

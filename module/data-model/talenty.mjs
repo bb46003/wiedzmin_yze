@@ -37,7 +37,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
         },
-        required:true
+        required: true,
       }),
       bonu: new NumberField({
         label: "wiedzmin.talent.bonu",
@@ -49,7 +49,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
       }),
       kosztTalentu: new NumberField({
         label: "wiedzmin.talent.kosztTalentu",
-        initial: 10,
+        initial: 0,
       }),
       zwiekszoneObrazenia: new BooleanField({
         label: "wiedzmin.talent.zwiekszoneObrazenia",
@@ -72,7 +72,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
-        required: true
+        required: true,
       }),
       atrybutPodmieniany: new StringField({
         label: "wiedzmin.talent.atrybutPodmieniany",
@@ -83,7 +83,7 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
           rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
           empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         },
-        required: true
+        required: true,
       }),
       czerpanieMocy: new BooleanField({
         label: "wiedzmin.talent.czerpanieMocy",
@@ -113,13 +113,12 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.atrubut.specjalizacja",
         initial: "Brak",
         choices: toLabelObject(wiedzmin_yze.config.umiejki),
-        required: true
+        required: true,
       }),
       zapewniaBonus: new BooleanField({
         label: "wiedzin.talenty.zapewniaBonus",
-        initial: false
-      })
-      
+        initial: false,
+      }),
     };
   }
   static get schema() {
@@ -131,5 +130,11 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
   /** @override */
   prepareDerivedData() {
     super.prepareDerivedData();
+    this._powiązaneDzialania()
+  }
+  _powiązaneDzialania(){
+    if(this.dodatkoweForsowanie){
+      this.zapewniaBonus = true
+    }
   }
 }

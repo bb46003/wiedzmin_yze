@@ -3,7 +3,7 @@ import { WiedzminRoll } from "../roll/wiedzmin-roll.mjs";
 
 export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".forsuj-button", forsujRzut, _app);
-  addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app)
+  addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -50,18 +50,30 @@ async function forsujRzut(event, message) {
     if (formula) formula += " + ";
     formula += `${newAdrenalinaPool}d6`;
   }
+  let dodatkoweForsowanie = false;
+  const items = data.item;
+  if(data.flavor !== "DodatkoweForsowanie"){
+for (const uuid of items) {
+  const doc = await fromUuid(uuid.uuid);
+  if (doc.system?.dodatkoweForsowanie === true) {
+    dodatkoweForsowanie = true;
+    break; // no need to continue
+  }
+}
+}
 
   const newRoll = new WiedzminRoll(
     formula,
     {},
     {
       adrenalina: newAdrenalinaPool,
-      flavor: "Forsowanie",
+      flavor: dodatkoweForsowanie?"DodatkoweForsowanie":"Forsowanie",
       atrubutLabel: data.atrubutLabel,
       umiejkaLabel: data.umiejkaLabel,
       actorID: data.actorID,
       umiejkaKey: data.umiejkaKey,
       atrybutKey: data.atrybutKey,
+      item: data.item
     },
   );
   await newRoll.evaluate();
@@ -91,21 +103,22 @@ async function forsujRzut(event, message) {
   event.target.disabled = true;
 }
 async function otworzTalent(ev) {
-    const target = ev.target;
-    const item = await fromUuid(target.dataset.itemid)
-    const itemName = item.name;
-    const opis = item.system.opis;
-     new foundry.applications.api.DialogV2({
-      window: { title: `Talent ${itemName}`},
-      content:opis,
-       buttons: [
-        {
-          action:"ok",
-          label: "Zamknij",
-          default: true,
-          callback: async (_event, _button, dialog) => {dialog.close()}
-        }
-       ]
-    }).render({force:true})
-  
+  const target = ev.target;
+  const item = await fromUuid(target.dataset.itemid);
+  const itemName = item.name;
+  const opis = item.system.opis;
+  new foundry.applications.api.DialogV2({
+    window: { title: `Talent ${itemName}` },
+    content: opis,
+    buttons: [
+      {
+        action: "ok",
+        label: "Zamknij",
+        default: true,
+        callback: async (_event, _button, dialog) => {
+          dialog.close();
+        },
+      },
+    ],
+  }).render({ force: true });
 }

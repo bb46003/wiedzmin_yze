@@ -107,11 +107,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.atrubut.specjalizacja",
         initial: "Brak",
         choices: toLabelObject(wiedzmin_yze.config.fachy),
-        required: true
+        required: true,
       }),
       punkty_mocy: new SchemaField({
         value: new NumberField({ label: "wiedzmin.zycie", initial: undefined }),
-        max: new NumberField({ label: "wiedzmin.zycie.max", initial: 5 }),
+        max: new NumberField({ label: "wiedzmin.zycie.max", initial: 0 }),
       }),
       zycie: new SchemaField({
         value: new NumberField({ label: "wiedzmin.zycie", initial: undefined }),
@@ -176,7 +176,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
   }
 
-  async rzutAtrybut(atrybutKey, item=[]) {
+  async rzutAtrybut(atrybutKey, item = []) {
     const attribute = this.atrybuty[atrybutKey];
     if (!attribute) return;
 
@@ -184,19 +184,21 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const atrubutLabel = game.i18n.localize(
       this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
     );
-    const inneTalenty = await this.sprawdzTalenty(atrybutKey, "")
-    item = item.concat(inneTalenty)
+    const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
+      await this.sprawdzTalenty(atrybutKey, item);
+
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
     await globalThis.wiedzmin_yze.WiedzminRoll.create({
       attribute: attributeValue,
-      skill: 0,
+      skill: null,
       adrenalina: adrenalinaValue,
       atrubutLabel: atrubutLabel,
       umiejkaLabel: "",
       actorID: this.parent.id,
       umiejkaKey: "",
       atrybutKey: atrybutKey,
-      item: item
+      item: inneTalenty,
+      secondArtibute: secondArtibute,
     });
   }
   async rzutUmiejka(umiejkaKey, atrybutKey, item = []) {
@@ -213,9 +215,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         umiejkaKey
       ].label,
     );
-
-    const inneTalenty = await this.sprawdzTalenty(atrybutKey, umiejkaKey)
-    item = item.concat(inneTalenty)
+    const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
+      await this.sprawdzTalenty(atrybutKey, item);
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
     const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create({
       attribute: attributeValue,
@@ -224,8 +225,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       atrubutLabel: atrubutLabel,
       umiejkaLabel: umiejkaLabel,
       actorID: this.parent.id,
-      umiejkaKey: umiejkaKey,
+      umiejkaKey: powiazaneTalenty,
       atrybutKey: atrybutKey,
+      item: inneTalenty,
+      secondArtibute: secondArtibute,
     });
 
     if (roll) await roll.toMessage();
@@ -237,32 +240,84 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
   }
 
-  async sprawdzTalenty(atrybutKey, umiejkaKey){
-    const items = this.parent.items.filter((item) => item.type === "talenty");
-    const powiazaneTalenty = [];
+  async sprawdzTalenty(atrybutKey, extraItems = []) {
+    const items = this.parent.items.filter((i) => i.type === "talenty");
 
-    items.forEach(item => {
-      if(item.system.powiazaneAtrybuty === atrybutKey){
-        powiazaneTalenty.push(item)
+    const allItems = items.concat(extraItems);
+
+    const powiazaneTalenty = [];
+    const powiazaneAtrybuty = [];
+
+    allItems.forEach((item) => {
+      if (
+        item.system.powiazaneAtrybuty === atrybutKey &&
+        (item.system.zapewniaBonus || item.system.rzucany)
+      ) {
+        powiazaneTalenty.push(item);
       }
-      else if(item.system.atrybutDoPodmiany === atrybutKey){
-        powiazaneTalenty.push(item)
-      }
-      else if(item.system.powiazanaUmiejka === umiejkaKey){
-        powiazaneTalenty.push(item)
+
+      if (
+        item.system.atrybutDoPodmiany === atrybutKey &&
+        item.system.podmianaAtrybutu
+      ) {
+        powiazaneTalenty.push(item);
+
+        const attribute = this.atrybuty[atrybutKey];
+        const attribute2 = this.atrybuty[item.system.atrybutPodmieniany];
+
+        const atrubutLabel = game.i18n.localize(
+          this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
+        );
+        const atrubutLabel2 = game.i18n.localize(
+          this.schema.fields.atrybuty.fields[item.system.atrybutPodmieniany]
+            .fields.value.label,
+        );
+        powiazaneAtrybuty.push(
+          {
+            value: attribute.value,
+            label: atrubutLabel,
+            key: atrybutKey,
+          },
+          {
+            value: attribute2.value,
+            label: atrubutLabel2,
+            key: item.system.atrybutPodmieniany,
+          },
+        );
       }
     });
-    return powiazaneTalenty
-  }
 
-  async zwrocPD(xp, item){
-    this.parent.update({"system.pd": this.pd + xp});
+    return { powiazaneTalenty, powiazaneAtrybuty };
+  }
+  async wydanieXP(wydaneXp, item) {
+    this.parent.update({ "system.pd": this.pd - wydaneXp });
     const itemName = item.name;
     ChatMessage.create({
-              user: game.user.id,
-              speaker: this,
-              content: `Postać ${this.name} usuną Talent ${itemName} i przywrócono ${xp}PD`
-    })
-
+      user: game.user.id,
+      speaker: this,
+      content: `Postać ${this.parent.name} dodała Talent ${itemName} i wydała ${wydaneXp}PD`,
+    });
+  }
+  async zwrocPD(xp, item) {
+    this.parent.update({ "system.pd": this.pd + xp });
+    const itemName = item.name;
+    ChatMessage.create({
+      user: game.user.id,
+      speaker: this,
+      content: `Postać ${this.parent.name} usuną Talent ${itemName} i przywrócono ${xp}PD`,
+    });
+  }
+  async zwiekszMoc(dodatkowaMoc) {
+    await this.parent.update({
+      "system.punkty_mocy.max": this.punkty_mocy.max + dodatkowaMoc,
+    });
+  }
+  async zmniejszneieMocy(dodatkowaMoc) {
+    const nowaMaxMoc = Math.max(0, this.punkty_mocy.max - dodatkowaMoc);
+    const updateData = { "system.punkty_mocy.max": nowaMaxMoc };
+    if (this.punkty_mocy.value > nowaMaxMoc) {
+      updateData["system.punkty_mocy.value"] = nowaMaxMoc;
+    }
+    await this.parent.update(updateData);
   }
 }

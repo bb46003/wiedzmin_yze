@@ -23,10 +23,21 @@ export class WiedzminRoll extends foundry.dice.Roll {
     umiejkaKey = "",
     atrybutKey = "",
     item,
+    secondArtibute,
   } = {}) {
+    const hasSecondAttribute =
+      secondArtibute && Object.keys(secondArtibute).length > 0;
+
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE,
-      { attribute, skill, adrenalina, item },
+      {
+        attribute,
+        skill,
+        adrenalina,
+        item,
+        secondArtibute,
+        hasSecondAttribute,
+      },
     );
 
     new foundry.applications.api.DialogV2({
@@ -39,9 +50,20 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
-            
-            const talentBonus = await bonusZtalentów(item)
-            const basePool = attribute + skill + mod + talentBonus;
+            let attributeVal = attribute;
+            let atrubutLabelUse = atrubutLabel;
+            let atrybutKeyUse = atrybutKey;
+            if (hasSecondAttribute) {
+              const select = dialog.element.querySelector(".wybrany-atr");
+              const selectedOption = select.selectedOptions[0];
+
+              attributeVal = Number(selectedOption.value);
+              atrubutLabelUse = selectedOption.dataset.label;
+              atrybutKeyUse = selectedOption.dataset.key;
+            }
+
+            const talentBonus = await bonusZtalentów(item);
+            const basePool = attributeVal + skill + mod + talentBonus;
             const formula =
               adrenalina > 0
                 ? `${basePool}d6 + ${adrenalina}d6`
@@ -53,11 +75,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
               {
                 adrenalina,
                 flavor: "Test",
-                atrubutLabel: atrubutLabel,
+                atrubutLabel: atrubutLabelUse,
                 umiejkaLabel: umiejkaLabel,
                 actorID: actorID,
                 umiejkaKey: umiejkaKey,
-                atrybutKey: atrybutKey,
+                atrybutKey: atrybutKeyUse,
                 item: item,
               },
             );
@@ -166,7 +188,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     }
     let forsowanie = true;
     let formula = this._formula;
-    if (flavor === "Test") {
+    if (flavor === "Test" || flavor === "DodatkoweForsowanie") {
       forsowanie = true;
     } else if (flavor === "Forsowanie") {
       forsowanie = false;
@@ -187,9 +209,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
       umiejkaLabel += " " + fach;
     }
     const itemsUuid = [];
-    this.options.item.forEach(item =>{
-      itemsUuid.push({id:item.uuid, itemName: item.name})
-    })
+    this.options.item.forEach((item) => {
+      itemsUuid.push({ uuid: item.uuid, name: item.name });
+    });
     return {
       formula: formula,
       total: this.total,
@@ -207,7 +229,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
       iloscPrzerzuconych: options.iloscPrzerzuconych,
-      item: itemsUuid
+      item: itemsUuid,
     };
   }
 
@@ -254,12 +276,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
   }
 }
 
-async function bonusZtalentów(item){
+async function bonusZtalentów(item) {
   let bonusZTalentow = 0;
-  item.forEach(telent => {
-    if(telent.system.bonu !==0){
-      bonusZTalentow++
+  item.forEach((telent) => {
+    if (telent.system.bonu !== 0) {
+      bonusZTalentow++;
     }
-  })
-  return bonusZTalentow
+  });
+  return bonusZTalentow;
 }

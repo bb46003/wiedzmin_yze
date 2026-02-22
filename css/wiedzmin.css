@@ -136,20 +136,20 @@
   .talents-list {
     display: flex;
     flex-direction: row;
-    .talent{
-display: grid;
-            gap: 10px;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            align-items: center;
-            justify-items: end;
+    .talent {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      align-items: center;
+      justify-items: end;
     }
-    .telent-img{
-            display: flex;
-            max-width: 40px;
-            background: #e2dbc9;
-            border: 1px solid black;
-            border-radius: 8px;
-            align-items: center;
+    .telent-img {
+      display: flex;
+      max-width: 40px;
+      background: #e2dbc9;
+      border: 1px solid black;
+      border-radius: 8px;
+      align-items: center;
     }
   }
 
@@ -357,42 +357,42 @@ display: grid;
   width: 100%;
 }
 .talenty-sheet {
-    .image-container {
-        display: flex;
-        max-width: 130px;
-        background: #e2dbc9;
-        border: 4px solid black;
-        border-radius: 20px;
-        align-items: center;
-        margin: 10px;
+  .image-container {
+    display: flex;
+    max-width: 130px;
+    background: #e2dbc9;
+    border: 4px solid black;
+    border-radius: 20px;
+    align-items: center;
+    margin: 10px;
   }
   .talent-config {
     overflow-y: auto;
   }
-  .glowne{
-        display: grid;
+  .glowne {
+    display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 10px;
   }
-  .enriched{
-        border: 2px solid;
+  .enriched {
+    border: 2px solid;
     padding: 5px;
     margin-bottom: 5px;
     border-radius: 20px;
     margin-top: 5px;
     min-height: 250px;
   }
-  .opcje-talenty{
-        display: grid;
+  .opcje-talenty {
+    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap:10px;
+    gap: 10px;
 
-  .form-group.checkbox {
-        display: flex;
-    justify-content: space-between;
+    .form-group.checkbox {
+      display: flex;
+      justify-content: space-between;
+    }
   }
-}
 }
 .custom-context-menu {
   background: #222;

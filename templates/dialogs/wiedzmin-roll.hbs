@@ -1,15 +1,28 @@
 <form class="wiedzmin-roll-dialog flexcol">
-
-  <div class="form-group">
-    <label>Atrybut</label>
-    <input type="number" value="{{attribute}}" readonly />
-  </div>
-
-  <div class="form-group">
-    <label>Umiejętność</label>
-    <input type="number" value="{{skill}}" readonly />
-  </div>
-
+  {{#if hasSecondAttribute}}
+    <div class="form-group">
+      <select class="wybrany-atr">
+        {{#each secondArtibute}}
+          <option
+            value="{{this.value}}"
+            data-label="{{this.label}}"
+            data-key="{{key}}"
+          >{{this.label}} Wartość {{this.value}}</option>
+        {{/each}}
+      </select>
+    </div>
+  {{else}}
+    <div class="form-group">
+      <label>Atrybut</label>
+      <input type="number" value="{{attribute}}" readonly />
+    </div>
+  {{/if}}
+  {{#if skill}}
+    <div class="form-group">
+      <label>Umiejętność</label>
+      <input type="number" value="{{skill}}" readonly />
+    </div>
+  {{/if}}
   {{#if adrenalina}}
     <div class="form-group">
       <label>Adrenalina</label>
@@ -23,18 +36,18 @@
     <label>Dodatkowy modyfikator</label>
     <input type="number" name="modifier" value="0" />
   </div>
-  {{#if (ne item.length 0) }}
-   <div class="flexcol">
-    <label>Bonusy z Talentów</label>
-    {{#each item}}
-      {{#if (ne item.system.bonu 0)}}
-      <div class="talent-bonus">
-      <label>{{this.name}}]</label>
-      <span>{{this.system.bonu}}</span>
-      </div>
-      {{/if}}
-    {{/each}}
-   </div>
+  {{#if (ne item.length 0)}}
+    <div class="flexcol">
+      <label>Bonusy z Talentów</label>
+      {{#each item}}
+        {{#if (ne item.system.bonu 0)}}
+          <div class="talent-bonus">
+            <label>{{this.name}}]</label>
+            <span>{{this.system.bonu}}</span>
+          </div>
+        {{/if}}
+      {{/each}}
+    </div>
   {{/if}}
   <div class="form-group">
     <p>

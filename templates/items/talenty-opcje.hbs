@@ -34,26 +34,17 @@
 
     <div class="form-group checkbox">
       <label>Podmiana Atrybutu</label>
-      {{formInput
-        systemFields.podmianaAtrybutu
-        value=system.podmianaAtrybutu
-      }}
+      {{formInput systemFields.podmianaAtrybutu value=system.podmianaAtrybutu}}
     </div>
 
     <div class="form-group checkbox">
       <label>Czerpanie Mocy</label>
-      {{formInput
-        systemFields.czerpanieMocy
-        value=system.czerpanieMocy
-      }}
+      {{formInput systemFields.czerpanieMocy value=system.czerpanieMocy}}
     </div>
 
     <div class="form-group checkbox">
       <label>Zwiększenie PM</label>
-      {{formInput
-        systemFields.zwiekszneiePM
-        value=system.zwiekszneiePM
-      }}
+      {{formInput systemFields.zwiekszneiePM value=system.zwiekszneiePM}}
     </div>
 
     <div class="form-group checkbox">
@@ -65,7 +56,6 @@
     </div>
 
   </div>
-
 
   <!-- ===================== -->
   <!-- WPŁYW OPCJI           -->
@@ -88,26 +78,18 @@
           value=system.powiazanaUmiejka
         }}
       </div>
-       <div class="form-group">
+      <div class="form-group">
         <label>Bonus do rzutu</label>
-        {{formInput
-          systemFields.bonu
-          value=system.bonu
-        }}
-        </div>
+        {{formInput systemFields.bonu value=system.bonu}}
+      </div>
     {{/if}}
-
 
     {{#if system.zwiekszoneObrazenia}}
       <div class="form-group">
         <label>Bonus do obrażeń</label>
-        {{formInput
-          systemFields.bonusDoObrazen
-          value=system.bonusDoObrazen
-        }}
+        {{formInput systemFields.bonusDoObrazen value=system.bonusDoObrazen}}
       </div>
     {{/if}}
-
 
     {{#if system.podmianaAtrybutu}}
       <div class="form-group">
@@ -127,7 +109,6 @@
       </div>
     {{/if}}
 
-
     {{#if system.czerpanieMocy}}
       <div class="form-group">
         <label>Dodatkowa moc przy czerpaniu</label>
@@ -138,14 +119,10 @@
       </div>
     {{/if}}
 
-
     {{#if system.zwiekszneiePM}}
       <div class="form-group">
         <label>Zwiększenie PM</label>
-        {{formInput
-          systemFields.dodatkowaMoc
-          value=system.dodatkowaMoc
-        }}
+        {{formInput systemFields.dodatkowaMoc value=system.dodatkowaMoc}}
       </div>
     {{/if}}
 

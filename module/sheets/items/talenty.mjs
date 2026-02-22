@@ -43,10 +43,13 @@ export class talentySheet extends api.HandlebarsApplicationMixin(
     });
     async function enrich(html) {
       if (html) {
-        return await foundry.applications.ux.TextEditor.implementation.enrichHTML(html, {
-          secrets: game.user.isOwner,
-          async: true,
-        });
+        return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+          html,
+          {
+            secrets: game.user.isOwner,
+            async: true,
+          },
+        );
       } else {
         return html;
       }
@@ -56,17 +59,25 @@ export class talentySheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.item.system.opis),
       field: this.item.system.schema.fields.opis,
     };
-    
+
     return context;
   }
-  
-    _processFormData(event, form, formData) {
-      const data = super._processFormData(event, form, formData);
-        const target = event.target;
-        if(target.name === "system.powiazanaUmiejka" && target.value !== ""){
-          const powiazanyAtrybut = wiedzmin_yze.config.umiejki[target.value].atrybKey
-          data.system.powiazaneAtrybuty = powiazanyAtrybut;
-        }
-        return data
+
+  _processFormData(event, form, formData) {
+    const data = super._processFormData(event, form, formData);
+    const target = event.target;
+    if (target.name === "system.powiazanaUmiejka" && target.value !== "") {
+      const powiazanyAtrybut =
+        wiedzmin_yze.config.umiejki[target.value].atrybKey;
+      data.system.powiazaneAtrybuty = powiazanyAtrybut;
     }
+    if(target.name === "system.zapewniaBonus" && !target.checked){
+      data.system.dodatkoweForsowanie = false;
+      data.system.zapewniaBonus = false;
+    }
+    if(target.name === "system.dodatkoweForsowanie" && target.checked){
+      data.system.zapewniaBonus = true;
+    }
+    return data;
+  }
 }
