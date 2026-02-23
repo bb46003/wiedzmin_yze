@@ -52,28 +52,28 @@ async function forsujRzut(event, message) {
   }
   let dodatkoweForsowanie = false;
   const items = data.item;
-  if(data.flavor !== "DodatkoweForsowanie"){
-for (const uuid of items) {
-  const doc = await fromUuid(uuid.uuid);
-  if (doc.system?.dodatkoweForsowanie === true) {
-    dodatkoweForsowanie = true;
-    break; // no need to continue
+  if (data.flavor !== "DodatkoweForsowanie") {
+    for (const uuid of items) {
+      const doc = await fromUuid(uuid.uuid);
+      if (doc.system?.dodatkoweForsowanie === true) {
+        dodatkoweForsowanie = true;
+        break; // no need to continue
+      }
+    }
   }
-}
-}
 
   const newRoll = new WiedzminRoll(
     formula,
     {},
     {
       adrenalina: newAdrenalinaPool,
-      flavor: dodatkoweForsowanie?"DodatkoweForsowanie":"Forsowanie",
+      flavor: dodatkoweForsowanie ? "DodatkoweForsowanie" : "Forsowanie",
       atrubutLabel: data.atrubutLabel,
       umiejkaLabel: data.umiejkaLabel,
       actorID: data.actorID,
       umiejkaKey: data.umiejkaKey,
       atrybutKey: data.atrybutKey,
-      item: data.item
+      item: data.item,
     },
   );
   await newRoll.evaluate();

@@ -9,7 +9,7 @@ import { WiedzminRoll } from "./roll/wiedzmin-roll.mjs";
 import { addChatListeners } from "./chat/chat-button.mjs";
 import { talentySheet } from "./sheets/items/talenty.mjs";
 import { talentyItem } from "./document/tenty.mjs";
-
+import { rasaSheet } from "./sheets/items/rasa.mjs";
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
   models,
@@ -26,6 +26,7 @@ Hooks.once("init", async function () {
   };
   CONFIG.Item.dataModels = {
     talenty: models.talentyDataModel,
+    rasa: models.rasaDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
@@ -50,6 +51,7 @@ Hooks.once("init", async function () {
 
   utils.registerSystemSheet(foundry.documents.Actor, postacSheet, "postac");
   utils.registerSystemSheet(foundry.documents.Item, talentySheet, "talenty");
+  utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
 
   registerHandlebarsHelpers();
   const templates = [

@@ -135,7 +135,8 @@
 
   .talents-list {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    gap: 5px
     .talent {
       display: grid;
       gap: 10px;

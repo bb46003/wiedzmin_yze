@@ -21,6 +21,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       editText: postacSheet._onEditText,
       rzut_talen: postacSheet.#rzut_talen,
       itemContextMenu: postacSheet.#itemContextMenu,
+      otwórzRase: postacSheet.#otwórzRase
     },
     form: {
       submitOnChange: true,
@@ -46,6 +47,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { conditions });
     const talenty = await this.prepareTelenty();
     Object.assign(context, { talenty });
+    const rasa = await this.prepareRasa();
+    Object.assign(context, { rasa });
     return context;
   }
 
@@ -99,30 +102,68 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return data;
   }
+async prepareRasa(){
+  const rasa = this.actor.items.filter((item) => item.type === "rasa")[0];
+    const data = {id: rasa.id, rasaName: rasa.name};  
 
-  async _onDrop(event) {
-    event.preventDefault();
-    const data = event.dataTransfer;
-    const actor = this.actor;
-    if (data) {
-      const droppedItem = JSON.parse(data.getData("text/plain"));
-      const droppedType = droppedItem.type;
-      if (droppedType === "Item") {
-        const itemData = await fromUuid(droppedItem.uuid);
-        const type = itemData.type;
-        switch (type) {
-          case "talenty":
-            const wydaneXp = itemData.system.kosztTalentu;
-            actor.system.wydanieXP(wydaneXp, itemData);
-            if (itemData.system.zwiekszneiePM) {
-              actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
-            }
-            break;
-        }
-        await actor.createEmbeddedDocuments("Item", [itemData]);
+    return data;
+}
+
+async _onDrop(event) {
+  event.preventDefault();
+
+  const data = event.dataTransfer;
+  const actor = this.actor;
+
+  if (!data) return;
+
+  const droppedItem = JSON.parse(data.getData("text/plain"));
+  if (droppedItem.type !== "Item") return;
+
+  const itemDoc = await fromUuid(droppedItem.uuid);
+  let itemData = itemDoc.toObject(); // IMPORTANT
+
+  switch (itemData.type) {
+
+    case "talenty": {
+      const wydaneXp = itemData.system.kosztTalentu;
+
+      actor.system.wydanieXP(wydaneXp, itemData);
+
+      if (itemData.system.zwiekszneiePM) {
+        actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
       }
+
+      break;
+    }
+
+    case "rasa": {
+      const posiadanaRasa = actor.items.filter(i => i.type === "rasa");
+
+      if (posiadanaRasa.length > 0) {
+        ui.notifications.warn("Postać posiada już rasę. Usuń ją zanim dodasz nową.");
+        return;
+      }
+
+      const powiazaneTalenty = itemData.system.talenty;
+
+      for (let i = 0; i < powiazaneTalenty.length; i++) {
+        const sourceTalent = await fromUuid(powiazaneTalenty[i].uuid);
+
+        const created = await actor.createEmbeddedDocuments("Item", [
+          sourceTalent.toObject()
+        ]);
+        const newItem = created[0];
+        itemData.system.talenty[i].uuid = newItem.uuid;
+      }
+
+      break;
     }
   }
+
+  // ONE single creation point
+  await actor.createEmbeddedDocuments("Item", [itemData]);
+}
   /** @inheritDoc */
   _processFormData(event, form, formData) {
     const name = event?.target?.name;
@@ -263,6 +304,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     setTimeout(() => {
       document.addEventListener("click", () => menu.remove(), { once: true });
     }, 10);
+  }
+
+  static async #otwórzRase(ev){
+    const target = ev.target;
+    const rasaID = target.dataset.id;
+    const rasa = this.actor.items.get(rasaID);
+    rasa.sheet.render({force: true})
   }
 
   static async _onEditText(_event, target) {

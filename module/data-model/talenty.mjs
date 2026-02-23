@@ -130,11 +130,11 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
   /** @override */
   prepareDerivedData() {
     super.prepareDerivedData();
-    this._powiązaneDzialania()
+    this._powiązaneDzialania();
   }
-  _powiązaneDzialania(){
-    if(this.dodatkoweForsowanie){
-      this.zapewniaBonus = true
+  _powiązaneDzialania() {
+    if (this.dodatkoweForsowanie) {
+      this.zapewniaBonus = true;
     }
   }
 }

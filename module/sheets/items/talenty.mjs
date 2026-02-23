@@ -71,11 +71,11 @@ export class talentySheet extends api.HandlebarsApplicationMixin(
         wiedzmin_yze.config.umiejki[target.value].atrybKey;
       data.system.powiazaneAtrybuty = powiazanyAtrybut;
     }
-    if(target.name === "system.zapewniaBonus" && !target.checked){
+    if (target.name === "system.zapewniaBonus" && !target.checked) {
       data.system.dodatkoweForsowanie = false;
       data.system.zapewniaBonus = false;
     }
-    if(target.name === "system.dodatkoweForsowanie" && target.checked){
+    if (target.name === "system.dodatkoweForsowanie" && target.checked) {
       data.system.zapewniaBonus = true;
     }
     return data;

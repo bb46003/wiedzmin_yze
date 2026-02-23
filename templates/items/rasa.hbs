@@ -1,0 +1,78 @@
+<section>
+  <div class="rasa" data-item-id="{{item.id}}">
+    <header class="rasa-header flexrow">
+      <div class="image-container">
+        <img
+          class="profile-img"
+          src="{{item.img}}"
+          data-edit="img"
+          data-action="editImage"
+          data-edit="img"
+        />
+      </div>
+      <h3>Nazwa Rasy
+        <input
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="Name"
+        />
+      </h3>
+    </header>
+    <div class="rasa-body">
+      <div class="form-group enriched">
+        <label>Opis</label>
+        {{formInput
+          opis.field
+          value=opis.value
+          enriched=opis.enriched
+          toggled="true"
+        }}
+      </div>
+      <div class="opcje">
+        <div class="form-group">
+          <label>Powiązany Atrybut</label>
+          {{formInput
+            systemFields.powiazanyAtrybuty
+            value=system.powiazanyAtrybuty
+          }}
+        </div>
+        <div class="form-group">
+          <label>Wartość Bonusu</label>
+          {{formInput
+            systemFields.bonusDoAtrybutu
+            value=system.bonusDoAtrybutu
+          }}
+        </div>
+        <div class="form-group">
+          <label>Zapewnia Bonus do Umiejętności?</label>
+          {{formInput
+            systemFields.zapewniaBonusDoUmiejki
+            value=system.zapewniaBonusDoUmiejki
+          }}
+        </div>
+        {{#if system.zapewniaBonusDoUmiejki}}
+          {{formInput systemFields.wybranaUmiejka value=system.wybranaUmiejka}}
+        {{/if}}
+      </div>
+      <div class="talent-rasowy">
+        <label>Talenty Rasowe</label>
+        {{#if (eq talenty.length 0)}}
+          <label>Przeciągnij i upuść Talent dla tej rasy.<br />
+            Przygotuj go jako normalny Talent z wartością PD 0.
+          </label>
+        {{else}}
+          {{#each talenty}}
+            <div>
+              <button
+                class="powiazanyTalent"
+                data-id="{{this.id}}"
+                data-action="otworzTalent"
+              >{{this.name}}</button>
+            </div>
+          {{/each}}
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</section>
