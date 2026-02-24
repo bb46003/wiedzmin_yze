@@ -320,4 +320,40 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
     await this.parent.update(updateData);
   }
+  async _bonusZRasy(podbiceAtrybutu){
+    const updateData = {}
+    podbiceAtrybutu.forEach(podbicie=>{
+      const atrybut = this.atrybuty[podbicie.atrybut].value + podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
+    })
+    await this.parent.update(updateData);
+  }
+  async _bonusZRasyUmiejka(podbicieUmiejki){
+
+    const updateData = {}
+    podbicieUmiejki.forEach((podbicieUmiejki)=>{
+      const fach = wiedzmin_yze.config.umiejki[podbicieUmiejki.umiejka];
+      const umiejka = this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] + podbicieUmiejki.bonus;
+      updateData[`system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`] = umiejka
+    })
+    await this.parent.update(updateData);
+  }
+    async _bonusZRasyUsun(podbiceAtrybutu){
+    const updateData = {}
+    podbiceAtrybutu.forEach(podbicie=>{
+      const atrybut = this.atrybuty[podbicie.atrybut].value - podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
+    })
+    await this.parent.update(updateData);
+  }
+  async _bonusZRasyUmiejkaUsun(podbicieUmiejki){
+
+    const updateData = {}
+    podbicieUmiejki.forEach((podbicieUmiejki)=>{
+      const fach = wiedzmin_yze.config.umiejki[podbicieUmiejki.umiejka];
+      const umiejka = this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] - podbicieUmiejki.bonus;
+      updateData[`system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`] = umiejka
+    })
+    await this.parent.update(updateData);
+  }
 }

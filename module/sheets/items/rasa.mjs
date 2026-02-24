@@ -17,6 +17,10 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
     actions: {
       editText: _onEditText,
       otworzTalent: rasaSheet.#otworzTalent,
+      dodajAtrybut: rasaSheet.#dodajAtrybut,
+      usunAtrybut: rasaSheet.#usunAtrybut,
+      dodajUmiejki: rasaSheet.#dodajUmiejki,
+      usunUmiejki: rasaSheet.#usunUmiejki
     },
     form: {
       submitOnChange: true,
@@ -128,5 +132,23 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
     const uuid = target.dataset.id;
     const talent = await fromUuid(uuid);
     talent.sheet.render({ force: true });
+  }
+  static async #dodajAtrybut(){
+    await this.item.system.dodajAtrybut()
+  }
+
+  static async #usunAtrybut(ev){
+    const target = ev.target;
+    const id = target.dataset.id;
+    await this.item.system.usunAtrybut(id)
+  }
+    static async #dodajUmiejki(){
+    await this.item.system.dodajUmiejki()
+  }
+
+  static async #usunUmiejki(ev){
+    const target = ev.target;
+    const id = target.dataset.id;
+    await this.item.system.usunUmiejki(id)
   }
 }

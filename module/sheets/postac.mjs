@@ -21,7 +21,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       editText: postacSheet._onEditText,
       rzut_talen: postacSheet.#rzut_talen,
       itemContextMenu: postacSheet.#itemContextMenu,
-      otwórzRase: postacSheet.#otwórzRase
+      otwórzRase: postacSheet.#otwórzRase,
     },
     form: {
       submitOnChange: true,
@@ -102,68 +102,77 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return data;
   }
-async prepareRasa(){
-  const rasa = this.actor.items.filter((item) => item.type === "rasa")[0];
-    const data = {id: rasa.id, rasaName: rasa.name};  
+  async prepareRasa() {
+    const rasa = this.actor.items.filter((item) => item.type === "rasa")[0];
+    if(rasa){
+    const data = { id: rasa.id, rasaName: rasa.name };
 
     return data;
-}
-
-async _onDrop(event) {
-  event.preventDefault();
-
-  const data = event.dataTransfer;
-  const actor = this.actor;
-
-  if (!data) return;
-
-  const droppedItem = JSON.parse(data.getData("text/plain"));
-  if (droppedItem.type !== "Item") return;
-
-  const itemDoc = await fromUuid(droppedItem.uuid);
-  let itemData = itemDoc.toObject(); // IMPORTANT
-
-  switch (itemData.type) {
-
-    case "talenty": {
-      const wydaneXp = itemData.system.kosztTalentu;
-
-      actor.system.wydanieXP(wydaneXp, itemData);
-
-      if (itemData.system.zwiekszneiePM) {
-        actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
-      }
-
-      break;
-    }
-
-    case "rasa": {
-      const posiadanaRasa = actor.items.filter(i => i.type === "rasa");
-
-      if (posiadanaRasa.length > 0) {
-        ui.notifications.warn("Postać posiada już rasę. Usuń ją zanim dodasz nową.");
-        return;
-      }
-
-      const powiazaneTalenty = itemData.system.talenty;
-
-      for (let i = 0; i < powiazaneTalenty.length; i++) {
-        const sourceTalent = await fromUuid(powiazaneTalenty[i].uuid);
-
-        const created = await actor.createEmbeddedDocuments("Item", [
-          sourceTalent.toObject()
-        ]);
-        const newItem = created[0];
-        itemData.system.talenty[i].uuid = newItem.uuid;
-      }
-
-      break;
     }
   }
 
-  // ONE single creation point
-  await actor.createEmbeddedDocuments("Item", [itemData]);
-}
+  async _onDrop(event) {
+    event.preventDefault();
+
+    const data = event.dataTransfer;
+    const actor = this.actor;
+
+    if (!data) return;
+
+    const droppedItem = JSON.parse(data.getData("text/plain"));
+    if (droppedItem.type !== "Item") return;
+
+    const itemDoc = await fromUuid(droppedItem.uuid);
+    let itemData = itemDoc.toObject(); // IMPORTANT
+
+    switch (itemData.type) {
+      case "talenty": {
+        const wydaneXp = itemData.system.kosztTalentu;
+
+        actor.system.wydanieXP(wydaneXp, itemData);
+
+        if (itemData.system.zwiekszneiePM) {
+          actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
+        }
+
+        break;
+      }
+
+      case "rasa": {
+        const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
+        const posiadanaProfesja = actor.items.filter((i) => i.type === "profesja");
+        if (posiadanaRasa.length > 0) {
+          ui.notifications.warn(
+            "Postać posiada już rasę. Usuń ją zanim dodasz nową.",
+          );
+          return;
+        }
+
+        const powiazaneTalenty = itemData.system.talenty;
+
+        for (let i = 0; i < powiazaneTalenty.length; i++) {
+          const sourceTalent = await fromUuid(powiazaneTalenty[i].uuid);
+
+          const created = await actor.createEmbeddedDocuments("Item", [
+            sourceTalent.toObject(),
+          ]);
+          const newItem = created[0];
+          itemData.system.talenty[i].uuid = newItem.uuid;
+        }
+        const podbicieAtrybutu = itemData.system.bonusyAtrybuty
+        this.actor.system._bonusZRasy(podbicieAtrybutu)
+        if (itemData.system.zapewniaBonusDoUmiejki) {
+          const podbicieUmiejki = itemData.system.bonusyUmiejki
+          this.actor.system._bonusZRasyUmiejka(podbicieUmiejki)
+        }
+
+        break;
+      }
+    }
+
+    // ONE single creation point
+    await actor.createEmbeddedDocuments("Item", [itemData]);
+  }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
     const name = event?.target?.name;
@@ -257,17 +266,23 @@ async _onDrop(event) {
 
     const button = ev.target;
     const itemId = button.parentElement.dataset.item;
-
+      const item = this.actor.items.get(itemId);
     // Remove old menu if exists
     document.querySelector(".custom-context-menu")?.remove();
 
     // Create element instead of raw string (safer and cleaner)
     const menu = document.createElement("div");
     menu.classList.add("custom-context-menu");
+    if(item.type === "talenty"){
     menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Talent</div>
     <div class="menu-option" data-action="delete">Usuń Talent</div>
-  `;
+  `;}
+  if(item.type === "rasa"){
+    menu.innerHTML = `
+    <div class="menu-option" data-action="open">Otwórz Rase</div>
+    <div class="menu-option" data-action="delete">Usuń Rase</div>
+  `;}
 
     // Position at mouse location
     menu.style.position = "absolute";
@@ -289,11 +304,21 @@ async _onDrop(event) {
 
       if (action === "delete") {
         const item = this.actor.items.get(itemId);
+            if(item.type === "talenty"){
         const xp = item.system.kosztTalentu;
         await this.actor.system.zwrocPD(xp, item);
         if (item.system.zwiekszneiePM) {
           await this.actor.system.zmniejszneieMocy(item.system.dodatkowaMoc);
         }
+      }
+      if(item.type === "rasa"){
+        const podbicieAtrybutu = item.system.bonusyAtrybuty
+        this.actor.system._bonusZRasyUsun(podbicieAtrybutu)
+        if (item.system.zapewniaBonusDoUmiejki) {
+          const podbicieUmiejki = item.system.bonusyUmiejki
+          this.actor.system._bonusZRasyUmiejkaUsun(podbicieUmiejki)
+        }
+      }
         await item?.delete();
       }
 
@@ -306,11 +331,11 @@ async _onDrop(event) {
     }, 10);
   }
 
-  static async #otwórzRase(ev){
+  static async #otwórzRase(ev) {
     const target = ev.target;
     const rasaID = target.dataset.id;
     const rasa = this.actor.items.get(rasaID);
-    rasa.sheet.render({force: true})
+    rasa.sheet.render({ force: true });
   }
 
   static async _onEditText(_event, target) {

@@ -30,31 +30,69 @@
         }}
       </div>
       <div class="opcje">
-        <div class="form-group">
-          <label>Powiązany Atrybut</label>
-          {{formInput
-            systemFields.powiazanyAtrybuty
-            value=system.powiazanyAtrybuty
-          }}
+       
+          <label>Powiązany Atrybut <button data-action="dodajAtrybut"><i class="fa fa-plus"></i></button></label>
         </div>
+
+{{#each system.bonusyAtrybuty as |bonus index|}}
+
+    <div class="bonusy">
+  <div class="form-group">
+    <label>Atrybut <button data-action="usunAtrybut" data-id="{{index}}"><i class="fa fa-minus"></i></button></label>
+    {{formInput
+       @root.systemFields.bonusyAtrybuty.element.fields.atrybut
+      name=(concat "system.bonusyAtrybuty." index ".atrybut")
+      value=bonus.atrybut
+    }}
+  </div>
+
+  <div class="form-group">
+    <label>Wartość Bonusu</label>
+    {{formInput
+       @root.systemFields.bonusyAtrybuty.element.fields.bonus
+      name=(concat "system.bonusyAtrybuty." index ".bonus")
+      value=bonus.bonus
+    }}
+  </div>
+
+</div>
+{{/each}}
         <div class="form-group">
-          <label>Wartość Bonusu</label>
-          {{formInput
-            systemFields.bonusDoAtrybutu
-            value=system.bonusDoAtrybutu
-          }}
-        </div>
-        <div class="form-group">
-          <label>Zapewnia Bonus do Umiejętności?</label>
-          {{formInput
-            systemFields.zapewniaBonusDoUmiejki
-            value=system.zapewniaBonusDoUmiejki
-          }}
+          <label>
+            Zapewnia Bonus do Umiejętności?           
+            {{formInput
+              systemFields.zapewniaBonusDoUmiejki
+              value=system.zapewniaBonusDoUmiejki
+            }}
+          </label>
         </div>
         {{#if system.zapewniaBonusDoUmiejki}}
-          {{formInput systemFields.wybranaUmiejka value=system.wybranaUmiejka}}
+          <div class="opcje">       
+            <label>Powiązane Umiejętności <button data-action="dodajUmiejki"><i class="fa fa-plus"></i></button></label>
+          </div>
+          {{#each system.bonusyUmiejki as |bonus index|}}
+            <div class="bonusy">
+              <div class="form-group">
+                <label>Umiejętności <button data-action="usunUmiejki" data-id="{{index}}"><i class="fa fa-minus"></i></button></label>
+                {{formInput
+                  @root.systemFields.bonusyUmiejki.element.fields.umiejka
+                  name=(concat "system.bonusyUmiejki." index ".umiejka")
+                  value=bonus.umiejka
+                }}
+              </div>
+
+              <div class="form-group">
+                <label>Wartość Bonusu</label>
+                {{formInput
+                  @root.systemFields.bonusyUmiejki.element.fields.bonus
+                  name=(concat "system.bonusyUmiejki." index ".bonus")
+                  value=bonus.bonus
+                }}
+              </div>
+
+            </div>
+          {{/each}}
         {{/if}}
-      </div>
       <div class="talent-rasowy">
         <label>Talenty Rasowe</label>
         {{#if (eq talenty.length 0)}}

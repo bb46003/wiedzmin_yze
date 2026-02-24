@@ -14,7 +14,16 @@
     <label>Miano</label>
     <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
     <label>Rasa</label>
-    <a data-action="otwórzRase" data-id="{{rasa.id}}">{{rasa.rasaName}}</a>
+    {{#if rasa}}
+    <div class="flexrow">
+      <label class="rasa-label">  {{rasa.rasaName}}</label>
+      <a class="threeDots"  data-action="itemContextMenu" data-item="{{rasa.id}}">
+          <i class="fas fa-ellipsis-v"></i>
+        </a>
+    </div>
+    {{else}}
+    <div></div>
+   {{/if}}
     <label>Profesja</label>
     <a></a>
 
