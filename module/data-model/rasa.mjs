@@ -17,6 +17,10 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
 
   static defineSchema() {
     return {
+      zapewniaBonudDoAtrybutu: new BooleanField({
+        label: "wiedzmin.rasa.zapewniaBonusDoAtrybutu",
+        initial: false,
+      }),
       bonusyAtrybuty: new ArrayField(
         new SchemaField({
           bonus: new NumberField({
@@ -40,6 +44,16 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.rasa.bonusDoUmiejki",
         initial: false,
       }),
+      wybieraneUmiejki: new BooleanField({
+        label: "wiedzmin.rasa.wybieraneUmiejki",
+        initial: false,
+      }),
+      wybieraneAtrybuty: new BooleanField({
+        label: "wiedzmin.rasa.wybieraneAtrybuty",
+        initial: false,
+      }),
+      iloscWybieranychAtrybutuow: new NumberField({ initial: 0 }),
+      bonusDoWybranych: new NumberField({ initial: 0 }),
       bonusyUmiejki: new ArrayField(
         new SchemaField({
           umiejka: new StringField({
@@ -67,6 +81,24 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
           }),
           name: new StringField({
             initial: "",
+          }),
+        }),
+      ),
+      ograniczonyAtrybut: new ArrayField(
+        new SchemaField({
+          atrybut: new StringField({
+            label: "wiedzmin.talent.powiazaneAtrybuty",
+            initial: "sila",
+            choices: {
+              sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+              zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+              empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
+              rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+            },
+            required: true,
+          }),
+          wartoscMax: new NumberField({
+            initial: 2,
           }),
         }),
       ),

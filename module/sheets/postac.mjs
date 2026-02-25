@@ -1,4 +1,4 @@
-import { staticID } from "../utils.mjs";
+import { staticID, toLabelObject } from "../utils.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -104,10 +104,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   }
   async prepareRasa() {
     const rasa = this.actor.items.filter((item) => item.type === "rasa")[0];
-    if(rasa){
-    const data = { id: rasa.id, rasaName: rasa.name };
+    if (rasa) {
+      const data = { id: rasa.id, rasaName: rasa.name };
 
-    return data;
+      return data;
     }
   }
 
@@ -116,7 +116,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     const data = event.dataTransfer;
     const actor = this.actor;
-
+    let stworzPrzedmiot = false;
     if (!data) return;
 
     const droppedItem = JSON.parse(data.getData("text/plain"));
@@ -134,13 +134,15 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         if (itemData.system.zwiekszneiePM) {
           actor.system.zwiekszMoc(itemData.system.dodatkowaMoc);
         }
-
+        stworzPrzedmiot = true;
         break;
       }
 
       case "rasa": {
         const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
-        const posiadanaProfesja = actor.items.filter((i) => i.type === "profesja");
+        const posiadanaProfesja = actor.items.filter(
+          (i) => i.type === "profesja",
+        );
         if (posiadanaRasa.length > 0) {
           ui.notifications.warn(
             "Postać posiada już rasę. Usuń ją zanim dodasz nową.",
@@ -159,19 +161,79 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
           const newItem = created[0];
           itemData.system.talenty[i].uuid = newItem.uuid;
         }
-        const podbicieAtrybutu = itemData.system.bonusyAtrybuty
-        this.actor.system._bonusZRasy(podbicieAtrybutu)
-        if (itemData.system.zapewniaBonusDoUmiejki) {
-          const podbicieUmiejki = itemData.system.bonusyUmiejki
-          this.actor.system._bonusZRasyUmiejka(podbicieUmiejki)
+        const podbicieAtrybutu = itemData.system.bonusyAtrybuty;
+        this.actor.system._bonusZRasy(podbicieAtrybutu);
+        if (
+          itemData.system.zapewniaBonusDoUmiejki &&
+          !item.system.wybieraneUmiejki
+        ) {
+          const podbicieUmiejki = itemData.system.bonusyUmiejki;
+          this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
+           stworzPrzedmiot = true;
+        }
+        if (itemData.system.wybieraneUmiejki) {
+          const profesja = this.actor.items.filter((item) => {
+            item.type === "profesja";
+          })[0];
+          const umiejki = toLabelObject(wiedzmin_yze.config.umiejki);
+           stworzPrzedmiot = true;
+        }
+        if (itemData.system.wybieraneAtrybuty) {
+          const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
+          const wartosc = itemData.system.bonusDoWybranych;
+          const choices = {
+            sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+            zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+            empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
+            rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+          };
+          const wybory = [];
+          for (let i = 0; i < iloscAtrybutow; i++) {
+            const dane = { lista: choices, wartosc: wartosc };
+            wybory.push(dane);
+          }
+          const content = await foundry.applications.handlebars.renderTemplate(
+            "systems/wiedzmin_yze/templates/dialogs/przydziel-atrybuty.hbs",
+            {
+              wybory: wybory,
+            },
+          );
+          const dialog = new foundry.applications.api.DialogV2({
+            window: { title: "Wiedzmin Roll" },
+            content,
+            buttons: [
+              {
+                label: "zastosuj",
+                action: "zastosuj",
+                default: true,
+                callback: async (_event, _button, dialog) => {
+                  const atrybuty = dialog.element.querySelectorAll(".atrybuty");
+                  const wartosc = dialog.element.querySelector(".wartosc");
+                  const dane = [];
+                  atrybuty.forEach((atr, index) => {
+                    const data = {
+                      bonus: wartosc.innerHTML,
+                      atrybut: atr.value,
+                    };
+                    dane.push(data);
+                    itemData.system.bonusyAtrybuty[index]= data;
+                  });
+                  this.actor.system._bonusZRasy(dane);
+                  await actor.createEmbeddedDocuments("Item", [itemData]);
+                },
+              },
+            ],
+          });
+          dialog.render({ force: true });
         }
 
         break;
       }
     }
 
-    // ONE single creation point
+    if( stworzPrzedmiot ){
     await actor.createEmbeddedDocuments("Item", [itemData]);
+    }
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
@@ -266,23 +328,25 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     const button = ev.target;
     const itemId = button.parentElement.dataset.item;
-      const item = this.actor.items.get(itemId);
+    const item = this.actor.items.get(itemId);
     // Remove old menu if exists
     document.querySelector(".custom-context-menu")?.remove();
 
     // Create element instead of raw string (safer and cleaner)
     const menu = document.createElement("div");
     menu.classList.add("custom-context-menu");
-    if(item.type === "talenty"){
-    menu.innerHTML = `
+    if (item.type === "talenty") {
+      menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Talent</div>
     <div class="menu-option" data-action="delete">Usuń Talent</div>
-  `;}
-  if(item.type === "rasa"){
-    menu.innerHTML = `
+  `;
+    }
+    if (item.type === "rasa") {
+      menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Rase</div>
     <div class="menu-option" data-action="delete">Usuń Rase</div>
-  `;}
+  `;
+    }
 
     // Position at mouse location
     menu.style.position = "absolute";
@@ -304,21 +368,21 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
       if (action === "delete") {
         const item = this.actor.items.get(itemId);
-            if(item.type === "talenty"){
-        const xp = item.system.kosztTalentu;
-        await this.actor.system.zwrocPD(xp, item);
-        if (item.system.zwiekszneiePM) {
-          await this.actor.system.zmniejszneieMocy(item.system.dodatkowaMoc);
+        if (item.type === "talenty") {
+          const xp = item.system.kosztTalentu;
+          await this.actor.system.zwrocPD(xp, item);
+          if (item.system.zwiekszneiePM) {
+            await this.actor.system.zmniejszneieMocy(item.system.dodatkowaMoc);
+          }
         }
-      }
-      if(item.type === "rasa"){
-        const podbicieAtrybutu = item.system.bonusyAtrybuty
-        this.actor.system._bonusZRasyUsun(podbicieAtrybutu)
-        if (item.system.zapewniaBonusDoUmiejki) {
-          const podbicieUmiejki = item.system.bonusyUmiejki
-          this.actor.system._bonusZRasyUmiejkaUsun(podbicieUmiejki)
+        if (item.type === "rasa") {
+          const podbicieAtrybutu = item.system.bonusyAtrybuty;
+          this.actor.system._bonusZRasyUsun(podbicieAtrybutu);
+          if (item.system.zapewniaBonusDoUmiejki) {
+            const podbicieUmiejki = item.system.bonusyUmiejki;
+            this.actor.system._bonusZRasyUmiejkaUsun(podbicieUmiejki);
+          }
         }
-      }
         await item?.delete();
       }
 

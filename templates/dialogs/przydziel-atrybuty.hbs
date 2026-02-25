@@ -1,0 +1,14 @@
+<div>
+  {{#each wybory as |wybor key|}}
+    <div>
+        {{log key wybor}}
+      <label>Atrybut {{key}}</label>
+      <select class="atrybuty" data-id="{{key}}">
+        {{#each wybor.lista as |label key|}}
+          <option value="{{key}}">{{label}}</option>
+        {{/each}}
+      </select>
+      <label class="wartosc">{{wybor.wartosc}}</label>
+    </div>
+  {{/each}}
+</div>

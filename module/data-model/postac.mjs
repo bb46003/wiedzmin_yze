@@ -23,19 +23,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.sila",
             initial: 2,
             required: true,
+            max: 4,
           }),
           umiejetnosci: new SchemaField({
             krzepa: new NumberField({
               label: "wiedzmin.atrubut.krzepa",
               initial: 0,
+              max: 5,
             }),
             walka_wrecz: new NumberField({
               label: "wiedzmin.atrubut.walka_wrecz",
               initial: 0,
+              max: 5,
             }),
             wytrzymalosc: new NumberField({
               label: "wiedzmin.atrubut.wytrzymalosc",
               initial: 0,
+              max: 5,
             }),
           }),
         }),
@@ -44,19 +48,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.rozum",
             initial: 2,
             required: true,
+            max: 4,
           }),
           umiejetnosci: new SchemaField({
             spostrzegawczosc: new NumberField({
               label: "wiedzmin.atrubut.spostrzegawczosc",
               initial: 0,
+              max: 5,
             }),
             fach: new NumberField({
               label: "wiedzmin.atrubut.fach",
               initial: 0,
+              max: 5,
             }),
             wiedza: new NumberField({
               label: "wiedzmin.atrubut.wiedza",
               initial: 0,
+              max: 5,
             }),
           }),
         }),
@@ -65,19 +73,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.empatia",
             initial: 2,
             required: true,
+            max: 4,
           }),
           umiejetnosci: new SchemaField({
             wplyw: new NumberField({
               label: "wiedzmin.atrubut.wplyw",
               initial: 0,
+              max: 5,
             }),
             manipulacja: new NumberField({
               label: "wiedzmin.atrubut.manipulacja",
               initial: 0,
+              max: 5,
             }),
             wola: new NumberField({
               label: "wiedzmin.atrubut.wola",
               initial: 0,
+              max: 5,
             }),
           }),
         }),
@@ -86,19 +98,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.zrecznosc",
             initial: 2,
             required: true,
+            max: 4,
           }),
           umiejetnosci: new SchemaField({
             zwinnosc: new NumberField({
               label: "wiedzmin.atrubut.zwinnosc",
               initial: 0,
+              max: 5,
             }),
             walka_dystansowa: new NumberField({
               label: "wiedzmin.atrubut.walka_dystansowa",
               initial: 0,
+              max: 5,
             }),
             zwinne_palce: new NumberField({
               label: "wiedzmin.atrubut.zwinne_palce",
               initial: 0,
+              max: 5,
             }),
           }),
         }),
@@ -320,40 +336,46 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
     await this.parent.update(updateData);
   }
-  async _bonusZRasy(podbiceAtrybutu){
-    const updateData = {}
-    podbiceAtrybutu.forEach(podbicie=>{
+  async _bonusZRasy(podbiceAtrybutu) {
+    const updateData = {};
+    podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value + podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
-    })
+    });
     await this.parent.update(updateData);
   }
-  async _bonusZRasyUmiejka(podbicieUmiejki){
-
-    const updateData = {}
-    podbicieUmiejki.forEach((podbicieUmiejki)=>{
+  async _bonusZRasyUmiejka(podbicieUmiejki) {
+    const updateData = {};
+    podbicieUmiejki.forEach((podbicieUmiejki) => {
       const fach = wiedzmin_yze.config.umiejki[podbicieUmiejki.umiejka];
-      const umiejka = this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] + podbicieUmiejki.bonus;
-      updateData[`system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`] = umiejka
-    })
+      const umiejka =
+        this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] +
+        podbicieUmiejki.bonus;
+      updateData[
+        `system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`
+      ] = umiejka;
+    });
     await this.parent.update(updateData);
   }
-    async _bonusZRasyUsun(podbiceAtrybutu){
-    const updateData = {}
-    podbiceAtrybutu.forEach(podbicie=>{
+  async _bonusZRasyUsun(podbiceAtrybutu) {
+    const updateData = {};
+    podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value - podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
-    })
+    });
     await this.parent.update(updateData);
   }
-  async _bonusZRasyUmiejkaUsun(podbicieUmiejki){
-
-    const updateData = {}
-    podbicieUmiejki.forEach((podbicieUmiejki)=>{
+  async _bonusZRasyUmiejkaUsun(podbicieUmiejki) {
+    const updateData = {};
+    podbicieUmiejki.forEach((podbicieUmiejki) => {
       const fach = wiedzmin_yze.config.umiejki[podbicieUmiejki.umiejka];
-      const umiejka = this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] - podbicieUmiejki.bonus;
-      updateData[`system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`] = umiejka
-    })
+      const umiejka =
+        this.atrybuty[fach.atrybKey].umiejetnosci[podbicieUmiejki.umiejka] -
+        podbicieUmiejki.bonus;
+      updateData[
+        `system.atrybuty.${fach.atrybKey}.umiejetnosci.${podbicieUmiejki.umiejka}`
+      ] = umiejka;
+    });
     await this.parent.update(updateData);
   }
 }

@@ -20,7 +20,7 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       dodajAtrybut: rasaSheet.#dodajAtrybut,
       usunAtrybut: rasaSheet.#usunAtrybut,
       dodajUmiejki: rasaSheet.#dodajUmiejki,
-      usunUmiejki: rasaSheet.#usunUmiejki
+      usunUmiejki: rasaSheet.#usunUmiejki,
     },
     form: {
       submitOnChange: true,
@@ -133,22 +133,22 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
     const talent = await fromUuid(uuid);
     talent.sheet.render({ force: true });
   }
-  static async #dodajAtrybut(){
-    await this.item.system.dodajAtrybut()
+  static async #dodajAtrybut() {
+    await this.item.system.dodajAtrybut();
   }
 
-  static async #usunAtrybut(ev){
+  static async #usunAtrybut(ev) {
     const target = ev.target;
     const id = target.dataset.id;
-    await this.item.system.usunAtrybut(id)
+    await this.item.system.usunAtrybut(id);
   }
-    static async #dodajUmiejki(){
-    await this.item.system.dodajUmiejki()
+  static async #dodajUmiejki() {
+    await this.item.system.dodajUmiejki();
   }
 
-  static async #usunUmiejki(ev){
+  static async #usunUmiejki(ev) {
     const target = ev.target;
     const id = target.dataset.id;
-    await this.item.system.usunUmiejki(id)
+    await this.item.system.usunUmiejki(id);
   }
 }
