@@ -158,13 +158,19 @@
           </label>
         {{else}}
           {{#each talenty}}
-            <div>
+            <div class="rasowe-talenty">
               <button
                 class="powiazanyTalent"
                 data-id="{{this.id}}"
                 data-action="otworzTalent"
               >{{this.name}}</button>
+
+              <button data-action="usunTalent" data-id="{{this.id}}"><i
+                  class="fa fa-trash"
+                ></i></button>
+
             </div>
+
           {{/each}}
         {{/if}}
       </div>

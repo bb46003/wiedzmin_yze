@@ -1,4 +1,3 @@
-import { lazy } from "react";
 import { toLabelObject } from "../utils.mjs";
 
 const {
@@ -18,7 +17,7 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
 
   static defineSchema() {
     return {
-      cechaWiodąca: new ArrayField(
+      atrybutWiodacy: new ArrayField(
         new StringField({
           label: "wiedzmin.talent.powiazaneAtrybuty",
           initial: "sila",
@@ -31,10 +30,12 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
           required: true,
         }),
       ),
-      wymaganaRasa: new StringField({
-        label: "wiedzin.profesja.wymaganaRasa",
-        initial: "",
-      }),
+      wymaganaRasa: new ArrayField(
+        new StringField({
+          label: "wiedzin.profesja.wymaganaRasa",
+          initial: "",
+        }),
+      ),
       ekwipunek: new HTMLField({
         label: "wiedzmin.talent.opis",
         initial: "",
@@ -56,49 +57,88 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.profesja.zamorznosc",
         initial: 0,
       }),
-      ograniczaAtrybut: new BooleanField({
-        label: "wiedzmin.profesja.ograniczaAtrybut",
-        initial: false,
+
+      opis: new HTMLField({
+        label: "wiedzmin.talent.opis",
+        initial: "",
+        required: true,
       }),
+      umiejetnosciZawodowe: new ArrayField(
+        new SchemaField({
+          umiejka: new StringField({
+            label: "wiedzmin.atrubut.specjalizacja",
+            initial: "Brak",
+            choices: toLabelObject(wiedzmin_yze.config.umiejki),
+            required: true,
+          }),
+          umiejkaAlternatywna: new StringField({
+            label: "wiedzmin.atrubut.specjalizacja",
+            initial: "Brak",
+            choices: toLabelObject(wiedzmin_yze.config.umiejki),
+            required: true,
+          }),
+          bonus: new NumberField({
+            label: "wiedzmin.tasa.bonusDoUmiejki",
+            initial: 1,
+          }),
+          wybor: new BooleanField({
+            label: "wiedzmin.profesja.wybor",
+            initial: false
+          })
+        }),
+      )
     };
   }
 
-  async _dodajTalent(uuid, nane) {
-    const talenty = this.talenty ?? [];
-    const nowyTalent = {
-      uuid: uuid,
-      name: nane,
-    };
-    talenty.push(nowyTalent);
-    this.parent.update({ "system.talenty": talenty });
+ async dodajAtrybut(){
+    const atrybutWiodacy = this.atrybutWiodacy ?? [];
+    const nowy = "";
+    atrybutWiodacy.push(nowy);
+    await this.parent.update({ "system.atrybutWiodacy": atrybutWiodacy });
   }
-  async dodajAtrybut() {
-    const bonusyAtrybut = this.bonusyAtrybuty ?? [];
-    const nowyAtr = {
-      atrybut: "sila",
-      bonus: 0,
-    };
-    bonusyAtrybut.push(nowyAtr);
-    await this.parent.update({ "system.bonusyAtrybuty": bonusyAtrybut });
+  async usunAtrybut(id){
+    const atrybutWiodacy = this.atrybutWiodacy;
+    atrybutWiodacy.splice(id, 1);
+    await this.parent.update({ "system.atrybutWiodacy": atrybutWiodacy });
   }
-  async usunAtrybut(id) {
-    const bonusyAtrybut = this.bonusyAtrybuty;
-    bonusyAtrybut.splice(id, 1);
-    await this.parent.update({ "system.bonusyAtrybuty": bonusyAtrybut });
+  async dodajCel(){
+    const celeOsobiste = this.celeOsobiste ?? [];
+    const nowy = "";
+    celeOsobiste.push(nowy);
+    await this.parent.update({ "system.celeOsobiste": celeOsobiste });
   }
-
-  async dodajUmiejki() {
-    const bonusyUmiejki = this.bonusyUmiejki ?? [];
+  async usunCel(id){
+    const celeOsobiste = this.celeOsobiste;
+    celeOsobiste.splice(id, 1);
+    await this.parent.update({ "system.celeOsobiste": celeOsobiste });
+  }
+  async dodajPrzedmiot(){
+    const charakterystycznyPrzedmiot = this.charakterystycznyPrzedmiot ?? [];
     const nowy = {
       umiejka: "Brak",
       bonus: 0,
+      wybor: false
     };
-    bonusyUmiejki.push(nowyUm);
-    await this.parent.update({ "system.bonusyUmiejki": bonusyUmiejki });
+    charakterystycznyPrzedmiot.push(nowy);
+    await this.parent.update({ "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot });
   }
-  async usunUmiejki(id) {
-    const bonusyUmiejki = this.bonusyUmiejki;
-    bonusyUmiejki.splice(id, 1);
-    await this.parent.update({ "system.bonusyAtrybuty": bonusyUmiejki });
+  async usunPrzedmiot(id){
+    const charakterystycznyPrzedmiot = this.charakterystycznyPrzedmiot;
+    charakterystycznyPrzedmiot.splice(id, 1);
+    await this.parent.update({ "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot });
+  }
+  async dodajUmiejetnosc(){
+    const umiejetnosciZawodowe = this.umiejetnosciZawodowe ?? [];
+    const nowy = "";
+    umiejetnosciZawodowe.push(nowy);
+    await this.parent.update({ "system.bonusyUmiejki": umiejetnosciZawodowe });
+  }
+  async usunUmiejetosc(id){
+    const umiejetnosciZawodowe = this.umiejetnosciZawodowe;
+    umiejetnosciZawodowe.splice(id, 1);
+    await this.parent.update({ "system.umiejetnosciZawodowe": umiejetnosciZawodowe });
+  }
+  async usunRase(id){
+
   }
 }
