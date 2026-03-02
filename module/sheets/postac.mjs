@@ -169,14 +169,14 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         ) {
           const podbicieUmiejki = itemData.system.bonusyUmiejki;
           this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
-           stworzPrzedmiot = true;
+          stworzPrzedmiot = true;
         }
         if (itemData.system.wybieraneUmiejki) {
           const profesja = this.actor.items.filter((item) => {
             item.type === "profesja";
           })[0];
           const umiejki = toLabelObject(wiedzmin_yze.config.umiejki);
-           stworzPrzedmiot = true;
+          stworzPrzedmiot = true;
         }
         if (itemData.system.wybieraneAtrybuty) {
           const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
@@ -216,7 +216,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
                       atrybut: atr.value,
                     };
                     dane.push(data);
-                    itemData.system.bonusyAtrybuty[index]= data;
+                    itemData.system.bonusyAtrybuty[index] = data;
                   });
                   this.actor.system._bonusZRasy(dane);
                   await actor.createEmbeddedDocuments("Item", [itemData]);
@@ -231,8 +231,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       }
     }
 
-    if( stworzPrzedmiot ){
-    await actor.createEmbeddedDocuments("Item", [itemData]);
+    if (stworzPrzedmiot) {
+      await actor.createEmbeddedDocuments("Item", [itemData]);
     }
   }
   /** @inheritDoc */

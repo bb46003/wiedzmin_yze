@@ -2,7 +2,7 @@ import { _onEditText } from "../../utils.mjs";
 
 const { api, sheets } = foundry.applications;
 
-export class rasaSheet extends api.HandlebarsApplicationMixin(
+export class profesjeSheet extends api.HandlebarsApplicationMixin(
   sheets.ItemSheetV2,
 ) {
   constructor(...args) {
@@ -12,16 +12,21 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
     this.item;
   }
   static DEFAULT_OPTIONS = {
-    classes: ["rasa-sheet"],
+    classes: ["profesje-sheet"],
     position: { width: 500, height: 850 },
     actions: {
       editText: _onEditText,
-      otworzTalent: rasaSheet.#otworzTalent,
-      dodajAtrybut: rasaSheet.#dodajAtrybut,
-      usunAtrybut: rasaSheet.#usunAtrybut,
-      dodajUmiejki: rasaSheet.#dodajUmiejki,
-      usunUmiejki: rasaSheet.#usunUmiejki,
-      usunTalent: rasaSheet.#usunTalent,
+          dodajAtrybut: profesjeSheet._systemAction,
+    usunAtrybut: profesjeSheet._systemAction,
+    dodajCel: profesjeSheet._systemAction,
+    usunCel: profesjeSheet._systemAction,
+    dodajPrzedmiot: profesjeSheet._systemAction,
+    usunPrzedmiot: profesjeSheet._systemAction,
+    dodajUmiejetnosc: profesjeSheet._systemAction,
+    usunUmiejetosc: profesjeSheet._systemAction,
+    dodajRase: profesjeSheet._systemAction,
+    usunRase: profesjeSheet._systemAction,
+    otworzRase: profesjeSheet._systemAction,
     },
     form: {
       submitOnChange: true,
@@ -30,7 +35,7 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
   static PARTS = {
     tabs: {
       id: "tabs",
-      template: `systems/wiedzmin_yze/templates/items/rasa.hbs`,
+      template: `systems/wiedzmin_yze/templates/items/profesje.hbs`,
     },
   };
   /** @override */
@@ -61,22 +66,14 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.item.system.opis),
       field: this.item.system.schema.fields.opis,
     };
-    context.talenty = await this._przygotujTalenty();
+    context.ekwipunek = {
+      value: this.item.system.ekwipunek,
+      enriched: await enrich(this.item.system.ekwipunek),
+      field: this.item.system.schema.fields.ekwipunek,
+    };
+
     return context;
   }
-  async _przygotujTalenty() {
-    const talenty = [];
-    const rasa = this.item.system.talenty;
-    rasa.forEach((talent) => {
-      const dane = {
-        name: talent.name,
-        id: talent.uuid,
-      };
-      talenty.push(dane);
-    });
-    return talenty;
-  }
-
   _canDragDrop(selector) {
     return game.user.isGM;
   }
@@ -127,35 +124,22 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       }
     }
   }
+  async _systemAction(event) {
+  const target = event.target;
+  const action = target.dataset.action;
+  const id = target.dataset?.id;
 
-  static async #otworzTalent(ev) {
-    const target = ev.target;
-    const uuid = target.dataset.id;
-    const talent = await fromUuid(uuid);
-    talent.sheet.render({ force: true });
-  }
-  static async #dodajAtrybut() {
-    await this.item.system.dodajAtrybut();
-  }
+  const fn = this.item.system[action];
 
-  static async #usunAtrybut(ev) {
-    const target = ev.target;
-    const id = target.dataset.id;
-    await this.item.system.usunAtrybut(id);
-  }
-  static async #dodajUmiejki() {
-    await this.item.system.dodajUmiejki();
+  if (typeof fn !== "function") {
+    console.warn(`System method '${action}' does not exist`);
+    return;
   }
 
-  static async #usunUmiejki(ev) {
-    const target = ev.target;
-    const id = target.dataset.id;
-    await this.item.system.usunUmiejki(id);
+  if (id !== undefined) {
+    await fn.call(this.item.system, id);
+  } else {
+    await fn.call(this.item.system);
   }
-
-  static async #usunTalent(ev) {
-    const target = ev.target;
-    const id = target.dataset.id;
-    await this.item.system.usunTalent(id);
-  }
+}
 }

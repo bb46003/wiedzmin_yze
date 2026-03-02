@@ -143,4 +143,13 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
     bonusyUmiejki.splice(id, 1);
     await this.parent.update({ "system.bonusyAtrybuty": bonusyUmiejki });
   }
+  async usunTalent(id) {
+    const talenty = this.talenty;
+
+    const index = talenty.findIndex((talent) => talent.uuid === id);
+    if (index !== -1) {
+      talenty.splice(index, 1);
+    }
+    await this.parent.update({ "system.talenty": talenty });
+  }
 }

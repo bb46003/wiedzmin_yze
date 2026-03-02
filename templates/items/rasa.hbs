@@ -37,7 +37,7 @@
             value=system.zapewniaBonusDoUmiejki
           }}
         </label>
-                <label>
+        <label>
           Pozwala Wybrać Atrybuty grającemu?
           {{formInput
             systemFields.wybieraneAtrybuty
@@ -45,7 +45,9 @@
           }}
         </label>
       </div>
-      {{#if (and system.zapewniaBonudDoAtrybutu (not system.wybieraneAtrybuty))}}
+      {{#if
+        (and system.zapewniaBonudDoAtrybutu (not system.wybieraneAtrybuty))
+      }}
         <div class="opcje">
 
           <label>Powiązany Atrybut
@@ -81,17 +83,19 @@
           </div>
         {{/each}}
       {{/if}}
-      {{#if (and system.wybieraneAtrybuty (not system.zapewniaBonudDoAtrybutu))}}
+      {{#if
+        (and system.wybieraneAtrybuty (not system.zapewniaBonudDoAtrybutu))
+      }}
         <div class="form-group">
           <label>Ilość Atrybutów do wybrania</label>
-                    {{formInput
+          {{formInput
             systemFields.iloscWybieranychAtrybutuow
             value=system.iloscWybieranychAtrybutuow
           }}
         </div>
-                <div class="form-group">
+        <div class="form-group">
           <label>Bonus do Atrybutów</label>
-                    {{formInput
+          {{formInput
             systemFields.bonusDoWybranych
             value=system.bonusDoWybranych
           }}
@@ -154,13 +158,19 @@
           </label>
         {{else}}
           {{#each talenty}}
-            <div>
+            <div class="rasowe-talenty">
               <button
                 class="powiazanyTalent"
                 data-id="{{this.id}}"
                 data-action="otworzTalent"
               >{{this.name}}</button>
+
+              <button data-action="usunTalent" data-id="{{this.id}}"><i
+                  class="fa fa-trash"
+                ></i></button>
+
             </div>
+
           {{/each}}
         {{/if}}
       </div>

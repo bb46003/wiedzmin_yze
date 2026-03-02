@@ -1,0 +1,138 @@
+<section>
+  <div class="profesja" data-item-id="{{item.id}}">
+    <header class="profesja-header flexrow">
+      <div class="image-container">
+        <img
+          class="profile-img"
+          src="{{item.img}}"
+          data-edit="img"
+          data-action="editImage"
+          data-edit="img"
+        />
+      </div>
+      <h3>Nazwa Profesji
+        <input
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="Name"
+        />
+      </h3>
+    </header>
+    <div class="profesja-body">
+      <div class="form-group enriched">
+        <label>Opis</label>
+        {{formInput
+          opis.field
+          value=opis.value
+          enriched=opis.enriched
+          toggled="true"
+        }}
+      </div>
+    </div>
+  </div>
+  <div class="profesja-body">
+    <div class="wymagana-rasa">
+      {{#if (eq system.wymaganaRasa.length 0)}}
+        <label>Jeżeli profesja jest przypisana do konretych ras przeciągnij w to
+          miejsce Przygotowaną wcześniej rase.
+        </label>
+      {{else}}
+        <div class="rasy">
+          {{#each system.wymaganaRasa}}
+            <button
+              data-action="otworzRase"
+              data-id="{{this}}"
+            >{{@root.rasy.name}}</button>
+            <button data-action="usunRase" data-id="{{ithisx}}"><i class="fa fas-trash"></i></button>
+
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+    <div class="atrybut-wiodacy">
+        <label>Wybierz wiodzacy Atrybut dla Profesji <button data-action="dodajAtrybut"><i class="fa fa-plus"></i></button></label>
+        {{#each system.atrybutWiodacy as |atrybutWiodacy index|}}
+            {{formInput
+                @root.systemFields.atrybutWiodacy.element.fields
+                name=(concat "system.atrybutWiodacy." index)
+                value=atrybutWiodacy
+              }}
+          <button data-action="usunAtrybut" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+        {{/each}}
+    </div>
+    <div class="ekwipunek">
+        <label>Ekwipunek</label>
+        {{formInput
+          ekwipunek.field
+          value=ekwipunek.value
+          enriched=ekwipunek.enriched
+          toggled="true"
+        }}
+    </div>
+    <div class="cele-osobiste">
+        <label>Cele osobiste <button data-action="dodajCel"><i class="fa fa-plus"></i></button></label>
+        {{#each system.celeOsobiste as |celeOsobiste index|}}
+            {{formInput
+                @root.systemFields.celeOsobiste.element.fields
+                name=(concat "system.celeOsobiste." index)
+                value=celeOsobiste
+            }}
+            <button data-action="usunCel" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+        {{/each}}
+    </div>
+    <div class="przedmoty-charakterystyczne">
+        <label>Charakterystyczne Przedmioty<button data-action="dodajPrzedmiot"><i class="fa fa-plus"></i></button></label>
+        {{#each system.charakterystycznyPrzedmiot as |charakterystycznyPrzedmiot index|}}
+            {{formInput
+                @root.systemFields.charakterystycznyPrzedmiot.element.fields
+                name=(concat "system.charakterystycznyPrzedmiot." index)
+                value=charakterystycznyPrzedmiot
+            }}
+            <button data-action="usunPrzedmiot" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+
+        {{/each}}
+    </div>
+    <div class="zamoznosc">
+        <label>Zamorzność</label>
+        {{formInput 
+            systemFields.zamorznosc.element.fields
+            name="system.zamorznosc"
+            value=system.zamorznosc        
+        }}
+    </div>
+    <div class="ogranicznie">
+        <label>Umiejętności zawodowe
+          <button data-action="dodajUmiejetnosc">
+          <i class="fa fa-lus"></i></button>
+        </label>
+        {{#each system.umiejetnosciZawodowe as |umiejka index|}}
+        <div class="umiejtenosci-zawodowe {{#if umiejka.wybor}} wybor {{/if}}">
+        {{formInput
+          systemFields.umiejetnosciZawodowe.element.fields.umiejka
+          value=(concat "system.umiejetnosciZawodowe." index "umiejka")
+        }}
+        {{#if umiejka.wybor}}
+        <label>Alternatywa Umiejetność</label>
+        {{formInput
+          systemFields.umiejetnosciZawodowe.element.fields.umiejkaAlternatywna
+          value=(concat "system.umiejetnosciZawodowe." index "umiejkaAlternatywna")
+          classes = "dodatkowy wybor"
+        }}
+        {{/if}}
+    
+      <div class="form-group">
+        <label>Bonus do Umiejętności</label>
+        {{formInput systemFields.umiejetnosciZawodowe.element.fields.bonus value=(concat "system.umiejetnosciZawodowe." index "bonus")}}
+      </div>
+       <div class="form-group">
+        {{formInput systemFields.umiejetnosciZawodowe.element.fields.wybor value=(concat "system.umiejetnosciZawodowe." index "wybor")}}
+       </div>
+       <button data-action="usunUmiejetosc" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+      </div>
+        {{/each}}
+
+    </div>
+    </div>
+  </div>
+</section>
