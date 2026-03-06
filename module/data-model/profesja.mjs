@@ -53,8 +53,8 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
           initial: "",
         }),
       ),
-      zamorznosc: new NumberField({
-        label: "wiedzmin.profesja.zamorznosc",
+      zamoznosc: new NumberField({
+        label: "wiedzmin.profesja.zamoznosc",
         initial: 0,
       }),
 
@@ -83,62 +83,166 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
           }),
           wybor: new BooleanField({
             label: "wiedzmin.profesja.wybor",
-            initial: false
-          })
+            initial: false,
+          }),
         }),
-      )
+      ),
+      talenty: new ArrayField(
+        new SchemaField({
+          uuid: new StringField({
+            initial: "",
+          }),
+          name: new StringField({
+            initial: "",
+          }),
+        }),
+      ),
+      rasy: new ArrayField(
+        new SchemaField({
+          uuid: new StringField({
+            initial: "",
+          }),
+          name: new StringField({
+            initial: "",
+          }),
+        }),
+      ),
     };
   }
 
- async dodajAtrybut(){
+  async dodajAtrybut() {
     const atrybutWiodacy = this.atrybutWiodacy ?? [];
-    const nowy = "";
+
+    // all possible choices
+    const choices = {
+      sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+      zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+      empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
+      rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+    };
+
+    // find keys not yet used
+    const freeKeys = Object.keys(choices).filter(
+      (key) => !atrybutWiodacy.includes(key),
+    );
+
+    // pick first available key, or empty string if none left
+    const nowy = freeKeys[0] ?? "";
+
+    // add it to the array
     atrybutWiodacy.push(nowy);
+
     await this.parent.update({ "system.atrybutWiodacy": atrybutWiodacy });
   }
-  async usunAtrybut(id){
+  async usunAtrybut(id) {
     const atrybutWiodacy = this.atrybutWiodacy;
     atrybutWiodacy.splice(id, 1);
     await this.parent.update({ "system.atrybutWiodacy": atrybutWiodacy });
   }
-  async dodajCel(){
+  async dodajCel() {
     const celeOsobiste = this.celeOsobiste ?? [];
     const nowy = "";
     celeOsobiste.push(nowy);
     await this.parent.update({ "system.celeOsobiste": celeOsobiste });
   }
-  async usunCel(id){
+  async usunCel(id) {
     const celeOsobiste = this.celeOsobiste;
     celeOsobiste.splice(id, 1);
     await this.parent.update({ "system.celeOsobiste": celeOsobiste });
   }
-  async dodajPrzedmiot(){
+  async dodajPrzedmiot() {
     const charakterystycznyPrzedmiot = this.charakterystycznyPrzedmiot ?? [];
-    const nowy = {
-      umiejka: "Brak",
-      bonus: 0,
-      wybor: false
-    };
+    const nowy = "";
     charakterystycznyPrzedmiot.push(nowy);
-    await this.parent.update({ "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot });
+    await this.parent.update({
+      "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot,
+    });
   }
-  async usunPrzedmiot(id){
+  async usunPrzedmiot(id) {
     const charakterystycznyPrzedmiot = this.charakterystycznyPrzedmiot;
     charakterystycznyPrzedmiot.splice(id, 1);
-    await this.parent.update({ "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot });
+    await this.parent.update({
+      "system.charakterystycznyPrzedmiot": charakterystycznyPrzedmiot,
+    });
   }
-  async dodajUmiejetnosc(){
+  async dodajUmiejetnosc() {
+    // Ensure umiejetnosciZawodowe is always an array
     const umiejetnosciZawodowe = this.umiejetnosciZawodowe ?? [];
-    const nowy = "";
+
+    // Map existing values
+    const existingUmiejka = umiejetnosciZawodowe.map((u) => u.umiejka);
+    const existingUmiejkaAlt = umiejetnosciZawodowe.map(
+      (u) => u.umiejkaAlternatywna,
+    );
+
+    // Build choices
+    const wybory = toLabelObject(wiedzmin_yze.config.umiejki);
+
+    // Filter keys that are not yet used in either field
+    const freeKeys = Object.keys(wybory).filter(
+      (key) =>
+        !existingUmiejka.includes(key) && !existingUmiejkaAlt.includes(key),
+    );
+
+    // Prepare new entry
+    const nowy = {
+      umiejka: freeKeys[0] ?? "",
+      umiejkaAlternatywna: "",
+      bonus: 0,
+      wybor: false,
+    };
+
+    // Add to the array
     umiejetnosciZawodowe.push(nowy);
-    await this.parent.update({ "system.bonusyUmiejki": umiejetnosciZawodowe });
+
+    // Update the parent system
+    await this.parent.update({
+      "system.umiejetnosciZawodowe": umiejetnosciZawodowe,
+    });
   }
-  async usunUmiejetosc(id){
+  async usunUmiejetosc(id) {
     const umiejetnosciZawodowe = this.umiejetnosciZawodowe;
     umiejetnosciZawodowe.splice(id, 1);
-    await this.parent.update({ "system.umiejetnosciZawodowe": umiejetnosciZawodowe });
+    await this.parent.update({
+      "system.umiejetnosciZawodowe": umiejetnosciZawodowe,
+    });
   }
-  async usunRase(id){
 
+  async _dodajTalent(uuid, nane) {
+    const talenty = this.talenty ?? [];
+    const nowyTalent = {
+      uuid: uuid,
+      name: nane,
+    };
+    talenty.push(nowyTalent);
+    this.parent.update({ "system.talenty": talenty });
+  }
+  async _dodajRase(uuid, nane) {
+    const rasy = this.rasy ?? [];
+    const nowyRasa = {
+      uuid: uuid,
+      name: nane,
+    };
+    rasy.push(nowyRasa);
+    this.parent.update({ "system.rasy": rasy });
+  }
+  async usunTalent(id) {
+    const talenty = this.talenty;
+
+    const index = talenty.findIndex((talent) => talent.uuid === id);
+    if (index !== -1) {
+      talenty.splice(index, 1);
+    }
+    await this.parent.update({ "system.talenty": talenty });
+  }
+
+  async usunRase(id) {
+    const rasy = this.rasy;
+
+    const index = rasy.findIndex((rasa) => rasa.uuid === id);
+    if (index !== -1) {
+      rasy.splice(index, 1);
+    }
+    await this.parent.update({ "system.rasy": rasy });
   }
 }

@@ -12,9 +12,6 @@ import { talentyItem } from "./document/tenty.mjs";
 import { rasaSheet } from "./sheets/items/rasa.mjs";
 import { profesjeSheet } from "./sheets/items/profesje.mjs";
 
-
-
-
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
   models,
@@ -32,7 +29,7 @@ Hooks.once("init", async function () {
   CONFIG.Item.dataModels = {
     talenty: models.talentyDataModel,
     rasa: models.rasaDataModel,
-    profesja: models.profesjaDataModel
+    profesja: models.profesjaDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(

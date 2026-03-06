@@ -465,8 +465,11 @@
   }
 }
 
-.profesje-sheet{
-    .image-container {
+.profesje-sheet {
+  .window-content {
+    overflow-y: visible;
+  }
+  .image-container {
     display: flex;
     max-width: 130px;
     background: #e2dbc9;
@@ -475,12 +478,69 @@
     align-items: center;
     margin: 10px;
   }
-  .atrybut-wiodacy{
+  .atrybut-wiodacy {
     margin-top: 20px;
-    label{
+    label {
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+  }
+  .profesja-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    .labels {
+      display: grid;
+      grid-template-columns: 1fr 50px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-grup {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+    .zamoznosc {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      input {
+        max-width: 50px;
+        text-align: center;
+      }
+    }
+    .ogranicznie {
+      .form-grup {
+        display: inline;
+        .umiejtenosci-zawodowe {
+          display: flex;
+          flex-direction: column;
+          border: 1px solid;
+          padding: 10px;
+          border-radius: 10px;
+          .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: space-between;
+            input,
+            select {
+              width: 150px;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+    .rasy,
+    .talenty {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
     }
   }
 }

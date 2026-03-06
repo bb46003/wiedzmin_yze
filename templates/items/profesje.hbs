@@ -33,32 +33,61 @@
   </div>
   <div class="profesja-body">
     <div class="wymagana-rasa">
-      {{#if (eq system.wymaganaRasa.length 0)}}
+      <label>Wymagane rasy</label>
+      {{#if (eq system.rasy.length 0)}}
         <label>Jeżeli profesja jest przypisana do konretych ras przeciągnij w to
           miejsce Przygotowaną wcześniej rase.
         </label>
       {{else}}
         <div class="rasy">
-          {{#each system.wymaganaRasa}}
+          {{#each system.rasy}}
             <button
-              data-action="otworzRase"
-              data-id="{{this}}"
-            >{{@root.rasy.name}}</button>
-            <button data-action="usunRase" data-id="{{ithisx}}"><i class="fa fas-trash"></i></button>
+              data-action="otworzPrzedmiot"
+              data-id="{{this.uuid}}"
+            >{{this.name}}</button>
+            <button data-action="usunRase" data-id="{{this.uuid}}"><i class="fa fa-trash"></i></button>
+
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+        <div class="telenty">
+           <label>Talenty z Profesji</label>
+      {{#if (eq system.talenty.length 0)}}
+        <label>Jeżeli profesja zapewnia Talent przeciągnij w to
+          miejsce Przygotowany wcześniej Talent.
+        </label>
+      {{else}}
+        <div class="talenty">
+          {{#each system.talenty}}
+            <button
+              data-action="otworzPrzedmiot"
+              data-id="{{this.uuid}}"
+            >{{this.name}}</button>
+            <button data-action="usunTalent" data-id="{{this.uuid}}"><i class="fa fa-trash"></i></button>
 
           {{/each}}
         </div>
       {{/if}}
     </div>
     <div class="atrybut-wiodacy">
-        <label>Wybierz wiodzacy Atrybut dla Profesji <button data-action="dodajAtrybut"><i class="fa fa-plus"></i></button></label>
+      <div class="labels">
+          <label>Wybierz wiodzacy Atrybut dla Profesji</label>
+          {{#if (eq system.atrybutWiodacy.length 4)}}
+          {{else}}
+          <button data-action="dodajAtrybut"><i class="fa fa-plus"></i></button>
+          {{/if}}
+      </div>
+     
         {{#each system.atrybutWiodacy as |atrybutWiodacy index|}}
+          <div class="form-grup" > 
             {{formInput
-                @root.systemFields.atrybutWiodacy.element.fields
+                @root.systemFields.atrybutWiodacy.element
                 name=(concat "system.atrybutWiodacy." index)
                 value=atrybutWiodacy
               }}
-          <button data-action="usunAtrybut" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+          <button data-action="usunAtrybut" data-id="{{index}}"><i class="fa fa-trash"></i></button>
+          </div>
         {{/each}}
     </div>
     <div class="ekwipunek">
@@ -71,64 +100,96 @@
         }}
     </div>
     <div class="cele-osobiste">
-        <label>Cele osobiste <button data-action="dodajCel"><i class="fa fa-plus"></i></button></label>
+       <div class="labels">
+        <label>Cele osobiste </label>
+        <button data-action="dodajCel"><i class="fa fa-plus"></i></button>
+
+       </div>
         {{#each system.celeOsobiste as |celeOsobiste index|}}
+         <div class="form-grup" >
             {{formInput
-                @root.systemFields.celeOsobiste.element.fields
+                @root.systemFields.celeOsobiste.element
                 name=(concat "system.celeOsobiste." index)
                 value=celeOsobiste
             }}
-            <button data-action="usunCel" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+            <button data-action="usunCel" data-id="{{index}}"><i class="fa fa-trash"></i></button>
+            </div>
         {{/each}}
     </div>
     <div class="przedmoty-charakterystyczne">
-        <label>Charakterystyczne Przedmioty<button data-action="dodajPrzedmiot"><i class="fa fa-plus"></i></button></label>
-        {{#each system.charakterystycznyPrzedmiot as |charakterystycznyPrzedmiot index|}}
-            {{formInput
-                @root.systemFields.charakterystycznyPrzedmiot.element.fields
-                name=(concat "system.charakterystycznyPrzedmiot." index)
-                value=charakterystycznyPrzedmiot
-            }}
-            <button data-action="usunPrzedmiot" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+       <div class="labels">
+        <label>Charakterystyczne Przedmioty</label>
+          <button data-action="dodajPrzedmiot"><i class="fa fa-plus"></i></button>
 
+       </div>
+        {{#each system.charakterystycznyPrzedmiot as |charakterystycznyPrzedmiot index|}}
+         <div class="form-grup" >
+        {{log charakterystycznyPrzedmiot}}
+            {{formInput
+                @root.systemFields.charakterystycznyPrzedmiot.element
+                name=(concat "system.charakterystycznyPrzedmiot." index)
+                value= charakterystycznyPrzedmiot
+            }} 
+            <button data-action="usunPrzedmiot" data-id="{{index}}"><i class="fa fa-trash"></i></button>
+            </div>
         {{/each}}
     </div>
     <div class="zamoznosc">
-        <label>Zamorzność</label>
-        {{formInput 
-            systemFields.zamorznosc.element.fields
-            name="system.zamorznosc"
-            value=system.zamorznosc        
+        <label>Zamożność</label>
+                {{formInput 
+             @root.systemFields.zamoznosc
+            name="system.zamoznosc"
+            value=system.zamoznosc        
         }}
     </div>
     <div class="ogranicznie">
-        <label>Umiejętności zawodowe
+       <div class="labels">
+        <label>Umiejętności zawodowe </label>
           <button data-action="dodajUmiejetnosc">
-          <i class="fa fa-lus"></i></button>
-        </label>
+          <i class="fa fa-plus"></i></button>
+       
+       </div>
+
         {{#each system.umiejetnosciZawodowe as |umiejka index|}}
+         <div class="form-grup" >
         <div class="umiejtenosci-zawodowe {{#if umiejka.wybor}} wybor {{/if}}">
+        <div class="form-group">
+         <label>Umiejetność</label>
         {{formInput
-          systemFields.umiejetnosciZawodowe.element.fields.umiejka
-          value=(concat "system.umiejetnosciZawodowe." index "umiejka")
-        }}
+          @root.systemFields.umiejetnosciZawodowe.element.fields.umiejka
+          name=(concat "system.umiejetnosciZawodowe." index ".umiejka")
+          value= umiejka.umiejka
+        }}</div>
         {{#if umiejka.wybor}}
+        <div class="form-group">
         <label>Alternatywa Umiejetność</label>
         {{formInput
-          systemFields.umiejetnosciZawodowe.element.fields.umiejkaAlternatywna
-          value=(concat "system.umiejetnosciZawodowe." index "umiejkaAlternatywna")
+          @root.systemFields.umiejetnosciZawodowe.element.fields.umiejkaAlternatywna
+          name =(concat "system.umiejetnosciZawodowe." index ".umiejkaAlternatywna")
           classes = "dodatkowy wybor"
+          value= umiejka.umiejkaAlternatywna
         }}
+        </div>
         {{/if}}
     
       <div class="form-group">
         <label>Bonus do Umiejętności</label>
-        {{formInput systemFields.umiejetnosciZawodowe.element.fields.bonus value=(concat "system.umiejetnosciZawodowe." index "bonus")}}
+        {{formInput  
+        @root.systemFields.umiejetnosciZawodowe.element.fields.bonus 
+        name=(concat "system.umiejetnosciZawodowe." index ".bonus")
+        value = umiejka.bonus
+        }}
       </div>
        <div class="form-group">
-        {{formInput systemFields.umiejetnosciZawodowe.element.fields.wybor value=(concat "system.umiejetnosciZawodowe." index "wybor")}}
+        <label>Posiada altrnatywną umiejtność?</label>
+        {{formInput  
+        @root.systemFields.umiejetnosciZawodowe.element.fields.wybor
+        name=(concat "system.umiejetnosciZawodowe." index ".wybor")
+        value = umiejka.wybor
+        }}
        </div>
-       <button data-action="usunUmiejetosc" data-id="{{index}}"><i class="fa fas-trash"></i></button>
+       <button data-action="usunUmiejetosc" data-id="{{index}}"><i class="fa fa-trash"></i></button>
+      </div>
       </div>
         {{/each}}
 

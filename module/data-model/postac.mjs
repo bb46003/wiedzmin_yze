@@ -148,6 +148,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.ciezkie_rany",
         initial: "",
       }),
+      zamoznosc: new NumberField({
+        label: "wiedzmin.profesja.zamoznosc",
+        initial: 0,
+      }),
     };
   }
 
