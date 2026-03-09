@@ -1,0 +1,90 @@
+<div class="wiedzmin-dialog">
+
+  <!-- RASY -->
+  {{#if (ne rasy.length 0)}}
+    <div class="sekcja">
+      <h3>Rasa</h3>
+
+      <div class="form-group">
+        <label>Rasa do wyboru</label>
+
+        <select class="input-rasa">
+          {{#each rasy}}
+            <option value="{{this.uuid}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+
+      </div>
+
+    </div>
+  {{/if}}
+    {{#if (ne atrybutWiodacy.length 1)}}
+    <div class="sekcja">
+      <h3>Wybierz Atrybut wiodący</h3>
+
+      <select class="input-atrybut">
+        {{#each atrybutWiodacy as |label key|}}
+          <option value="{{key}}">{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  {{/if}}
+
+  <!-- CELE OSOBISTE -->
+  {{#if (ne celeOsobiste.length 0)}}
+    <div class="sekcja">
+      <h3>Cele osobiste</h3>
+
+      <select class="input-cele">
+        {{#each celeOsobiste as |label key|}}
+          <option value="{{key}}">{{label}}</option>
+        {{/each}}
+      </select>
+      <label>Alternatywnie wpisz własny Cel Osobisty</label>
+      <textarea data-id="celOsobisty" rows="5"></textarea>
+    </div>
+  {{/if}}
+
+  <!-- CHARAKTERYSTYCZNY PRZEDMIOT -->
+  {{#if (ne charakterystycznyPrzedmiot.length 0)}}
+    <div class="sekcja">
+      <h3>Charakterystyczny przedmiot</h3>
+      <select class="input-przedmiot">
+        {{#each charakterystycznyPrzedmiot as |label key|}}
+          <option value="{{key}}">{{label}}</option>
+        {{/each}}
+      </select>
+      <label>Alternatywnie wpisz własny przedmiot charakterystyczny</label>
+      <textarea data-id="charakterystycznyPrzedmiot" rows="5"></textarea>
+    </div>
+  {{/if}}
+
+  <!-- UMIEJĘTNOŚCI DO WYBORU -->
+  {{#if umiejkiDowyboru.length}}
+    <div class="sekcja">
+      <h3>Umiejętności</h3>
+
+      {{#each umiejkiDowyboru as |umiejka key|}}
+        <div class="form-group">
+          {{log umiejka}}
+          <label>Wybierz umiejętność</label>
+
+          <select class="input-umiejka" data-id="{{key}}">
+            <option value="{{umiejka.umiejka}}">
+              {{umiejka.label}}
+            </option>
+
+            <option value="{{umiejka.umiejkaAlternatywna}}">
+              {{umiejka.umiejkaAlternatywnaLabel}}
+            </option>
+          </select>
+
+          <span class="bonus">+{{umiejka.bonus}}</span>
+
+        </div>
+      {{/each}}
+
+    </div>
+  {{/if}}
+
+</div>

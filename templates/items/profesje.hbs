@@ -124,7 +124,6 @@
        </div>
         {{#each system.charakterystycznyPrzedmiot as |charakterystycznyPrzedmiot index|}}
          <div class="form-grup" >
-        {{log charakterystycznyPrzedmiot}}
             {{formInput
                 @root.systemFields.charakterystycznyPrzedmiot.element
                 name=(concat "system.charakterystycznyPrzedmiot." index)

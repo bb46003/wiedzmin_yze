@@ -233,6 +233,9 @@
     margin-bottom: 15px;
     border-radius: 20px;
     padding: 5px;
+    .flexrow.atr-um{
+      gap: 10px
+    }
   }
 
   .attribute-main {
@@ -261,6 +264,10 @@
       select {
         text-align: center;
       }
+    }
+    .zawodowa{
+      font-weight: bold;
+      color: blue;
     }
   }
 
@@ -541,6 +548,27 @@
       display: flex;
       gap: 10px;
       margin-bottom: 5px;
+    }
+  }
+}
+.wiedzmin-dialog {
+  .sekcja {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+    textarea {
+      width: 100%;
+      resize: vertical;
+      height: 50px;
+    }
+    .form-group {
+      display: grid;
+      grid-template-columns: 2fr 3fr 1fr;
+      align-items: center;
+      select {
+        text-align: center;
+      }
     }
   }
 }

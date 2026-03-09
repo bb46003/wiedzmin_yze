@@ -49,6 +49,28 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { talenty });
     const rasa = await this.prepareRasa();
     Object.assign(context, { rasa });
+    const umiejkiZawodowe = await this.umiejkiZawodowe();
+    Object.assign(context, { umiejkiZawodowe });
+    const profesja = await this.prepareProfesja();
+    Object.assign(context, { profesja });
+        async function enrich(html) {
+      if (html) {
+        return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+          html,
+          {
+            secrets: game.user.isOwner,
+            async: true,
+          },
+        );
+      } else {
+        return html;
+      }
+    }
+    context.ekwipunek = {
+      value: this.actor.system.ekwipunek,
+      enriched: await enrich(this.actor.system.ekwipunek),
+      field: this.actor.system.schema.fields.ekwipunek,
+    };
     return context;
   }
 
@@ -110,7 +132,26 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       return data;
     }
   }
+  async prepareProfesja() {
+    const profesja = this.actor.items.filter(
+      (item) => item.type === "profesja",
+    )[0];
+    if (profesja) {
+      const data = { id: profesja.id, profesjaName: profesja.name };
 
+      return data;
+    }
+  }
+  async umiejkiZawodowe(){
+    const profesja = this.actor.items.filter(
+      (item) => item.type === "profesja",
+    )[0];
+    if (profesja) {
+      return profesja.flags.wiedzmin_yze.wybraneUmiejki
+    }else{
+      return []
+    }
+  }
   async _onDrop(event) {
     event.preventDefault();
 
@@ -139,96 +180,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       }
 
       case "rasa": {
-        const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
-        const posiadanaProfesja = actor.items.filter(
-          (i) => i.type === "profesja",
-        );
-        if (posiadanaRasa.length > 0) {
-          ui.notifications.warn(
-            "Postać posiada już rasę. Usuń ją zanim dodasz nową.",
-          );
-          return;
-        }
-
-        const powiazaneTalenty = itemData.system.talenty;
-
-        for (let i = 0; i < powiazaneTalenty.length; i++) {
-          const sourceTalent = await fromUuid(powiazaneTalenty[i].uuid);
-
-          const created = await actor.createEmbeddedDocuments("Item", [
-            sourceTalent.toObject(),
-          ]);
-          const newItem = created[0];
-          itemData.system.talenty[i].uuid = newItem.uuid;
-        }
-        const podbicieAtrybutu = itemData.system.bonusyAtrybuty;
-        this.actor.system._bonusZRasy(podbicieAtrybutu);
-        if (
-          itemData.system.zapewniaBonusDoUmiejki &&
-          !item.system.wybieraneUmiejki
-        ) {
-          const podbicieUmiejki = itemData.system.bonusyUmiejki;
-          this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
-          stworzPrzedmiot = true;
-        }
-        if (itemData.system.wybieraneUmiejki) {
-          const profesja = this.actor.items.filter((item) => {
-            item.type === "profesja";
-          })[0];
-          const umiejki = toLabelObject(wiedzmin_yze.config.umiejki);
-          stworzPrzedmiot = true;
-        }
-        if (itemData.system.wybieraneAtrybuty) {
-          const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
-          const wartosc = itemData.system.bonusDoWybranych;
-          const choices = {
-            sila: game.i18n.localize("wiedzmin.atrubut.sila"),
-            zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
-            empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
-            rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
-          };
-          const wybory = [];
-          for (let i = 0; i < iloscAtrybutow; i++) {
-            const dane = { lista: choices, wartosc: wartosc };
-            wybory.push(dane);
-          }
-          const content = await foundry.applications.handlebars.renderTemplate(
-            "systems/wiedzmin_yze/templates/dialogs/przydziel-atrybuty.hbs",
-            {
-              wybory: wybory,
-            },
-          );
-          const dialog = new foundry.applications.api.DialogV2({
-            window: { title: "Wiedzmin Roll" },
-            content,
-            buttons: [
-              {
-                label: "zastosuj",
-                action: "zastosuj",
-                default: true,
-                callback: async (_event, _button, dialog) => {
-                  const atrybuty = dialog.element.querySelectorAll(".atrybuty");
-                  const wartosc = dialog.element.querySelector(".wartosc");
-                  const dane = [];
-                  atrybuty.forEach((atr, index) => {
-                    const data = {
-                      bonus: wartosc.innerHTML,
-                      atrybut: atr.value,
-                    };
-                    dane.push(data);
-                    itemData.system.bonusyAtrybuty[index] = data;
-                  });
-                  this.actor.system._bonusZRasy(dane);
-                  await actor.createEmbeddedDocuments("Item", [itemData]);
-                },
-              },
-            ],
-          });
-          dialog.render({ force: true });
-        }
+        await this.dodanieRasy(itemData);
 
         break;
       }
+      case "profesja":
+        await this.dodanieProfesji(itemData);
+        break;
     }
 
     if (stworzPrzedmiot) {
@@ -347,6 +305,12 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     <div class="menu-option" data-action="delete">Usuń Rase</div>
   `;
     }
+    if (item.type === "profesja") {
+      menu.innerHTML = `
+    <div class="menu-option" data-action="open">Otwórz Profesję</div>
+    <div class="menu-option" data-action="delete">Usuń Profesje</div>
+  `;
+    }
 
     // Position at mouse location
     menu.style.position = "absolute";
@@ -413,5 +377,206 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     );
     const editor = new TextEditorApplication({ document: doc, field });
     editor.render({ force: true });
+  }
+
+  async dodanieProfesji(itemData) {
+    const daneItem = itemData.system;
+    const umiejkiDowyboru = daneItem.umiejetnosciZawodowe
+      .filter((e) => e.wybor)
+      .map((e) => ({
+        ...e,
+        label: game.i18n.localize(
+          wiedzmin_yze.config.umiejki[e.umiejka]?.label ?? "-",
+        ),
+        umiejkaAlternatywnaLabel: game.i18n.localize(
+          wiedzmin_yze.config.umiejki[e.umiejkaAlternatywna]?.label ?? "-",
+        ),
+      }));
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/wiedzmin_yze/templates/dialogs/przydziel-rase.hbs",
+      {
+        rasy: daneItem.rasy,
+        celeOsobiste: daneItem.celeOsobiste,
+        charakterystycznyPrzedmiot: daneItem.charakterystycznyPrzedmiot,
+        umiejkiDowyboru: umiejkiDowyboru,
+        atrybutWiodacy: daneItem.atrybutWiodacy
+      },
+    );
+    const dane = await new Promise((resolve) => {
+      const dialog = new foundry.applications.api.DialogV2({
+        window: { title: "Wybory z Profesji" },
+        content,
+        buttons: [
+          {
+            label: "zastosuj",
+            action: "zastosuj",
+            callback: async (_event, _button, dialog) => {
+              const html = dialog.element;
+              const result = {};
+
+              // rasa
+              const rasa = html.querySelector(".input-rasa");
+              if (rasa) result.rasa = rasa.value;
+
+              // cel osobisty
+              const celTextarea = html.querySelector(
+                'textarea[data-id="celOsobisty"]',
+              );
+              const celSelect = html.querySelector(".input-cele");
+
+              if (celTextarea?.value.trim()) {
+                result.celOsobisty = celTextarea.value.trim();
+              } else if (celSelect) {
+                result.celOsobisty = daneItem.celeOsobiste[Number(celSelect.value)];
+              }
+
+              // przedmiot
+              const itemTextarea = html.querySelector(
+                'textarea[data-id="charakterystycznyPrzedmiot"]',
+              );
+              const itemSelect = html.querySelector(".input-przedmiot");
+
+              if (itemTextarea?.value.trim()) {
+                result.charakterystycznyPrzedmiot = itemTextarea.value.trim();
+              } else if (itemSelect) {
+                result.charakterystycznyPrzedmiot =
+                  daneItem.charakterystycznyPrzedmiot[Number(itemSelect.value)];
+              }
+
+              // umiejętności
+              result.umiejetnosci = [
+                ...html.querySelectorAll(".input-umiejka"),
+              ].map((s) => s.value);
+
+              //atrybut
+               const atrSelect = html.querySelector(".input-atrybut");
+                result.atrybutWiodacy = daneItem.atrybutWiodacy[Number(atrSelect.value)];
+
+              resolve(result);
+            },
+          },
+        ],
+      });
+      dialog.render({ force: true });
+    });
+
+    const dataUpdate = {
+      "system.zamoznosc": daneItem.zamoznosc,
+      "system.cele_osobiste": dane.celOsobisty,
+      "system.charakterystyczny_przedmiot": dane.charakterystycznyPrzedmiot,
+      "system.ekwipunek": daneItem.ekwipunek,
+    };
+    const rasa = await fromUuid(dane.rasa);
+    const rasaItem = rasa.toObject();
+    await this.dodanieRasy(rasaItem);
+    const powiazaneTalenty = daneItem.talenty;
+    const actor = this.actor;
+    await this.powiazaneTalenty(powiazaneTalenty, itemData, actor);
+    const profsjaItem = await actor.createEmbeddedDocuments("Item", [itemData]);
+    await profsjaItem[0].setFlag(
+      "wiedzmin_yze",
+      "wybraneUmiejki",
+      dane.umiejetnosci,
+    );
+    await profsjaItem[0].setFlag(
+      "wiedzmin_yze",
+      "atrybutWiodacy",
+      dane.atrybutWiodacy,
+    );
+    await actor.system.atrybutWiodacy(dane.atrybutWiodacy)
+    await actor.update(dataUpdate);
+  }
+  async dodanieRasy(itemData) {
+    const actor = this.actor;
+    const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
+    const posiadanaProfesja = actor.items.filter((i) => i.type === "profesja");
+    if (posiadanaRasa.length > 0) {
+      ui.notifications.warn(
+        "Postać posiada już rasę. Usuń ją zanim dodasz nową.",
+      );
+      return;
+    }
+
+    const powiazaneTalenty = itemData.system.talenty;
+
+    await this.powiazaneTalenty(powiazaneTalenty, itemData, actor);
+    const podbicieAtrybutu = itemData.system.bonusyAtrybuty;
+    this.actor.system._bonusZRasy(podbicieAtrybutu);
+    if (
+      itemData.system.zapewniaBonusDoUmiejki &&
+      !item.system.wybieraneUmiejki
+    ) {
+      const podbicieUmiejki = itemData.system.bonusyUmiejki;
+      this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
+      stworzPrzedmiot = true;
+    }
+    if (itemData.system.wybieraneUmiejki) {
+      const profesja = this.actor.items.filter((item) => {
+        item.type === "profesja";
+      })[0];
+      const umiejki = toLabelObject(wiedzmin_yze.config.umiejki);
+      stworzPrzedmiot = true;
+    }
+    if (itemData.system.wybieraneAtrybuty) {
+      const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
+      const wartosc = itemData.system.bonusDoWybranych;
+      const choices = {
+        sila: game.i18n.localize("wiedzmin.atrubut.sila"),
+        zrecznosc: game.i18n.localize("wiedzmin.atrubut.zrecznosc"),
+        empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
+        rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
+      };
+      const wybory = [];
+      for (let i = 0; i < iloscAtrybutow; i++) {
+        const dane = { lista: choices, wartosc: wartosc };
+        wybory.push(dane);
+      }
+      const content = await foundry.applications.handlebars.renderTemplate(
+        "systems/wiedzmin_yze/templates/dialogs/przydziel-atrybuty.hbs",
+        {
+          wybory: wybory,
+        },
+      );
+      const dialog = new foundry.applications.api.DialogV2({
+        window: { title: "Wybory z Rasy" },
+        content,
+        buttons: [
+          {
+            label: "zastosuj",
+            action: "zastosuj",
+            default: true,
+            callback: async (_event, _button, dialog) => {
+              const atrybuty = dialog.element.querySelectorAll(".atrybuty");
+              const wartosc = dialog.element.querySelector(".wartosc");
+              const dane = [];
+              atrybuty.forEach((atr, index) => {
+                const data = {
+                  bonus: wartosc.innerHTML,
+                  atrybut: atr.value,
+                };
+                dane.push(data);
+                itemData.system.bonusyAtrybuty[index] = data;
+              });
+              this.actor.system._bonusZRasy(dane);
+              await actor.createEmbeddedDocuments("Item", [itemData]);
+            },
+          },
+        ],
+      });
+      dialog.render({ force: true });
+    } else {
+      await actor.createEmbeddedDocuments("Item", [itemData]);
+    }
+  }
+  async powiazaneTalenty(powiazaneTalenty, itemData, actor) {
+    for (let i = 0; i < powiazaneTalenty.length; i++) {
+      const sourceTalent = await fromUuid(powiazaneTalenty[i].uuid);
+
+      const created = await actor.createEmbeddedDocuments("Item", [
+        sourceTalent.toObject(),
+      ]);
+      const newItem = created[0];
+      itemData.system.talenty[i].uuid = newItem.uuid;
+    }
   }
 }

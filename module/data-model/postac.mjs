@@ -23,7 +23,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.sila",
             initial: 2,
             required: true,
-            max: 4,
+            max: sprawdzeWiodacy("sila", this),
           }),
           umiejetnosci: new SchemaField({
             krzepa: new NumberField({
@@ -48,7 +48,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.rozum",
             initial: 2,
             required: true,
-            max: 4,
+            max: sprawdzeWiodacy("rozum", this),
           }),
           umiejetnosci: new SchemaField({
             spostrzegawczosc: new NumberField({
@@ -73,7 +73,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.empatia",
             initial: 2,
             required: true,
-            max: 4,
+            max: sprawdzeWiodacy("empatia", this),
           }),
           umiejetnosci: new SchemaField({
             wplyw: new NumberField({
@@ -98,7 +98,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.zrecznosc",
             initial: 2,
             required: true,
-            max: 4,
+            max: sprawdzeWiodacy("zrecznosc", this),
           }),
           umiejetnosci: new SchemaField({
             zwinnosc: new NumberField({
@@ -138,6 +138,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         max: new NumberField({ label: "wiedzmin.adrenalina.max", initial: 9 }),
       }),
       cele_osobiste: new StringField({ initial: "" }),
+      charakterystyczny_przedmiot: new StringField({ initial: "" }),
       pd: new NumberField({ label: "wiedzmin.pd", initial: 0 }),
       punkty_fabuly: new NumberField({
         label: "wiedzmin.punktyFabuly",
@@ -152,6 +153,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.profesja.zamoznosc",
         initial: 0,
       }),
+      ekwipunek: new HTMLField({
+        label: "wiedzmin.talent.opis",
+        initial: "",
+        required: true,
+      }),
     };
   }
 
@@ -161,6 +167,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       console.error(`Schema for ${this.name} is empty.`);
     return schema;
   }
+
   /** @override */
   prepareDerivedData() {
     super.prepareDerivedData();
@@ -344,6 +351,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value + podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.max`] = this.atrybuty[podbicie.atrybut].max + podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
     await this.parent.update(updateData);
@@ -365,6 +373,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value - podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.max`] = this.atrybuty[podbicie.atrybut].max - podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
     await this.parent.update(updateData);
@@ -382,4 +391,26 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
+  async atrybutWiodacy(atrybutWiodacy){
+    const updateData = {};
+    const currentMax = this.schema.fields.atrybuty.fields[atrybutWiodacy].fields.value.max
+    const newMax = this.schema.fields.atrybuty.fields[atrybutWiodacy].fields.value.max + 1
+    
+
+  }
 }
+function   sprawdzeWiodacy(key, schema){
+  console.log(schema)
+  const profesja = false
+    if(profesja){
+      const wiodace = profesja.flags.wiedzmin_yze.atrybutWiodacy;
+      if(wiodace === key){
+        return 5
+      }else{
+        return 4
+      }
+
+    }else{
+      return 4
+    }
+  }

@@ -45,4 +45,12 @@ export function registerHandlebarsHelpers() {
 
     return result;
   });
+
+    Handlebars.registerHelper("zawodowa", function (umiejka, umiejkiZawodowe) {
+    if(umiejkiZawodowe.includes(umiejka)){
+      return true
+    }else{
+      return false
+    }
+  });
 }

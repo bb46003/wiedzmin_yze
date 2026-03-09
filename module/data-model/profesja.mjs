@@ -30,12 +30,6 @@ export class profesjaDataModel extends foundry.abstract.TypeDataModel {
           required: true,
         }),
       ),
-      wymaganaRasa: new ArrayField(
-        new StringField({
-          label: "wiedzin.profesja.wymaganaRasa",
-          initial: "",
-        }),
-      ),
       ekwipunek: new HTMLField({
         label: "wiedzmin.talent.opis",
         initial: "",

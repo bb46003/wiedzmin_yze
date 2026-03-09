@@ -5,11 +5,14 @@
         <a data-action="rzut_atrybut" data-atrybut="{{atrybut.name}}">{{localize
             atrybut.fields.value.label
           }}</a>
+          <div class="flexrow atr-um">
         {{formInput
           atrybut.fields.value
           value=(lookup (lookup @root.system.atrybuty atrybut.name) "value")
           type="number"
         }}
+        <span>/{{atrybut.fields.value.max}}</span>
+        </div>
       </div>
 
       {{#with
@@ -23,19 +26,34 @@
                 data-action="rzut_umiejka"
                 data-umiejka="{{umiejka.name}}"
                 data-atrybut="{{atrybut.name}}"
+                {{log @root.umiejkiZawodowe}}
+                {{#if (zawodowa umiejka.name @root.umiejkiZawodowe)}}
+                  class="zawodowa"
+                {{/if}}
+                {{#if (eq umiejka.name "fach")}}
+                 {{#if (zawodowa @root.system.specjalizacjaFach @root.umiejkiZawodowe)}}
+                  class="zawodowa"
+                {{/if}}
+                {{/if}}
+
               >{{localize umiejka.label}}
                 {{#if (eq umiejka.name "fach")}}
+                
                   {{formInput
                     @root.systemFields.specjalizacjaFach
                     value=@root.system.specjalizacjaFach
                   }}
+                  
                 {{/if}}
               </a>
+              <div class="flexrow atr-um">
               {{formInput
                 umiejka
                 value=(lookup skills umiejka.name)
                 type="number"
               }}
+                  <span>/{{umiejka.max}}</span>
+              </div>
             </div>
           {{/each}}
         </div>
