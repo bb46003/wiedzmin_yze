@@ -1,6 +1,4 @@
-<div>
-
-  <div class="sheet-header">
+<section class="sheet-header">
   <div class="image-container">
     <img
       class="profile-img"
@@ -12,66 +10,45 @@
   </div>
   <div class="identity">
     <label>Miano</label>
-    <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+    <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
     <label>Rasa</label>
     {{#if rasa}}
-    <div class="flexrow">
-      <label class="rasa-label">  {{rasa.rasaName}}</label>
-      <a class="threeDots"  data-action="itemContextMenu" data-item="{{rasa.id}}">
+      <div class="flexrow">
+        <label class="rasa-label"> {{rasa.rasaName}}</label>
+        <a
+          class="threeDots"
+          data-action="itemContextMenu"
+          data-item="{{rasa.id}}"
+        >
           <i class="fas fa-ellipsis-v"></i>
         </a>
-    </div>
+      </div>
     {{else}}
-    <div></div>
-   {{/if}}
+      <div></div>
+    {{/if}}
     <label>Profesja</label>
-        {{#if profesja}}
-    <div class="flexrow">
-      <label class="rasa-label">  {{profesja.profesjaName}}</label>
-      <a class="threeDots"  data-action="itemContextMenu" data-item="{{profesja.id}}">
+    {{#if profesja}}
+      <div class="flexrow">
+        <label class="rasa-label"> {{profesja.profesjaName}}</label>
+        <a
+          class="threeDots"
+          data-action="itemContextMenu"
+          data-item="{{profesja.id}}"
+        >
           <i class="fas fa-ellipsis-v"></i>
         </a>
-    </div>
+      </div>
     {{else}}
-    <div></div>
-   {{/if}}
-    
+      <div></div>
+    {{/if}}
+
     <label>PD</label>
     {{formInput systemFields.pd value=system.pd type="number"}}
     <label>Zamożność</label>
     {{formInput systemFields.zamoznosc value=system.zamoznosc type="number"}}
-    
-
-
-    
-      <label>Cele Osobiste</label>
-<textarea name="system.cele_osobiste" rows="4">
-  {{system.cele_osobiste}}
-</textarea>
+    <label>Cele Osobiste</label>
+    <textarea name="system.cele_osobiste" rows="4">
+      {{system.cele_osobiste}}
+    </textarea>
   </div>
-</div>
-
-  <section class="sheet-body flexrow">
-
-    <div class="left-column">
-      {{> "systems/wiedzmin_yze/templates/postac/resources.hbs"}}
-      {{> "systems/wiedzmin_yze/templates/postac/conditions.hbs"}}
-      
-    </div>
-
-    <div class="center-column">
-      {{> "systems/wiedzmin_yze/templates/postac/attributes.hbs"}}
-    </div>
-
-    <div class="right-column">
-      {{> "systems/wiedzmin_yze/templates/postac/talents.hbs"}}
-      {{> "systems/wiedzmin_yze/templates/postac/weapons.hbs"}}
-      {{> "systems/wiedzmin_yze/templates/postac/equipment.hbs"}}
-      
-    </div>
-    <div class="bottom-row">
-      {{> "systems/wiedzmin_yze/templates/postac/notes.hbs"}}
-    </div>
-
-  </section>
-</div>
+</section>

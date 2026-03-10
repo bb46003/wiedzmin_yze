@@ -5,14 +5,65 @@
   --input-text-color: black;
   resize: auto;
   .window-content {
-    overflow-y: scroll;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: auto 270px 330px 250px 250px;
+    gap: 8px;
+    height: 100%;
+    overflow-y: auto;
   }
+
+  .window-content .sheet-header {
+    grid-column: 1 / 4;
+    grid-row: 1;
+  }
+
+  .window-content .resources {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .window-content .conditions {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .window-content .all-attribues {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    overflow: auto;
+  }
+
+  .window-content .talents {
+    grid-column: 3;
+    grid-row: 2;
+    overflow-y: auto;
+  }
+
+  .window-content .weapons {
+    grid-column: 3;
+    grid-row: 3;
+    overflow-y: auto;
+  }
+
+  .window-content .equipment {
+    grid-column: 1 / 4;
+    grid-row: 4;
+    overflow-y: auto;
+  }
+
+  .window-content .notes {
+    grid-column: 1 / 4;
+    grid-row: 5;
+  }
+
   h3 {
     text-align: center;
     font-weight: bold;
     border-bottom: 2px solid #444;
     margin-bottom: 8px;
     padding-bottom: 4px;
+    color: black;
   }
   input {
     color: black;
@@ -41,10 +92,12 @@
   }
   .identity {
     display: grid;
-    grid-template-columns: 1fr 5fr;
+    grid-template-columns: 1fr 5fr 1fr 5fr;
     column-gap: 30px;
     row-gap: 10px;
     align-items: center;
+    padding-left: 30px;
+    padding-right: 30px;
     .rasa-label,
     .threeDots {
       max-width: min-content;
@@ -74,7 +127,6 @@
   .all-attribues {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
   }
   input,
   textarea {
@@ -200,7 +252,7 @@
   /* ============================= */
   .image-container {
     display: flex;
-    max-width: 130px;
+    max-width: 180px;
     background: #e2dbc9;
     border: 4px solid black;
     border-radius: 20px;
@@ -233,8 +285,8 @@
     margin-bottom: 15px;
     border-radius: 20px;
     padding: 5px;
-    .flexrow.atr-um{
-      gap: 10px
+    .flexrow.atr-um {
+      gap: 10px;
     }
   }
 
@@ -265,7 +317,7 @@
         text-align: center;
       }
     }
-    .zawodowa{
+    .zawodowa {
       font-weight: bold;
       color: blue;
     }
@@ -367,6 +419,9 @@
       width: 24px;
     }
   }
+}
+.all-attribues {
+  overflow-y: visible;
 }
 .forsuj-button {
   margin-top: 10px;

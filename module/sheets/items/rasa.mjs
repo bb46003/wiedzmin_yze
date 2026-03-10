@@ -62,6 +62,7 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       field: this.item.system.schema.fields.opis,
     };
     context.talenty = await this._przygotujTalenty();
+    console.log(context);
     return context;
   }
   async _przygotujTalenty() {

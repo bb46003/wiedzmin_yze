@@ -32,6 +32,34 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       id: "tabs",
       template: `systems/wiedzmin_yze/templates/postac/glowna.hbs`,
     },
+    zasoby: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/resources.hbs",
+    },
+    statusy: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/conditions.hbs",
+    },
+    atrybuty: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/attributes.hbs",
+    },
+    talenty: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/talents.hbs",
+    },
+    bronie: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/weapons.hbs",
+    },
+    eq: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/equipment.hbs",
+    },
+    notatki: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/postac/notes.hbs",
+    },
   };
   /** @override */
   async _prepareContext(options) {
@@ -43,6 +71,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       fields: this.actor.schema.fields,
       systemFields: this.actor.system.schema.fields,
     });
+    const atrybyty = ["sila", "rozum", "empatia", "zrecznosc"];
+    atrybyty.forEach((key) => {
+      context.systemFields.atrybuty.fields[key].fields.value.max =
+        this.actor.system.atrybuty[key].max;
+    });
     const { conditions } = await this._prepareConditions();
     Object.assign(context, { conditions });
     const talenty = await this.prepareTelenty();
@@ -53,7 +86,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { umiejkiZawodowe });
     const profesja = await this.prepareProfesja();
     Object.assign(context, { profesja });
-        async function enrich(html) {
+    async function enrich(html) {
       if (html) {
         return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
           html,
@@ -142,14 +175,14 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       return data;
     }
   }
-  async umiejkiZawodowe(){
+  async umiejkiZawodowe() {
     const profesja = this.actor.items.filter(
       (item) => item.type === "profesja",
     )[0];
     if (profesja) {
-      return profesja.flags.wiedzmin_yze.wybraneUmiejki
-    }else{
-      return []
+      return profesja?.flags?.wiedzmin_yze?.wybraneUmiejki || [];
+    } else {
+      return [];
     }
   }
   async _onDrop(event) {
@@ -180,7 +213,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       }
 
       case "rasa": {
-        await this.dodanieRasy(itemData);
+        await this.dodanieRasy(itemData, {});
 
         break;
       }
@@ -226,6 +259,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       );
       formData.object["system.punkty_mocy.value"] = this.getMax(inputsMoc);
     }
+
     return super._processFormData(event, form, formData);
   }
 
@@ -276,7 +310,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   static async #rzut_talen(ev) {
     const target = ev.target;
     const itemID = target.parentNode.dataset.item;
-    const item = [this.actor.items.get(itemID)];
+    const item = this.actor.items.get(itemID);
     const atrybut = item.system.powiazaneAtrybuty;
     this.actor.system.rzutAtrybut(atrybut, item);
   }
@@ -399,7 +433,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         celeOsobiste: daneItem.celeOsobiste,
         charakterystycznyPrzedmiot: daneItem.charakterystycznyPrzedmiot,
         umiejkiDowyboru: umiejkiDowyboru,
-        atrybutWiodacy: daneItem.atrybutWiodacy
+        atrybutWiodacy: daneItem.atrybutWiodacy,
       },
     );
     const dane = await new Promise((resolve) => {
@@ -427,7 +461,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
               if (celTextarea?.value.trim()) {
                 result.celOsobisty = celTextarea.value.trim();
               } else if (celSelect) {
-                result.celOsobisty = daneItem.celeOsobiste[Number(celSelect.value)];
+                result.celOsobisty =
+                  daneItem.celeOsobiste[Number(celSelect.value)];
               }
 
               // przedmiot
@@ -449,8 +484,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
               ].map((s) => s.value);
 
               //atrybut
-               const atrSelect = html.querySelector(".input-atrybut");
-                result.atrybutWiodacy = daneItem.atrybutWiodacy[Number(atrSelect.value)];
+              const atrSelect = html.querySelector(".input-atrybut");
+              result.atrybutWiodacy =
+                daneItem.atrybutWiodacy[Number(atrSelect.value)];
 
               resolve(result);
             },
@@ -468,7 +504,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     };
     const rasa = await fromUuid(dane.rasa);
     const rasaItem = rasa.toObject();
-    await this.dodanieRasy(rasaItem);
+    
     const powiazaneTalenty = daneItem.talenty;
     const actor = this.actor;
     await this.powiazaneTalenty(powiazaneTalenty, itemData, actor);
@@ -483,18 +519,35 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       "atrybutWiodacy",
       dane.atrybutWiodacy,
     );
-    await actor.system.atrybutWiodacy(dane.atrybutWiodacy)
+    await actor.system.atrybutWiodacy(dane.atrybutWiodacy);
     await actor.update(dataUpdate);
+    await this.dodanieRasy(rasaItem, profsjaItem[0]);
   }
-  async dodanieRasy(itemData) {
+  async dodanieRasy(itemData, profesja) {
+    let wybraneUmiejki = [];
     const actor = this.actor;
     const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
-    const posiadanaProfesja = actor.items.filter((i) => i.type === "profesja");
-    if (posiadanaRasa.length > 0) {
+    const posiadanaProfesja = profesja;
+    const rasyProfesji = posiadanaProfesja?.system?.rasy;
+        const hasMatchingName = rasyProfesji.some(
+        (item) => item.name === posiadanaRasa[0].name
+    );
+    if (posiadanaRasa.length > 0 && Object.keys(profesja).length === 0) {
       ui.notifications.warn(
         "Postać posiada już rasę. Usuń ją zanim dodasz nową.",
       );
       return;
+    }
+    if (!hasMatchingName && posiadanaRasa.length !== 0) {
+      ui.notifications.warn(
+        "Postać posiada inną rasę niż wymagana do Profesji",
+
+      );
+       await profesja?.delete();
+      return;
+    }
+    if(posiadanaRasa.length !== 0 && hasMatchingName){
+      return
     }
 
     const powiazaneTalenty = itemData.system.talenty;
@@ -504,18 +557,118 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     this.actor.system._bonusZRasy(podbicieAtrybutu);
     if (
       itemData.system.zapewniaBonusDoUmiejki &&
-      !item.system.wybieraneUmiejki
+      !itemData.system.wybieraneUmiejki
     ) {
       const podbicieUmiejki = itemData.system.bonusyUmiejki;
       this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
       stworzPrzedmiot = true;
     }
     if (itemData.system.wybieraneUmiejki) {
-      const profesja = this.actor.items.filter((item) => {
-        item.type === "profesja";
-      })[0];
-      const umiejki = toLabelObject(wiedzmin_yze.config.umiejki);
-      stworzPrzedmiot = true;
+     
+      const umiejkiZprofesji =
+        profesja?.flags?.wiedzmin_yze.wybraneUmiejki || [];
+      const umiejki = wiedzmin_yze.config.umiejki;
+      const umiejkiDowyboru = Object.fromEntries(
+        Object.entries(umiejki).filter(
+          ([key]) => !umiejkiZprofesji.includes(key),
+        ),
+      );
+      const content = await foundry.applications.handlebars.renderTemplate(
+        "systems/wiedzmin_yze/templates/dialogs/przydziel-umiejki-rasa.hbs",
+        {
+          umiejkiDowyboru: umiejkiDowyboru,
+          ilosc: itemData.system.iloscUmiejekDoWyboru,
+        },
+      );
+      wybraneUmiejki = await new Promise((resolve) => {
+        const dialog = new foundry.applications.api.DialogV2({
+          window: { title: "Wybory z Profesji" },
+          content,
+          buttons: [
+            {
+              label: "Zastosuj",
+              action: "zastosuj",
+              callback: (_event, _button, dlg) => {
+                const values = [
+                  ...dlg.element.querySelectorAll("select.input-umiejka"),
+                ]
+                  .map((s) => s.value)
+                  .filter(Boolean);
+                resolve(values);
+              },
+            },
+          ],
+        });
+
+        // --- Override _onRender AFTER creating the dialog ---
+        dialog._onRender = function () {
+          const selectors = this.element.querySelectorAll(
+            "select.input-umiejka",
+          );
+          const initialValue = selectors[0].value;
+          selectors.forEach((otherSelect) => {
+            if (otherSelect === selectors[0]) return; // skip the select that changed
+
+            // Enable all options first
+            Array.from(otherSelect.options).forEach((opt) => {
+              opt.disabled = false;
+            });
+
+            // Disable the option that matches the selected value
+            const optionToDisable = otherSelect.querySelector(
+              `option[value="${initialValue}"]`,
+            );
+            if (optionToDisable) optionToDisable.disabled = true;
+
+            // If the disabled option is currently selected, reset the select
+            if (otherSelect.value === initialValue) {
+              otherSelect.value = "";
+            }
+          });
+          selectors.forEach((select) => {
+            select.addEventListener("change", (ev) => {
+              const target = ev.target; // the select that triggered the change
+              const selectedValue = target.value;
+
+              // Loop through all selects
+              selectors.forEach((otherSelect) => {
+                if (otherSelect === target) return; // skip the select that changed
+
+                // Enable all options first
+                Array.from(otherSelect.options).forEach((opt) => {
+                  opt.disabled = false;
+                });
+
+                // Disable the option that matches the selected value
+                const optionToDisable = otherSelect.querySelector(
+                  `option[value="${selectedValue}"]`,
+                );
+                if (optionToDisable) optionToDisable.disabled = true;
+
+                // If the disabled option is currently selected, reset the select
+                if (otherSelect.value === selectedValue) {
+                  otherSelect.value = "";
+                }
+              });
+            });
+          });
+        };
+
+        // Render the dialog
+        dialog.render(true);
+      });
+
+      const podbicieUmiejki = [];
+      wybraneUmiejki.forEach((key) => {
+        const dane = {
+          umiejka: key,
+          bonus: 1,
+        };
+        podbicieUmiejki.push(dane);
+      });
+
+      this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
+
     }
     if (itemData.system.wybieraneAtrybuty) {
       const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
@@ -558,14 +711,22 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
                 itemData.system.bonusyAtrybuty[index] = data;
               });
               this.actor.system._bonusZRasy(dane);
-              await actor.createEmbeddedDocuments("Item", [itemData]);
+              const item = await actor.createEmbeddedDocuments("Item", [
+                itemData,
+              ]);
+              if (wybraneUmiejki.length > 0) {
+                item[0].setFlag("wiedzmin_yze", "wybraneUmiejki", wybraneUmiejki);
+              }
             },
           },
         ],
       });
       dialog.render({ force: true });
     } else {
-      await actor.createEmbeddedDocuments("Item", [itemData]);
+      const item = await actor.createEmbeddedDocuments("Item", [itemData]);
+      if (wybraneUmiejki.length > 0) {
+        item[0].setFlag("wiedzmin_yze", "wybraneUmiejki", wybraneUmiejki);
+      }
     }
   }
   async powiazaneTalenty(powiazaneTalenty, itemData, actor) {

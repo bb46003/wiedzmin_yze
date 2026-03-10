@@ -149,6 +149,12 @@
 
           </div>
         {{/each}}
+      {{else}}
+        <label>Ile umiejętności do Wybrania?</label>
+        {{formInput
+          systemFields.iloscUmiejekDoWyboru
+          value=system.iloscUmiejekDoWyboru
+        }}
       {{/if}}
       <div class="talent-rasowy">
         <label>Talenty Rasowe</label>

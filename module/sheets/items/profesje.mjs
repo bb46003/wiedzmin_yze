@@ -125,6 +125,74 @@ export class profesjeSheet extends api.HandlebarsApplicationMixin(
         drop: this._onDrop.bind(this),
       },
     }).bind(this.element);
+
+    const id = document.rootId;
+    const element = document.document.apps[id].element;
+
+    // --------- 1. Atrybuty Wiodące ---------
+    const divAtrybuty = element.querySelector(".atrybut-wiodacy");
+    if (divAtrybuty) {
+      const atrybutyGroups = divAtrybuty.querySelectorAll(".form-grup");
+      const atrybutySelects = [...atrybutyGroups]
+        .map((g) => g.querySelector("select"))
+        .filter(Boolean);
+
+      if (atrybutySelects.length > 0) {
+        const allAtrybutValues = [...atrybutySelects[0].options].map(
+          (o) => o.value,
+        );
+
+        atrybutySelects.forEach((currentSelect) => {
+          const otherValues = atrybutySelects
+            .filter((s) => s !== currentSelect)
+            .map((s) => s.value)
+            .filter((v) => v !== "");
+
+          [...currentSelect.options].forEach((option) => {
+            option.disabled = otherValues.includes(option.value);
+          });
+
+          if (otherValues.includes(currentSelect.value)) {
+            const freeValue = allAtrybutValues.find(
+              (v) => !otherValues.includes(v),
+            );
+            if (freeValue) currentSelect.value = freeValue;
+          }
+        });
+      }
+
+      // --------- 2. Umiejętności Zawodowe ---------
+      const divUmiejetnosci = element.querySelector(".ogranicznie");
+      if (divUmiejetnosci) {
+        const umiejkaSelects = [
+          ...divUmiejetnosci.querySelectorAll(".umiejtenosci-zawodowe select"),
+        ].filter(Boolean);
+
+        if (umiejkaSelects.length > 0) {
+          const allUmiejkaValues = [...umiejkaSelects[0].options].map(
+            (o) => o.value,
+          );
+
+          umiejkaSelects.forEach((currentSelect) => {
+            const otherValues = umiejkaSelects
+              .filter((s) => s !== currentSelect)
+              .map((s) => s.value)
+              .filter((v) => v !== "");
+
+            [...currentSelect.options].forEach((option) => {
+              option.disabled = otherValues.includes(option.value);
+            });
+
+            if (otherValues.includes(currentSelect.value)) {
+              const freeValue = allUmiejkaValues.find(
+                (v) => !otherValues.includes(v),
+              );
+              if (freeValue) currentSelect.value = freeValue;
+            }
+          });
+        }
+      }
+    }
   }
   _onDragStart(event) {
     ui.context?.close({ animate: false });

@@ -23,7 +23,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.sila",
             initial: 2,
             required: true,
-            max: sprawdzeWiodacy("sila", this),
+          }),
+          max: new NumberField({
+            label: "wiedzmin.atrubut.sila",
+            initial: 4,
+            required: true,
           }),
           umiejetnosci: new SchemaField({
             krzepa: new NumberField({
@@ -48,7 +52,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.rozum",
             initial: 2,
             required: true,
-            max: sprawdzeWiodacy("rozum", this),
+          }),
+          max: new NumberField({
+            label: "wiedzmin.atrubut.sila",
+            initial: 4,
+            required: true,
           }),
           umiejetnosci: new SchemaField({
             spostrzegawczosc: new NumberField({
@@ -73,7 +81,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.empatia",
             initial: 2,
             required: true,
-            max: sprawdzeWiodacy("empatia", this),
+          }),
+          max: new NumberField({
+            label: "wiedzmin.atrubut.sila",
+            initial: 4,
+            required: true,
           }),
           umiejetnosci: new SchemaField({
             wplyw: new NumberField({
@@ -98,7 +110,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
             label: "wiedzmin.atrubut.zrecznosc",
             initial: 2,
             required: true,
-            max: sprawdzeWiodacy("zrecznosc", this),
+          }),
+          max: new NumberField({
+            label: "wiedzmin.atrubut.sila",
+            initial: 4,
+            required: true,
           }),
           umiejetnosci: new SchemaField({
             zwinnosc: new NumberField({
@@ -351,7 +367,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value + podbicie.bonus;
-      updateData[`system.atrybuty.${podbicie.atrybut}.max`] = this.atrybuty[podbicie.atrybut].max + podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.max`] =
+        this.atrybuty[podbicie.atrybut].max + podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
     await this.parent.update(updateData);
@@ -373,7 +390,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
       const atrybut = this.atrybuty[podbicie.atrybut].value - podbicie.bonus;
-      updateData[`system.atrybuty.${podbicie.atrybut}.max`] = this.atrybuty[podbicie.atrybut].max - podbicie.bonus;
+      updateData[`system.atrybuty.${podbicie.atrybut}.max`] =
+        this.atrybuty[podbicie.atrybut].max - podbicie.bonus;
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
     await this.parent.update(updateData);
@@ -391,26 +409,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
-  async atrybutWiodacy(atrybutWiodacy){
+  async atrybutWiodacy(atrybutWiodacy) {
     const updateData = {};
-    const currentMax = this.schema.fields.atrybuty.fields[atrybutWiodacy].fields.value.max
-    const newMax = this.schema.fields.atrybuty.fields[atrybutWiodacy].fields.value.max + 1
-    
-
+    updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
+      this.atrybuty[atrybutWiodacy].max + 1;
+    await this.parent.update(updateData);
   }
 }
-function   sprawdzeWiodacy(key, schema){
-  console.log(schema)
-  const profesja = false
-    if(profesja){
-      const wiodace = profesja.flags.wiedzmin_yze.atrybutWiodacy;
-      if(wiodace === key){
-        return 5
-      }else{
-        return 4
-      }
-
-    }else{
-      return 4
-    }
-  }

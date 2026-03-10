@@ -68,6 +68,10 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       ),
+      iloscUmiejekDoWyboru: new NumberField({
+        label: "wiedzmin.tasa.bonusDoUmiejki",
+        initial: 2,
+      }),
       opis: new HTMLField({
         label: "wiedzmin.talent.opis",
         initial: "",

@@ -1,0 +1,13 @@
+<div class="sekcja">
+  <h3>Umiejętności</h3>
+  {{#each (range 1 ilosc) as |i|}}
+    <div class="form-group">
+      <label>Wybierz umiejętność</label>
+      <select class="input-umiejka" data-index="{{i}}">
+        {{#each @root.umiejkiDowyboru as |umiejka key|}}
+          <option value="{{key}}">{{localize umiejka.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  {{/each}}
+</div>
