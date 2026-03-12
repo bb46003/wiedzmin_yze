@@ -424,6 +424,22 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       this.atrybuty[atrybutWiodacy].max - 1;
     await this.parent.update(updateData);
   }
+async _przywrucAtr(ograniczone){
+  const updateData ={};
+ 
+  ograniczone.forEach(atr=>{
+    updateData[`system.atrybuty.${atr.atrybut}.max`] = 4
+  })
+  await this.parent.update(updateData)
+}
+async _ograniczaAtr(ograniczone){
+    const updateData ={};
+ 
+  ograniczone.forEach(atr=>{
+    updateData[`system.atrybuty.${atr.atrybut}.max`] = atr.wartoscMax
+  })
+  await this.parent.update(updateData)
+}
 
 }
 

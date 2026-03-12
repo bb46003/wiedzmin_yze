@@ -396,7 +396,15 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         if(item.type = "profesja"){
           const atrybutWiodacy = item.flags?.wiedzmin_yze?.atrybutWiodacy;
           if(atrybutWiodacy){
-          this.actor.system._usunAtrWiodacy(atrybutWiodacy)}
+            this.actor.system._usunAtrWiodacy(atrybutWiodacy)
+          }
+          item.system.talenty.forEach(async talent =>{
+            const itemTalent = await fromUuid(talent.uuid);
+            itemTalent?.delete()
+          })
+          if(item.system.ograniczaAtrybut){
+            await this.actor.system._przywrucAtr(item.system.ograniczonyAtrybut)
+          }
         }
         await item?.delete();
       }
@@ -580,7 +588,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     ) {
       const podbicieUmiejki = itemData.system.bonusyUmiejki;
       this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
-      stworzPrzedmiot = true;
+      const item = await actor.createEmbeddedDocuments("Item", [itemData])
     }
     if (itemData.system.wybieraneUmiejki) {
      
@@ -802,6 +810,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         item[0].setFlag("wiedzmin_yze", "wybraneUmiejki", wybraneUmiejki);
       }
     }
+    if(itemData.system.ograniczaAtrybut){
+      await this.actor.system._ograniczaAtr(itemData.system.ograniczonyAtrybut)
+    }
   }
   async powiazaneTalenty(powiazaneTalenty, itemData, actor) {
     for (let i = 0; i < powiazaneTalenty.length; i++) {
@@ -812,6 +823,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       ]);
       const newItem = created[0];
       itemData.system.talenty[i].uuid = newItem.uuid;
+      
     }
   }
 }

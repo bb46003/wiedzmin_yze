@@ -100,6 +100,38 @@ export function toLabelObject(
   if (sort) result.sort((a, b) => a[1].localeCompare(b[1]));
   return Object.fromEntries(result);
 }
+export function przygotujUmiejki(
+  obj,
+  { localize = true, labelAttribute = "label", sort = false } = {},
+) {
+  let entries;
+  if (
+    Array.isArray(obj) &&
+    obj.every((entry) => Array.isArray(entry) && entry.length === 2)
+  )
+    entries = obj;
+  else if (foundry.utils.getType(obj) === "Object")
+    entries = Object.entries(obj);
+
+  const result = entries.map(([key, value]) => {
+    if (foundry.utils.getType(value) === "string") {
+      return [key, localize ? game.i18n.localize(value) : value];
+    }
+    if (foundry.utils.getType(value) === "Object" && key !== "Brak") {
+
+      return [
+        key,
+        localize
+          ? game.i18n.localize(value[labelAttribute])
+          : value[labelAttribute],
+      ];
+    }
+    return [];
+  });
+
+  if (sort) result.sort((a, b) => a[1].localeCompare(b[1]));
+  return Object.fromEntries(result);
+}
 export async function _onEditText(_event, target) {
   const { fieldPath, propertyPath } = target.dataset;
   // If there is a document (e.g. an item) to be found in a parent element, assume the field is relative to that

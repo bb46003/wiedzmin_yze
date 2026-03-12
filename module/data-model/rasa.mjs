@@ -1,4 +1,4 @@
-import { toLabelObject } from "../utils.mjs";
+import { przygotujUmiejki } from "../utils.mjs";
 
 const {
   StringField,
@@ -58,8 +58,8 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
         new SchemaField({
           umiejka: new StringField({
             label: "wiedzmin.atrubut.specjalizacja",
-            initial: "Brak",
-            choices: toLabelObject(wiedzmin_yze.config.umiejki),
+            initial: "Medycyna",
+            choices: przygotujUmiejki(wiedzmin_yze.config.umiejki),
             required: true,
           }),
           bonus: new NumberField({
@@ -88,6 +88,10 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       ),
+      ograniczaAtrybut: new BooleanField({
+       label: "wiedzmin.rasa.wybieraneAtrybuty",
+        initial: false,
+      }),
       ograniczonyAtrybut: new ArrayField(
         new SchemaField({
           atrybut: new StringField({
@@ -155,5 +159,20 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
       talenty.splice(index, 1);
     }
     await this.parent.update({ "system.talenty": talenty });
+  }
+
+  async usunAtrybut(id){
+    const ograniczonyAtrybut = this.ograniczonyAtrybut;
+    ograniczonyAtrybut.splice(id, 1);
+    await this.parent.update({ "system.ograniczonyAtrybut": ograniczonyAtrybut });
+  }
+  async dodajOgraniczenie(){
+        const ograniczonyAtrybut = this.ograniczonyAtrybut ?? [];
+    const nowyAtr = {
+      atrybut: "sila",
+      wartoscMax: 2,
+    };
+    ograniczonyAtrybut.push(nowyAtr);
+    await this.parent.update({ "system.ograniczonyAtrybut": ograniczonyAtrybut });
   }
 }

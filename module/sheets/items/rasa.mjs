@@ -22,6 +22,9 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       dodajUmiejki: rasaSheet.#dodajUmiejki,
       usunUmiejki: rasaSheet.#usunUmiejki,
       usunTalent: rasaSheet.#usunTalent,
+      usunAtrybut: rasaSheet.#usunAtrybut,
+      dodajOgraniczenie: rasaSheet.#dodajOgraniczenie
+
     },
     form: {
       submitOnChange: true,
@@ -62,7 +65,6 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
       field: this.item.system.schema.fields.opis,
     };
     context.talenty = await this._przygotujTalenty();
-    console.log(context);
     return context;
   }
   async _przygotujTalenty() {
@@ -158,5 +160,31 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
     const target = ev.target;
     const id = target.dataset.id;
     await this.item.system.usunTalent(id);
+  }
+
+  static async #dodajOgraniczenie(){
+    await this.item.system.dodajOgraniczenie();
+  }
+
+  static async usunAtrybut(ev){
+        const target = ev.target;
+    const id = target.dataset.id;
+    await this.item.system.usunAtrybut(id);
+  }
+    _processFormData(event, form, formData) {
+    const target = event?.target;
+    if (target.name === "system.wybieraneUmiejki" && target.checked){
+          formData.object["system.zapewniaBonusDoUmiejki"] = false
+    }
+      if (target.name === "system.zapewniaBonusDoUmiejki" && target.checked){
+          formData.object["system.wybieraneUmiejki"] = false
+    }
+       if (target.name === "system.zapewniaBonudDoAtrybutu" && target.checked){ 
+          formData.object["system.wybieraneAtrybuty"] = false
+    }
+      if (target.name === "system.wybieraneAtrybuty" && target.checked){
+          formData.object["system.zapewniaBonudDoAtrybutu"] = false
+    }
+  return super._processFormData(event, form, formData);
   }
 }
