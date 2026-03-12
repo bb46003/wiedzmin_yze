@@ -124,7 +124,7 @@ export class rasaSheet extends api.HandlebarsApplicationMixin(
         const itemName = telent.name;
         await rasa.system._dodajTalent(uuid, itemName);
       } else {
-        ui.warrning("wiedzmin.warrning.talenetPosiadaKoszt");
+        ui.notifications.warn("wiedzmin.warrning.talenetPosiadaKoszt");
       }
     }
   }

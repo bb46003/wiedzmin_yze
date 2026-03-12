@@ -259,6 +259,18 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       );
       formData.object["system.punkty_mocy.value"] = this.getMax(inputsMoc);
     }
+    if(name.includes("atrybuty")&&name.includes("value")){
+      const value = Number(event.target.value);
+      const splitName = name.split(".");
+      const atr = splitName[2]
+      const max = this.actor.system.atrybuty[atr].max;
+      console.log(value, max)
+      if(value > max){
+        formData.object[`system.zycie.atrybuty.${atr}.value`] = max;
+            ui.notifications.warn(`Wprowadzono wartość atrybutu ${atr} większą od maksymalnej`);
+   
+      }
+    }
 
     return super._processFormData(event, form, formData);
   }
@@ -381,6 +393,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
             this.actor.system._bonusZRasyUmiejkaUsun(podbicieUmiejki);
           }
         }
+        if(item.type = "profesja"){
+          const atrybutWiodacy = item.flags?.wiedzmin_yze?.atrybutWiodacy;
+          if(atrybutWiodacy){
+          this.actor.system._usunAtrWiodacy(atrybutWiodacy)}
+        }
         await item?.delete();
       }
 
@@ -475,7 +492,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
                 result.charakterystycznyPrzedmiot = itemTextarea.value.trim();
               } else if (itemSelect) {
                 result.charakterystycznyPrzedmiot =
-                  daneItem.charakterystycznyPrzedmiot[Number(itemSelect.value)];
+                  daneItem.charakterystycznyPrzedmiot[itemSelect.value];
               }
 
               // umiejętności
@@ -486,7 +503,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
               //atrybut
               const atrSelect = html.querySelector(".input-atrybut");
               result.atrybutWiodacy =
-                daneItem.atrybutWiodacy[Number(atrSelect.value)];
+                daneItem.atrybutWiodacy[atrSelect.value];
 
               resolve(result);
             },
@@ -519,7 +536,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       "atrybutWiodacy",
       dane.atrybutWiodacy,
     );
+
     await actor.system.atrybutWiodacy(dane.atrybutWiodacy);
+   
     await actor.update(dataUpdate);
     await this.dodanieRasy(rasaItem, profsjaItem[0]);
   }
@@ -530,7 +549,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const posiadanaProfesja = profesja;
     const rasyProfesji = posiadanaProfesja?.system?.rasy;
         const hasMatchingName = rasyProfesji.some(
-        (item) => item.name === posiadanaRasa[0].name
+        (item) => item.name === posiadanaRasa[0]?.name
     );
     if (posiadanaRasa.length > 0 && Object.keys(profesja).length === 0) {
       ui.notifications.warn(
@@ -690,7 +709,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
           wybory: wybory,
         },
       );
-      const dialog = new foundry.applications.api.DialogV2({
+     await new Promise((resolve) => {
+        const dialog =  new foundry.applications.api.DialogV2({
         window: { title: "Wybory z Rasy" },
         content,
         buttons: [
@@ -702,6 +722,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
               const atrybuty = dialog.element.querySelectorAll(".atrybuty");
               const wartosc = dialog.element.querySelector(".wartosc");
               const dane = [];
+              console.log(atrybuty)
               atrybuty.forEach((atr, index) => {
                 const data = {
                   bonus: wartosc.innerHTML,
@@ -721,7 +742,60 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
           },
         ],
       });
+        dialog._onRender = function () {
+          const selectors = this.element.querySelectorAll(
+            "select.atrybuty",
+          );
+          const initialValue = selectors[0].value;
+          selectors.forEach((otherSelect) => {
+            if (otherSelect === selectors[0]) return; // skip the select that changed
+
+            // Enable all options first
+            Array.from(otherSelect.options).forEach((opt) => {
+              opt.disabled = false;
+            });
+
+            // Disable the option that matches the selected value
+            const optionToDisable = otherSelect.querySelector(
+              `option[value="${initialValue}"]`,
+            );
+            if (optionToDisable) optionToDisable.disabled = true;
+
+            // If the disabled option is currently selected, reset the select
+            if (otherSelect.value === initialValue) {
+              otherSelect.value = "";
+            }
+          });
+          selectors.forEach((select) => {
+            select.addEventListener("change", (ev) => {
+              const target = ev.target; // the select that triggered the change
+              const selectedValue = target.value;
+
+              // Loop through all selects
+              selectors.forEach((otherSelect) => {
+                if (otherSelect === target) return; // skip the select that changed
+
+                // Enable all options first
+                Array.from(otherSelect.options).forEach((opt) => {
+                  opt.disabled = false;
+                });
+
+                // Disable the option that matches the selected value
+                const optionToDisable = otherSelect.querySelector(
+                  `option[value="${selectedValue}"]`,
+                );
+                if (optionToDisable) optionToDisable.disabled = true;
+
+                // If the disabled option is currently selected, reset the select
+                if (otherSelect.value === selectedValue) {
+                  otherSelect.value = "";
+                }
+              });
+            });
+          });
+        };
       dialog.render({ force: true });
+    })
     } else {
       const item = await actor.createEmbeddedDocuments("Item", [itemData]);
       if (wybraneUmiejki.length > 0) {

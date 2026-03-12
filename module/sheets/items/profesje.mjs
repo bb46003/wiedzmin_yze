@@ -97,7 +97,7 @@ export class profesjeSheet extends api.HandlebarsApplicationMixin(
             const itemName = item.name;
             await profesja.system._dodajTalent(uuid, itemName);
           } else {
-            ui.warrning("wiedzmin.warrning.talenetPosiadaKoszt");
+             ui.notifications.warn("wiedzmin.warrning.talenetPosiadaKoszt");
           }
           break;
         case "rasa":
