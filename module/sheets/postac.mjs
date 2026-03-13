@@ -22,6 +22,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       rzut_talen: postacSheet.#rzut_talen,
       itemContextMenu: postacSheet.#itemContextMenu,
       otwórzRase: postacSheet.#otwórzRase,
+      pobierzMoc: postacSheet.#pobierzMoc
     },
     form: {
       submitOnChange: true,
@@ -264,7 +265,6 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       const splitName = name.split(".");
       const atr = splitName[2]
       const max = this.actor.system.atrybuty[atr].max;
-      console.log(value, max)
       if(value > max){
         formData.object[`system.zycie.atrybuty.${atr}.value`] = max;
             ui.notifications.warn(`Wprowadzono wartość atrybutu ${atr} większą od maksymalnej`);
@@ -416,6 +416,17 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     setTimeout(() => {
       document.addEventListener("click", () => menu.remove(), { once: true });
     }, 10);
+  }
+
+  static async #pobierzMoc(ev){
+    const items = this.actor.items;
+    let bonusDoCzerpania = 0;
+    items.forEach(item=>{
+      if(item.type === "talent" && (item.system?.bonusCzerpaniaMocy !== 0 && item.system?.bonusCzerpaniaMocy !==  undefined) ){
+          bonusDoCzerpania ++
+      }
+    })
+    await this.actor.system.pobierzMoc(bonusDoCzerpania);
   }
 
   static async #otwórzRase(ev) {

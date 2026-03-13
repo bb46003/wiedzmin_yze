@@ -14,6 +14,11 @@
           </span>
 
         {{else}}
+        {{#if talent.czerpanieMocy}}
+          <button class="rzucany" data-action="pobierzMoc" data-item="{{key}}">
+            <img src="systems\wiedzmin_yze\assets\magic.png" width="16" height="16" data-action="pobierzMoc" data-item="{{key}}">
+          </button>
+        {{/if}}
           <span></span>
         {{/if}}
         <div

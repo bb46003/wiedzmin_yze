@@ -440,7 +440,33 @@ async _ograniczaAtr(ograniczone){
   })
   await this.parent.update(updateData)
 }
+async pobierzMoc(bonusDoCzerpania){
+  const atrybut = this.atrybuty.rozum.value;
+  const umiejka = this.atrybuty.rozum.umiejetnosci.fach;
 
+
+
+    const atrubutLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields.rozum.fields.value.label,
+    );
+    const umiejkaLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields["rozum"].fields.umiejetnosci.fields[
+        fach
+      ].label,
+    );
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+  const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create({
+      attribute: atrybut,
+      skill: umiejka,
+      adrenalina: adrenalinaValue,
+      atrubutLabel: atrubutLabel,
+      umiejkaLabel: umiejkaLabel,
+      actorID: this.parent.id,
+      bonusDoCzerpania: bonusDoCzerpania,
+    });
+
+    if (roll) await roll.toMessage();
+}
 }
 
 

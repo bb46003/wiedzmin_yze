@@ -3,6 +3,7 @@ const { DiceTerm } = foundry.dice.terms;
 export class WiedzminRoll extends foundry.dice.Roll {
   static DIALOG_TEMPLATE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-roll.hbs`;
   static CHAT_TEMPLATE = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
+  static DIALOG_CZRPANIE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-czerpanie.hbs`
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -29,7 +30,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       secondArtibute && Object.keys(secondArtibute).length > 0;
 
     const content = await foundry.applications.handlebars.renderTemplate(
-      this.DIALOG_TEMPLATE,
+      this.DIALOG_CZRPANIE,
       {
         attribute,
         skill,
@@ -91,6 +92,27 @@ export class WiedzminRoll extends foundry.dice.Roll {
     }).render({ force: true });
   }
 
+  static async czerpanieMocy({ 
+    attribute = 0,
+    skill = 0,
+    adrenalina = 0,
+    atrubutLabel = "",
+    umiejkaLabel = "",
+    actorID = null,
+    bonusDoCzerpania = 0
+  } = {}) {
+        const content = await foundry.applications.handlebars.renderTemplate(
+      this.DIALOG_CZRPANIE,
+      {
+        bonusDoCzerpania,
+        attribute,
+        skill,
+        atrubutLabel,
+        umiejkaLabel,
+        adrenalina
+      });
+
+  }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
   /* -------------------------------------------- */

@@ -1,0 +1,19 @@
+<div class="czerpanie-Mocy">
+    <label>Wybierz źródło z którego czerpiesz Moc</label>
+    <select>
+        <option value="woda">Woda +1</option>
+        <option value="powietrze/ziemia">Powietrze/Ziemia +0</option>
+        <option value="ogien">Ogień -1</option>
+    </select>
+    <label>Wielkość źródła</label>
+    <select name="elementSize">
+  <option value="-2">Małe -2</option>
+  <option value="-1">Średnie -1</option>
+  <option value="0">Duże 0</option>
+  <option value="1">Ogromne +1 </option>
+  <option value="2">Ogromne +2</option>
+</select>
+{{#if (ne bonusDoCzerpania 0)}}
+<label>Bonus do czerpania z Talentów to {{bonusDoCzerpania}}</label>
+{{/if}}
+</div>
