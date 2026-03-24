@@ -140,7 +140,7 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
   async dodajUmiejki() {
     const bonusyUmiejki = this.bonusyUmiejki ?? [];
     const nowyUm = {
-      umiejka: "Brak",
+      umiejka: "Medycyna",
       bonus: 0,
     };
     bonusyUmiejki.push(nowyUm);

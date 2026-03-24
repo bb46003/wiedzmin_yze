@@ -105,6 +105,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.actor.system.ekwipunek),
       field: this.actor.system.schema.fields.ekwipunek,
     };
+    const brakForsowania = await this.forsowanie()
+    Object.assign(context, {brakForsowania})
     return context;
   }
 
@@ -140,7 +142,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return { conditions };
   }
+async forsowanie() {
+  const talenty = this.actor.items.filter(item => item.type === "talenty");
 
+  const maTelentBlokujacy = talenty.some(item => item.system?.usuwaForsowanie === true);
+
+  return !maTelentBlokujacy;
+}
   async prepareTelenty() {
     const talenty = this.actor.items.filter((item) => item.type === "talenty");
     const data = {};
@@ -219,7 +227,14 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         break;
       }
       case "profesja":
-        await this.dodanieProfesji(itemData);
+        const posiadaProfesje = this.actor.items.filter(i=> i.type === "profesja");
+        if(posiadaProfesje.length === 0){
+          await this.dodanieProfesji(itemData);
+        }else{
+          ui.notifications.warn(`Postać posiada już Profesje, usuń ją zanim dodasz nową!`);
+
+        }
+
         break;
     }
 
@@ -398,10 +413,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
           if(atrybutWiodacy){
             this.actor.system._usunAtrWiodacy(atrybutWiodacy)
           }
+          if(item.system.talenty){
           item.system.talenty.forEach(async talent =>{
             const itemTalent = await fromUuid(talent.uuid);
             itemTalent?.delete()
-          })
+          })}
           if(item.system.ograniczaAtrybut){
             await this.actor.system._przywrucAtr(item.system.ograniczonyAtrybut)
           }
@@ -473,6 +489,12 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       },
     );
     const dane = await new Promise((resolve) => {
+      if(daneItem.rasy.length !== 0 || 
+        daneItem.atrybutWiodacy.length !==1 ||
+        daneItem.celeOsobiste.length !== 0 ||
+        daneItem.charakterystycznyPrzedmiot.length  !== 0 ||
+        daneItem.umiejkiDowyboru !== undefined
+      ){
       const dialog = new foundry.applications.api.DialogV2({
         window: { title: "Wybory z Profesji" },
         content,
@@ -532,7 +554,17 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         ],
       });
       dialog.render({ force: true });
-    });
+    
+  }else{
+    const result = {};
+    result.celOsobisty = daneItem.celOsobisty;
+    result.charakterystycznyPrzedmiot = daneItem.charakterystycznyPrzedmiot;
+result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiejka);
+     resolve(result);
+
+  }
+})
+    
 
     const dataUpdate = {
       "system.zamoznosc": daneItem.zamoznosc,
@@ -546,10 +578,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const actor = this.actor;
     await this.powiazaneTalenty(powiazaneTalenty, itemData, actor);
     const profsjaItem = await actor.createEmbeddedDocuments("Item", [itemData]);
+  
+
+
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
       "wybraneUmiejki",
-      dane.umiejetnosci || daneItem.umiejetnosci,
+       dane.umiejetnosci,
     );
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
@@ -713,7 +748,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
 
     }
-    if (itemData.system.wybieraneAtrybuty) {
+
+    if(itemData.system.ograniczaAtrybut){
+      await this.actor.system._ograniczaAtr(itemData.system.ograniczonyAtrybut)
+    }
+        if (itemData.system.wybieraneAtrybuty) {
       const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
       const wartosc = itemData.system.bonusDoWybranych;
       const choices = {
@@ -722,6 +761,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
       };
+      itemData.system.ograniczonyAtrybut.forEach(atr=>{
+        delete choices[atr.atrybut]
+      })
+      
       const wybory = [];
       for (let i = 0; i < iloscAtrybutow; i++) {
         const dane = { lista: choices, wartosc: wartosc };
@@ -744,12 +787,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
             default: true,
             callback: async (_event, _button, dialog) => {
               const atrybuty = dialog.element.querySelectorAll(".atrybuty");
-              const wartosc = dialog.element.querySelector(".wartosc");
               const dane = [];
-              console.log(atrybuty)
               atrybuty.forEach((atr, index) => {
                 const data = {
-                  bonus: wartosc.innerHTML,
+                  bonus: Number(atr.dataset.bonus),
                   atrybut: atr.value,
                 };
                 dane.push(data);
@@ -825,9 +866,6 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       if (wybraneUmiejki.length > 0) {
         item[0].setFlag("wiedzmin_yze", "wybraneUmiejki", wybraneUmiejki);
       }
-    }
-    if(itemData.system.ograniczaAtrybut){
-      await this.actor.system._ograniczaAtr(itemData.system.ograniczonyAtrybut)
     }
   }
   async powiazaneTalenty(powiazaneTalenty, itemData, actor) {

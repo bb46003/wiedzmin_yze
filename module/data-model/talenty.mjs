@@ -119,6 +119,10 @@ export class talentyDataModel extends foundry.abstract.TypeDataModel {
         label: "wiedzin.talenty.zapewniaBonus",
         initial: false,
       }),
+      usuwaForsowanie: new BooleanField({
+        label: "wiedzin.talenty.usuwaForsowanie",
+        initial: false,
+      }),
     };
   }
   static get schema() {

@@ -365,13 +365,16 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   }
   async _bonusZRasy(podbiceAtrybutu) {
     const updateData = {};
+    const updateData2 = {}
     podbiceAtrybutu.forEach((podbicie) => {
+            this.atrybuty[podbicie.atrybut].max + Number(podbicie.bonus);
       const atrybut = this.atrybuty[podbicie.atrybut].value + Number(podbicie.bonus);
       updateData[`system.atrybuty.${podbicie.atrybut}.max`] =
-        this.atrybuty[podbicie.atrybut].max + Number(podbicie.bonus);
-      updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
+  
+      updateData2[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
     await this.parent.update(updateData);
+      await this.parent.update(updateData2);
   }
   async _bonusZRasyUmiejka(podbicieUmiejki) {
     const updateData = {};
