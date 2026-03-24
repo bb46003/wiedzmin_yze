@@ -268,7 +268,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       atrubutLabel: atrubutLabel,
       umiejkaLabel: umiejkaLabel,
       actorID: this.parent.id,
-      umiejkaKey: powiazaneTalenty,
+      umiejkaKey: umiejkaKey,
       atrybutKey: atrybutKey,
       item: inneTalenty,
       secondArtibute: secondArtibute,

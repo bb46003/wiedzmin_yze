@@ -30,7 +30,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       secondArtibute && Object.keys(secondArtibute).length > 0;
 
     const content = await foundry.applications.handlebars.renderTemplate(
-      this.DIALOG_CZRPANIE,
+      this.DIALOG_TEMPLATE,
       {
         attribute,
         skill,
@@ -302,7 +302,7 @@ async function bonusZtalentów(item) {
   let bonusZTalentow = 0;
   item.forEach((telent) => {
     if (telent.system.bonu !== 0) {
-      bonusZTalentow++;
+      bonusZTalentow+=telent.system.bonu;
     }
   });
   return bonusZTalentow;

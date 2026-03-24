@@ -521,8 +521,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
               //atrybut
               const atrSelect = html.querySelector(".input-atrybut");
+              if(atrSelect){
               result.atrybutWiodacy =
                 daneItem.atrybutWiodacy[atrSelect.value];
+              }
 
               resolve(result);
             },
@@ -538,8 +540,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       "system.charakterystyczny_przedmiot": dane.charakterystycznyPrzedmiot,
       "system.ekwipunek": daneItem.ekwipunek,
     };
-    const rasa = await fromUuid(dane.rasa);
-    const rasaItem = rasa.toObject();
+    const rasa = await fromUuid(dane.rasa); 
     
     const powiazaneTalenty = daneItem.talenty;
     const actor = this.actor;
@@ -548,18 +549,22 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
       "wybraneUmiejki",
-      dane.umiejetnosci,
+      dane.umiejetnosci || daneItem.umiejetnosci,
     );
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
       "atrybutWiodacy",
-      dane.atrybutWiodacy,
+      dane.atrybutWiodacy || daneItem.atrybutWiodacy,
     );
 
-    await actor.system.atrybutWiodacy(dane.atrybutWiodacy);
+    await actor.system.atrybutWiodacy(dane.atrybutWiodacy || daneItem.atrybutWiodacy );
    
     await actor.update(dataUpdate);
-    await this.dodanieRasy(rasaItem, profsjaItem[0]);
+    if(rasa){
+      const rasaItem = rasa.toObject();
+      await this.dodanieRasy(rasaItem, profsjaItem[0]);
+    }
+    
   }
   async dodanieRasy(itemData, profesja) {
     let wybraneUmiejki = [];
@@ -567,7 +572,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
     const posiadanaProfesja = profesja;
     const rasyProfesji = posiadanaProfesja?.system?.rasy;
-        const hasMatchingName = rasyProfesji.some(
+        const hasMatchingName = rasyProfesji?.some(
         (item) => item.name === posiadanaRasa[0]?.name
     );
     if (posiadanaRasa.length > 0 && Object.keys(profesja).length === 0) {
