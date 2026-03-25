@@ -3,7 +3,7 @@ const { DiceTerm } = foundry.dice.terms;
 export class WiedzminRoll extends foundry.dice.Roll {
   static DIALOG_TEMPLATE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-roll.hbs`;
   static CHAT_TEMPLATE = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
-  static DIALOG_CZRPANIE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-czerpanie.hbs`
+  static DIALOG_CZRPANIE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-czerpanie.hbs`;
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -28,6 +28,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
   } = {}) {
     const hasSecondAttribute =
       secondArtibute && Object.keys(secondArtibute).length > 0;
+    const actor = await game.actors.get(actorID);
+    const talenty = actor.items.filter((item) => item.type === "talenty");
+    const maTelentBlokujacy = !talenty.some(
+      (item) => item.system?.usuwaForsowanie === true,
+    );
 
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE,
@@ -38,6 +43,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
         item,
         secondArtibute,
         hasSecondAttribute,
+        maTelentBlokujacy,
       },
     );
 
@@ -62,26 +68,36 @@ export class WiedzminRoll extends foundry.dice.Roll {
               atrubutLabelUse = selectedOption.dataset.label;
               atrybutKeyUse = selectedOption.dataset.key;
             }
-
-            const talentBonus = await bonusZtalentów(item);
+            const checked = Array.from(
+              dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+            );
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return item[index];
+            });
+      
+            const talentBonus = await bonusZtalentów(selectedItems);
             const basePool = attributeVal + skill + mod + talentBonus;
             const formula =
               adrenalina > 0
                 ? `${basePool}d6 + ${adrenalina}d6`
                 : `${basePool}d6`;
-
+            let flavor = "Test";
+            if (!maTelentBlokujacy) {
+              flavor = "Forsowanie";
+            }
             const roll = new WiedzminRoll(
               formula,
               {},
               {
                 adrenalina,
-                flavor: "Test",
+                flavor: flavor,
                 atrubutLabel: atrubutLabelUse,
                 umiejkaLabel: umiejkaLabel,
                 actorID: actorID,
                 umiejkaKey: umiejkaKey,
                 atrybutKey: atrybutKeyUse,
-                item: item,
+                item: selectedItems,
               },
             );
 
@@ -92,16 +108,16 @@ export class WiedzminRoll extends foundry.dice.Roll {
     }).render({ force: true });
   }
 
-  static async czerpanieMocy({ 
+  static async czerpanieMocy({
     attribute = 0,
     skill = 0,
     adrenalina = 0,
     atrubutLabel = "",
     umiejkaLabel = "",
     actorID = null,
-    bonusDoCzerpania = 0
+    bonusDoCzerpania = 0,
   } = {}) {
-        const content = await foundry.applications.handlebars.renderTemplate(
+    const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_CZRPANIE,
       {
         bonusDoCzerpania,
@@ -109,8 +125,21 @@ export class WiedzminRoll extends foundry.dice.Roll {
         skill,
         atrubutLabel,
         umiejkaLabel,
-        adrenalina
-      });
+        adrenalina,
+      },
+    );
+        new foundry.applications.api.DialogV2({
+      window: { title: "Czerpanie Mocy" },
+      content,
+      buttons: [
+        {
+          action: "roll",
+          label: "Roll",
+          default: true,
+          callback: async (_event, _button, dialog) => {}
+        }
+      ]
+    }).render({ force: true });
 
   }
   /* -------------------------------------------- */
@@ -246,7 +275,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       extraSuccesses: extraSuccesses,
       pech: this.pech,
       isSuccess: this.isSuccess,
-      forsowac: forsowanie, // TODO: logic for this from items or conditions
+      forsowac: forsowanie,
       actorID: this.options.actorID,
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
@@ -302,7 +331,7 @@ async function bonusZtalentów(item) {
   let bonusZTalentow = 0;
   item.forEach((telent) => {
     if (telent.system.bonu !== 0) {
-      bonusZTalentow+=telent.system.bonu;
+      bonusZTalentow += telent.system.bonu;
     }
   });
   return bonusZTalentow;

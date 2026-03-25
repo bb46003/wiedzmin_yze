@@ -39,20 +39,33 @@
   {{#if (ne item.length 0)}}
     <div class="flexcol">
       <label>Bonusy z Talentów</label>
-      {{#each item}}
+      {{#each item as |item index|}}
         {{#if (ne item.system.bonu 0)}}
           <div class="talent-bonus">
-            <label>{{this.name}}]</label>
-            <span>{{this.system.bonu}}</span>
+            <label>{{item.name}}</label>
+            <span>{{item.system.bonu}}</span>
+            <div>
+              <label>Talent ma zastosowanie?</label>
+              <input type="checkbox" name="stosuje" data-id="{{index}}" />
+            </div>
           </div>
         {{/if}}
       {{/each}}
     </div>
   {{/if}}
-  <div class="form-group">
-    <p>
-      Liczba kości = Atrybut + Umiejętność + Modyfikator + Adrenalina + Talenty
-    </p>
-  </div>
+  {{#if maTelentBlokujacy}}
+    <div class="form-group">
+      <p>
+        Liczba kości = Atrybut + Umiejętność + Modyfikator + Adrenalina +
+        Talenty
+      </p>
+    </div>
+  {{else}}
+    <div class="form-group">
+      <p>
+        Liczba kości = Atrybut + Umiejętność + Modyfikator + Talenty
+      </p>
+    </div>
+  {{/if}}
 
 </form>

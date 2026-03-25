@@ -365,16 +365,17 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   }
   async _bonusZRasy(podbiceAtrybutu) {
     const updateData = {};
-    const updateData2 = {}
+    const updateData2 = {};
     podbiceAtrybutu.forEach((podbicie) => {
-            this.atrybuty[podbicie.atrybut].max + Number(podbicie.bonus);
-      const atrybut = this.atrybuty[podbicie.atrybut].value + Number(podbicie.bonus);
-      updateData[`system.atrybuty.${podbicie.atrybut}.max`] =
-  
-      updateData2[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
+      this.atrybuty[podbicie.atrybut].max + Number(podbicie.bonus);
+      const atrybut =
+        this.atrybuty[podbicie.atrybut].value + Number(podbicie.bonus);
+      updateData[`system.atrybuty.${podbicie.atrybut}.max`] = updateData2[
+        `system.atrybuty.${podbicie.atrybut}.value`
+      ] = atrybut;
     });
     await this.parent.update(updateData);
-      await this.parent.update(updateData2);
+    await this.parent.update(updateData2);
   }
   async _bonusZRasyUmiejka(podbicieUmiejki) {
     const updateData = {};
@@ -392,12 +393,13 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   async _bonusZRasyUsun(podbiceAtrybutu) {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
-      const atrybut = this.atrybuty[podbicie.atrybut].value - Number(podbicie.bonus);
+      const atrybut =
+        this.atrybuty[podbicie.atrybut].value - Number(podbicie.bonus);
       updateData[`system.atrybuty.${podbicie.atrybut}.max`] =
         this.atrybuty[podbicie.atrybut].max - Number(podbicie.bonus);
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
-       console.log(updateData)
+    console.log(updateData);
     await this.parent.update(updateData);
   }
   async _bonusZRasyUmiejkaUsun(podbicieUmiejki) {
@@ -415,50 +417,46 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   }
   async atrybutWiodacy(atrybutWiodacy) {
     const updateData = {};
-    console.log(this.atrybuty[atrybutWiodacy].max )
+    console.log(this.atrybuty[atrybutWiodacy].max);
     updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
       this.atrybuty[atrybutWiodacy].max + 1;
-      console.log(updateData)
+    console.log(updateData);
     await this.parent.update(updateData);
   }
- async _usunAtrWiodacy(atrybutWiodacy){
-      const updateData = {};
+  async _usunAtrWiodacy(atrybutWiodacy) {
+    const updateData = {};
     updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
       this.atrybuty[atrybutWiodacy].max - 1;
     await this.parent.update(updateData);
   }
-async _przywrucAtr(ograniczone){
-  const updateData ={};
- 
-  ograniczone.forEach(atr=>{
-    updateData[`system.atrybuty.${atr.atrybut}.max`] = 4
-  })
-  await this.parent.update(updateData)
-}
-async _ograniczaAtr(ograniczone){
-    const updateData ={};
- 
-  ograniczone.forEach(atr=>{
-    updateData[`system.atrybuty.${atr.atrybut}.max`] = atr.wartoscMax
-  })
-  await this.parent.update(updateData)
-}
-async pobierzMoc(bonusDoCzerpania){
-  const atrybut = this.atrybuty.rozum.value;
-  const umiejka = this.atrybuty.rozum.umiejetnosci.fach;
+  async _przywrucAtr(ograniczone) {
+    const updateData = {};
 
+    ograniczone.forEach((atr) => {
+      updateData[`system.atrybuty.${atr.atrybut}.max`] = 4;
+    });
+    await this.parent.update(updateData);
+  }
+  async _ograniczaAtr(ograniczone) {
+    const updateData = {};
 
+    ograniczone.forEach((atr) => {
+      updateData[`system.atrybuty.${atr.atrybut}.max`] = atr.wartoscMax;
+    });
+    await this.parent.update(updateData);
+  }
+  async pobierzMoc(bonusDoCzerpania) {
+    const atrybut = this.atrybuty.rozum.value;
+    const umiejka = this.atrybuty.rozum.umiejetnosci.fach;
 
     const atrubutLabel = game.i18n.localize(
       this.schema.fields.atrybuty.fields.rozum.fields.value.label,
     );
     const umiejkaLabel = game.i18n.localize(
-      this.schema.fields.atrybuty.fields["rozum"].fields.umiejetnosci.fields[
-        fach
-      ].label,
+      this.schema.fields.atrybuty.fields["rozum"].fields.umiejetnosci.fields["fach"].label,
     );
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
-  const roll = await globalThis.wiedzmin_yze.WiedzminRoll.create({
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.czerpanieMocy({
       attribute: atrybut,
       skill: umiejka,
       adrenalina: adrenalinaValue,
@@ -469,7 +467,5 @@ async pobierzMoc(bonusDoCzerpania){
     });
 
     if (roll) await roll.toMessage();
+  }
 }
-}
-
-

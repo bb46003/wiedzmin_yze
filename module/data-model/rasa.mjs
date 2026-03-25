@@ -89,7 +89,7 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
         }),
       ),
       ograniczaAtrybut: new BooleanField({
-       label: "wiedzmin.rasa.wybieraneAtrybuty",
+        label: "wiedzmin.rasa.wybieraneAtrybuty",
         initial: false,
       }),
       ograniczonyAtrybut: new ArrayField(
@@ -161,18 +161,22 @@ export class rasaDataModel extends foundry.abstract.TypeDataModel {
     await this.parent.update({ "system.talenty": talenty });
   }
 
-  async usunAtrybut(id){
+  async usunAtrybut(id) {
     const ograniczonyAtrybut = this.ograniczonyAtrybut;
     ograniczonyAtrybut.splice(id, 1);
-    await this.parent.update({ "system.ograniczonyAtrybut": ograniczonyAtrybut });
+    await this.parent.update({
+      "system.ograniczonyAtrybut": ograniczonyAtrybut,
+    });
   }
-  async dodajOgraniczenie(){
-        const ograniczonyAtrybut = this.ograniczonyAtrybut ?? [];
+  async dodajOgraniczenie() {
+    const ograniczonyAtrybut = this.ograniczonyAtrybut ?? [];
     const nowyAtr = {
       atrybut: "sila",
       wartoscMax: 2,
     };
     ograniczonyAtrybut.push(nowyAtr);
-    await this.parent.update({ "system.ograniczonyAtrybut": ograniczonyAtrybut });
+    await this.parent.update({
+      "system.ograniczonyAtrybut": ograniczonyAtrybut,
+    });
   }
 }

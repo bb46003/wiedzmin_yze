@@ -22,7 +22,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       rzut_talen: postacSheet.#rzut_talen,
       itemContextMenu: postacSheet.#itemContextMenu,
       otwórzRase: postacSheet.#otwórzRase,
-      pobierzMoc: postacSheet.#pobierzMoc
+      pobierzMoc: postacSheet.#pobierzMoc,
     },
     form: {
       submitOnChange: true,
@@ -105,8 +105,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.actor.system.ekwipunek),
       field: this.actor.system.schema.fields.ekwipunek,
     };
-    const brakForsowania = await this.forsowanie()
-    Object.assign(context, {brakForsowania})
+    const brakForsowania = await this.forsowanie();
+    Object.assign(context, { brakForsowania });
     return context;
   }
 
@@ -142,13 +142,15 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return { conditions };
   }
-async forsowanie() {
-  const talenty = this.actor.items.filter(item => item.type === "talenty");
+  async forsowanie() {
+    const talenty = this.actor.items.filter((item) => item.type === "talenty");
 
-  const maTelentBlokujacy = talenty.some(item => item.system?.usuwaForsowanie === true);
+    const maTelentBlokujacy = talenty.some(
+      (item) => item.system?.usuwaForsowanie === true,
+    );
 
-  return !maTelentBlokujacy;
-}
+    return !maTelentBlokujacy;
+  }
   async prepareTelenty() {
     const talenty = this.actor.items.filter((item) => item.type === "talenty");
     const data = {};
@@ -157,10 +159,12 @@ async forsowanie() {
       const iamge = talent.img;
       const itemName = talent.name;
       const rzucany = talent.system.rzucany;
+      const czerpanieMocy = talent.system.czerpanieMocy;
       data[itemID] = {
         img: iamge,
         name: itemName,
         rzucany: rzucany,
+        czerpanieMocy: czerpanieMocy
       };
     });
 
@@ -227,12 +231,15 @@ async forsowanie() {
         break;
       }
       case "profesja":
-        const posiadaProfesje = this.actor.items.filter(i=> i.type === "profesja");
-        if(posiadaProfesje.length === 0){
+        const posiadaProfesje = this.actor.items.filter(
+          (i) => i.type === "profesja",
+        );
+        if (posiadaProfesje.length === 0) {
           await this.dodanieProfesji(itemData);
-        }else{
-          ui.notifications.warn(`Postać posiada już Profesje, usuń ją zanim dodasz nową!`);
-
+        } else {
+          ui.notifications.warn(
+            `Postać posiada już Profesje, usuń ją zanim dodasz nową!`,
+          );
         }
 
         break;
@@ -275,15 +282,16 @@ async forsowanie() {
       );
       formData.object["system.punkty_mocy.value"] = this.getMax(inputsMoc);
     }
-    if(name.includes("atrybuty")&&name.includes("value")){
+    if (name.includes("atrybuty") && name.includes("value")) {
       const value = Number(event.target.value);
       const splitName = name.split(".");
-      const atr = splitName[2]
+      const atr = splitName[2];
       const max = this.actor.system.atrybuty[atr].max;
-      if(value > max){
+      if (value > max) {
         formData.object[`system.zycie.atrybuty.${atr}.value`] = max;
-            ui.notifications.warn(`Wprowadzono wartość atrybutu ${atr} większą od maksymalnej`);
-   
+        ui.notifications.warn(
+          `Wprowadzono wartość atrybutu ${atr} większą od maksymalnej`,
+        );
       }
     }
 
@@ -408,18 +416,21 @@ async forsowanie() {
             this.actor.system._bonusZRasyUmiejkaUsun(podbicieUmiejki);
           }
         }
-        if(item.type = "profesja"){
+        if ((item.type = "profesja")) {
           const atrybutWiodacy = item.flags?.wiedzmin_yze?.atrybutWiodacy;
-          if(atrybutWiodacy){
-            this.actor.system._usunAtrWiodacy(atrybutWiodacy)
+          if (atrybutWiodacy) {
+            this.actor.system._usunAtrWiodacy(atrybutWiodacy);
           }
-          if(item.system.talenty){
-          item.system.talenty.forEach(async talent =>{
-            const itemTalent = await fromUuid(talent.uuid);
-            itemTalent?.delete()
-          })}
-          if(item.system.ograniczaAtrybut){
-            await this.actor.system._przywrucAtr(item.system.ograniczonyAtrybut)
+          if (item.system.talenty) {
+            item.system.talenty.forEach(async (talent) => {
+              const itemTalent = await fromUuid(talent.uuid);
+              itemTalent?.delete();
+            });
+          }
+          if (item.system.ograniczaAtrybut) {
+            await this.actor.system._przywrucAtr(
+              item.system.ograniczonyAtrybut,
+            );
           }
         }
         await item?.delete();
@@ -434,14 +445,18 @@ async forsowanie() {
     }, 10);
   }
 
-  static async #pobierzMoc(ev){
+  static async #pobierzMoc(ev) {
     const items = this.actor.items;
     let bonusDoCzerpania = 0;
-    items.forEach(item=>{
-      if(item.type === "talent" && (item.system?.bonusCzerpaniaMocy !== 0 && item.system?.bonusCzerpaniaMocy !==  undefined) ){
-          bonusDoCzerpania ++
+    items.forEach((item) => {
+      if (
+        item.type === "talent" &&
+        item.system?.bonusCzerpaniaMocy !== 0 &&
+        item.system?.bonusCzerpaniaMocy !== undefined
+      ) {
+        bonusDoCzerpania++;
       }
-    })
+    });
     await this.actor.system.pobierzMoc(bonusDoCzerpania);
   }
 
@@ -489,82 +504,82 @@ async forsowanie() {
       },
     );
     const dane = await new Promise((resolve) => {
-      if(daneItem.rasy.length !== 0 || 
-        daneItem.atrybutWiodacy.length !==1 ||
+      if (
+        daneItem.rasy.length !== 0 ||
+        daneItem.atrybutWiodacy.length !== 1 ||
         daneItem.celeOsobiste.length !== 0 ||
-        daneItem.charakterystycznyPrzedmiot.length  !== 0 ||
+        daneItem.charakterystycznyPrzedmiot.length !== 0 ||
         daneItem.umiejkiDowyboru !== undefined
-      ){
-      const dialog = new foundry.applications.api.DialogV2({
-        window: { title: "Wybory z Profesji" },
-        content,
-        buttons: [
-          {
-            label: "zastosuj",
-            action: "zastosuj",
-            callback: async (_event, _button, dialog) => {
-              const html = dialog.element;
-              const result = {};
+      ) {
+        const dialog = new foundry.applications.api.DialogV2({
+          window: { title: "Wybory z Profesji" },
+          content,
+          buttons: [
+            {
+              label: "zastosuj",
+              action: "zastosuj",
+              callback: async (_event, _button, dialog) => {
+                const html = dialog.element;
+                const result = {};
 
-              // rasa
-              const rasa = html.querySelector(".input-rasa");
-              if (rasa) result.rasa = rasa.value;
+                // rasa
+                const rasa = html.querySelector(".input-rasa");
+                if (rasa) result.rasa = rasa.value;
 
-              // cel osobisty
-              const celTextarea = html.querySelector(
-                'textarea[data-id="celOsobisty"]',
-              );
-              const celSelect = html.querySelector(".input-cele");
+                // cel osobisty
+                const celTextarea = html.querySelector(
+                  'textarea[data-id="celOsobisty"]',
+                );
+                const celSelect = html.querySelector(".input-cele");
 
-              if (celTextarea?.value.trim()) {
-                result.celOsobisty = celTextarea.value.trim();
-              } else if (celSelect) {
-                result.celOsobisty =
-                  daneItem.celeOsobiste[Number(celSelect.value)];
-              }
+                if (celTextarea?.value.trim()) {
+                  result.celOsobisty = celTextarea.value.trim();
+                } else if (celSelect) {
+                  result.celOsobisty =
+                    daneItem.celeOsobiste[Number(celSelect.value)];
+                }
 
-              // przedmiot
-              const itemTextarea = html.querySelector(
-                'textarea[data-id="charakterystycznyPrzedmiot"]',
-              );
-              const itemSelect = html.querySelector(".input-przedmiot");
+                // przedmiot
+                const itemTextarea = html.querySelector(
+                  'textarea[data-id="charakterystycznyPrzedmiot"]',
+                );
+                const itemSelect = html.querySelector(".input-przedmiot");
 
-              if (itemTextarea?.value.trim()) {
-                result.charakterystycznyPrzedmiot = itemTextarea.value.trim();
-              } else if (itemSelect) {
-                result.charakterystycznyPrzedmiot =
-                  daneItem.charakterystycznyPrzedmiot[itemSelect.value];
-              }
+                if (itemTextarea?.value.trim()) {
+                  result.charakterystycznyPrzedmiot = itemTextarea.value.trim();
+                } else if (itemSelect) {
+                  result.charakterystycznyPrzedmiot =
+                    daneItem.charakterystycznyPrzedmiot[itemSelect.value];
+                }
 
-              // umiejętności
-              result.umiejetnosci = [
-                ...html.querySelectorAll(".input-umiejka"),
-              ].map((s) => s.value);
+                // umiejętności
+                result.umiejetnosci = [
+                  ...html.querySelectorAll(".input-umiejka"),
+                ].map((s) => s.value);
 
-              //atrybut
-              const atrSelect = html.querySelector(".input-atrybut");
-              if(atrSelect){
-              result.atrybutWiodacy =
-                daneItem.atrybutWiodacy[atrSelect.value];
-              }
+                //atrybut
+                const atrSelect = html.querySelector(".input-atrybut");
+                if (atrSelect) {
+                  result.atrybutWiodacy =
+                    daneItem.atrybutWiodacy[atrSelect.value];
+                }
 
-              resolve(result);
+                resolve(result);
+              },
             },
-          },
-        ],
-      });
-      dialog.render({ force: true });
-    
-  }else{
-    const result = {};
-    result.celOsobisty = daneItem.celOsobisty;
-    result.charakterystycznyPrzedmiot = daneItem.charakterystycznyPrzedmiot;
-result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiejka);
-     resolve(result);
-
-  }
-})
-    
+          ],
+        });
+        dialog.render({ force: true });
+      } else {
+        const result = {};
+        result.celOsobisty = daneItem.celOsobisty;
+        result.charakterystycznyPrzedmiot = daneItem.charakterystycznyPrzedmiot;
+        result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(
+          (element) => element.umiejka,
+        );
+        resolve(result);
+      }
+    });
 
     const dataUpdate = {
       "system.zamoznosc": daneItem.zamoznosc,
@@ -572,19 +587,17 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
       "system.charakterystyczny_przedmiot": dane.charakterystycznyPrzedmiot,
       "system.ekwipunek": daneItem.ekwipunek,
     };
-    const rasa = await fromUuid(dane.rasa); 
-    
+    const rasa = await fromUuid(dane.rasa);
+
     const powiazaneTalenty = daneItem.talenty;
     const actor = this.actor;
     await this.powiazaneTalenty(powiazaneTalenty, itemData, actor);
     const profsjaItem = await actor.createEmbeddedDocuments("Item", [itemData]);
-  
-
 
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
       "wybraneUmiejki",
-       dane.umiejetnosci,
+      dane.umiejetnosci,
     );
     await profsjaItem[0].setFlag(
       "wiedzmin_yze",
@@ -592,14 +605,15 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
       dane.atrybutWiodacy || daneItem.atrybutWiodacy,
     );
 
-    await actor.system.atrybutWiodacy(dane.atrybutWiodacy || daneItem.atrybutWiodacy );
-   
+    await actor.system.atrybutWiodacy(
+      dane.atrybutWiodacy || daneItem.atrybutWiodacy,
+    );
+
     await actor.update(dataUpdate);
-    if(rasa){
+    if (rasa) {
       const rasaItem = rasa.toObject();
       await this.dodanieRasy(rasaItem, profsjaItem[0]);
     }
-    
   }
   async dodanieRasy(itemData, profesja) {
     let wybraneUmiejki = [];
@@ -607,8 +621,8 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
     const posiadanaRasa = actor.items.filter((i) => i.type === "rasa");
     const posiadanaProfesja = profesja;
     const rasyProfesji = posiadanaProfesja?.system?.rasy;
-        const hasMatchingName = rasyProfesji?.some(
-        (item) => item.name === posiadanaRasa[0]?.name
+    const hasMatchingName = rasyProfesji?.some(
+      (item) => item.name === posiadanaRasa[0]?.name,
     );
     if (posiadanaRasa.length > 0 && Object.keys(profesja).length === 0) {
       ui.notifications.warn(
@@ -619,13 +633,12 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
     if (!hasMatchingName && posiadanaRasa.length !== 0) {
       ui.notifications.warn(
         "Postać posiada inną rasę niż wymagana do Profesji",
-
       );
-       await profesja?.delete();
+      await profesja?.delete();
       return;
     }
-    if(posiadanaRasa.length !== 0 && hasMatchingName){
-      return
+    if (posiadanaRasa.length !== 0 && hasMatchingName) {
+      return;
     }
 
     const powiazaneTalenty = itemData.system.talenty;
@@ -639,10 +652,9 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
     ) {
       const podbicieUmiejki = itemData.system.bonusyUmiejki;
       this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
-      const item = await actor.createEmbeddedDocuments("Item", [itemData])
+      const item = await actor.createEmbeddedDocuments("Item", [itemData]);
     }
     if (itemData.system.wybieraneUmiejki) {
-     
       const umiejkiZprofesji =
         profesja?.flags?.wiedzmin_yze.wybraneUmiejki || [];
       const umiejki = wiedzmin_yze.config.umiejki;
@@ -746,13 +758,12 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
       });
 
       this.actor.system._bonusZRasyUmiejka(podbicieUmiejki);
-
     }
 
-    if(itemData.system.ograniczaAtrybut){
-      await this.actor.system._ograniczaAtr(itemData.system.ograniczonyAtrybut)
+    if (itemData.system.ograniczaAtrybut) {
+      await this.actor.system._ograniczaAtr(itemData.system.ograniczonyAtrybut);
     }
-        if (itemData.system.wybieraneAtrybuty) {
+    if (itemData.system.wybieraneAtrybuty) {
       const iloscAtrybutow = itemData.system.iloscWybieranychAtrybutuow;
       const wartosc = itemData.system.bonusDoWybranych;
       const choices = {
@@ -761,10 +772,10 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
         empatia: game.i18n.localize("wiedzmin.atrubut.empatia"),
         rozum: game.i18n.localize("wiedzmin.atrubut.rozum"),
       };
-      itemData.system.ograniczonyAtrybut.forEach(atr=>{
-        delete choices[atr.atrybut]
-      })
-      
+      itemData.system.ograniczonyAtrybut.forEach((atr) => {
+        delete choices[atr.atrybut];
+      });
+
       const wybory = [];
       for (let i = 0; i < iloscAtrybutow; i++) {
         const dane = { lista: choices, wartosc: wartosc };
@@ -776,41 +787,43 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
           wybory: wybory,
         },
       );
-     await new Promise((resolve) => {
-        const dialog =  new foundry.applications.api.DialogV2({
-        window: { title: "Wybory z Rasy" },
-        content,
-        buttons: [
-          {
-            label: "zastosuj",
-            action: "zastosuj",
-            default: true,
-            callback: async (_event, _button, dialog) => {
-              const atrybuty = dialog.element.querySelectorAll(".atrybuty");
-              const dane = [];
-              atrybuty.forEach((atr, index) => {
-                const data = {
-                  bonus: Number(atr.dataset.bonus),
-                  atrybut: atr.value,
-                };
-                dane.push(data);
-                itemData.system.bonusyAtrybuty[index] = data;
-              });
-              this.actor.system._bonusZRasy(dane);
-              const item = await actor.createEmbeddedDocuments("Item", [
-                itemData,
-              ]);
-              if (wybraneUmiejki.length > 0) {
-                item[0].setFlag("wiedzmin_yze", "wybraneUmiejki", wybraneUmiejki);
-              }
+      await new Promise((resolve) => {
+        const dialog = new foundry.applications.api.DialogV2({
+          window: { title: "Wybory z Rasy" },
+          content,
+          buttons: [
+            {
+              label: "zastosuj",
+              action: "zastosuj",
+              default: true,
+              callback: async (_event, _button, dialog) => {
+                const atrybuty = dialog.element.querySelectorAll(".atrybuty");
+                const dane = [];
+                atrybuty.forEach((atr, index) => {
+                  const data = {
+                    bonus: Number(atr.dataset.bonus),
+                    atrybut: atr.value,
+                  };
+                  dane.push(data);
+                  itemData.system.bonusyAtrybuty[index] = data;
+                });
+                this.actor.system._bonusZRasy(dane);
+                const item = await actor.createEmbeddedDocuments("Item", [
+                  itemData,
+                ]);
+                if (wybraneUmiejki.length > 0) {
+                  item[0].setFlag(
+                    "wiedzmin_yze",
+                    "wybraneUmiejki",
+                    wybraneUmiejki,
+                  );
+                }
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
         dialog._onRender = function () {
-          const selectors = this.element.querySelectorAll(
-            "select.atrybuty",
-          );
+          const selectors = this.element.querySelectorAll("select.atrybuty");
           const initialValue = selectors[0].value;
           selectors.forEach((otherSelect) => {
             if (otherSelect === selectors[0]) return; // skip the select that changed
@@ -859,8 +872,8 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
             });
           });
         };
-      dialog.render({ force: true });
-    })
+        dialog.render({ force: true });
+      });
     } else {
       const item = await actor.createEmbeddedDocuments("Item", [itemData]);
       if (wybraneUmiejki.length > 0) {
@@ -877,7 +890,6 @@ result.umiejetnosci = daneItem.umiejetnosciZawodowe.map(element => element.umiej
       ]);
       const newItem = created[0];
       itemData.system.talenty[i].uuid = newItem.uuid;
-      
     }
   }
 }

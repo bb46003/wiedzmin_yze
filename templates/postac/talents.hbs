@@ -8,18 +8,26 @@
           <img src="{{talent.img}}" class="talent-img" />
         </div>
         <label>{{talent.name}}</label>
+
         {{#if talent.rzucany}}
           <span class="rzucany" data-action="rzut_talen" data-item="{{key}}">
             <i class="fas fa-dice"></i>
           </span>
 
         {{else}}
-        {{#if talent.czerpanieMocy}}
-          <button class="rzucany" data-action="pobierzMoc" data-item="{{key}}">
-            <img src="systems\wiedzmin_yze\assets\magic.png" width="16" height="16" data-action="pobierzMoc" data-item="{{key}}">
-          </button>
-        {{/if}}
+          {{#if talent.czerpanieMocy}}
+            <a>
+              <img
+                src="systems\wiedzmin_yze\assets\magic.png"
+                width="35"
+                height="35"
+                data-action="pobierzMoc"
+                data-item="{{key}}"
+              />
+            </a>
+          {{else}}
           <span></span>
+          {{/if}}
         {{/if}}
         <div
           class="threeDots"

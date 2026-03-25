@@ -118,7 +118,6 @@ export function przygotujUmiejki(
       return [key, localize ? game.i18n.localize(value) : value];
     }
     if (foundry.utils.getType(value) === "Object" && key !== "Brak") {
-
       return [
         key,
         localize
