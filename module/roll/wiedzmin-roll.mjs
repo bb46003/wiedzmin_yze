@@ -116,7 +116,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
     umiejkaLabel = "",
     actorID = null,
     bonusDoCzerpania = 0,
+    atrybutKey = "",
+    item,
   } = {}) {
+    const maTelentBlokujacy = !talenty.some(
+      (item) => item.system?.usuwaForsowanie === true,
+    );
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_CZRPANIE,
       {
@@ -136,7 +141,23 @@ export class WiedzminRoll extends foundry.dice.Roll {
           action: "roll",
           label: "Roll",
           default: true,
-          callback: async (_event, _button, dialog) => {}
+          callback: async (_event, _button, dialog) => {
+            const typ = dialog.element.querySelector("select[name='elementType']").value;
+            const wielkosc = dialog.element.querySelector("select[name='elementSize']").value;
+            const attributeVal = attribute;
+            const atrubutLabelUse = atrubutLabel;
+            const atrybutKeyUse = atrybutKey;
+
+            const basePool = attributeVal + skill + mod + talentBonus;
+            const formula =
+              adrenalina > 0
+                ? `${basePool}d6 + ${adrenalina}d6`
+                : `${basePool}d6`;
+            let flavor = "Test";
+            if (!maTelentBlokujacy) {
+              flavor = "Forsowanie";
+            }
+          }
         }
       ]
     }).render({ force: true });
