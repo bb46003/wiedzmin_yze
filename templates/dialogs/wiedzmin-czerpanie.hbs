@@ -1,19 +1,36 @@
 <div class="czerpanie-Mocy">
   <label>Wybierz źródło z którego czerpiesz Moc</label>
   <select name="elementType">
-    <option value="woda" data-mod = "1">Woda +1</option>
-    <option value="powietrze/ziemia" data-mod = "0">Powietrze/Ziemia +0</option>
-    <option value="ogien" data-mod = "-1">Ogień -1</option>
+    <option value="woda" data-mod="1">Woda +1</option>
+    <option value="powietrze/ziemia" data-mod="0">Powietrze/Ziemia +0</option>
+    <option value="ogien" data-mod="-1">Ogień -1</option>
   </select>
   <label>Wielkość źródła</label>
   <select name="elementSize">
-    <option value="-2">Małe -2</option>
-    <option value="-1">Średnie -1</option>
-    <option value="0">Duże 0</option>
-    <option value="1">Ogromne +1 </option>
-    <option value="2">Ogromne +2</option>
+    <option value="Małe" data-mod="-2">Małe -2</option>
+    <option value="Średnie" data-mod="-1">Średnie -1</option>
+    <option value="Duże" data-mod="0">Duże 0</option>
+    <option value="Ogromne" data-mod="1">Ogromne +1 </option>
+    <option value="Ogromne" data-mod="2">Ogromne +2</option>
   </select>
   {{#if (ne bonusDoCzerpania 0)}}
     <label>Bonus do czerpania z Talentów to {{bonusDoCzerpania}}</label>
+  {{/if}}
+  {{#if (ne item.length 0)}}
+    <div class="flexcol">
+      <label>Bonusy z Talentów</label>
+      {{#each item as |item index|}}
+        {{#if (ne item.system.bonu 0)}}
+          <div class="talent-bonus">
+            <label>{{item.name}}</label>
+            <span>{{item.system.bonu}}</span>
+            <div>
+              <label>Talent ma zastosowanie?</label>
+              <input type="checkbox" name="stosuje" data-id="{{index}}" />
+            </div>
+          </div>
+        {{/if}}
+      {{/each}}
+    </div>
   {{/if}}
 </div>

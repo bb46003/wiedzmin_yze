@@ -155,6 +155,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       }),
       cele_osobiste: new StringField({ initial: "" }),
       charakterystyczny_przedmiot: new StringField({ initial: "" }),
+      uzyto_przedmiotu: new BooleanField({ initial: false }),
       pd: new NumberField({ label: "wiedzmin.pd", initial: 0 }),
       punkty_fabuly: new NumberField({
         label: "wiedzmin.punktyFabuly",
@@ -189,11 +190,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     this._ustawZycie();
     this._prepareConditions();
+    this._prepareMoc()
   }
   _ustawZycie() {
     this.zycie.max = this.atrybuty.sila.value;
     if (this.zycie.max !== 0 && this.zycie.value === undefined) {
       this.zycie.value = this.zycie.max;
+    }
+  }
+
+  _prepareMoc() {
+    const talentMoc = this.parent.items.find(
+      (i) => i.type === "talenty" && i.system.zwiekszneiePM,
+     );
+    if (talentMoc) {
+      this.punkty_mocy.max = talentMoc.system.dodatkowaMoc;
+    } else {
+      this.punkty_mocy.max = 0;
     }
   }
   /**
@@ -445,7 +458,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
-  async pobierzMoc(bonusDoCzerpania) {
+  async pobierzMoc(bonusDoCzerpania, talenty) {
     const atrybut = this.atrybuty.rozum.value;
     const umiejka = this.atrybuty.rozum.umiejetnosci.fach;
 
@@ -453,9 +466,13 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       this.schema.fields.atrybuty.fields.rozum.fields.value.label,
     );
     const umiejkaLabel = game.i18n.localize(
-      this.schema.fields.atrybuty.fields["rozum"].fields.umiejetnosci.fields["fach"].label,
+      this.schema.fields.atrybuty.fields["rozum"].fields.umiejetnosci.fields[
+        "fach"
+      ].label,
     );
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
+    const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
+      await this.sprawdzTalenty("rozum", talenty);
     const roll = await globalThis.wiedzmin_yze.WiedzminRoll.czerpanieMocy({
       attribute: atrybut,
       skill: umiejka,
@@ -464,6 +481,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       umiejkaLabel: umiejkaLabel,
       actorID: this.parent.id,
       bonusDoCzerpania: bonusDoCzerpania,
+      item: inneTalenty,
+      secondArtibute: secondArtibute,
+      atrybutKey: "rozum",
+      umiejkaKey: "fach",
     });
 
     if (roll) await roll.toMessage();

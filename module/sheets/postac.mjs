@@ -23,6 +23,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       itemContextMenu: postacSheet.#itemContextMenu,
       otwórzRase: postacSheet.#otwórzRase,
       pobierzMoc: postacSheet.#pobierzMoc,
+      uzyjPrzedmiotu: postacSheet.#uzyjPrzedmiotu,
     },
     form: {
       submitOnChange: true,
@@ -164,7 +165,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         img: iamge,
         name: itemName,
         rzucany: rzucany,
-        czerpanieMocy: czerpanieMocy
+        czerpanieMocy: czerpanieMocy,
       };
     });
 
@@ -457,7 +458,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         bonusDoCzerpania++;
       }
     });
-    await this.actor.system.pobierzMoc(bonusDoCzerpania);
+    await this.actor.system.pobierzMoc(
+      bonusDoCzerpania,
+      items.filter((i) => i.type === "talenty"),
+    );
   }
 
   static async #otwórzRase(ev) {
@@ -466,6 +470,53 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const rasa = this.actor.items.get(rasaID);
     rasa.sheet.render({ force: true });
   }
+
+  async _onRender(document, options) {
+    await super._onRender(document, options);
+        const id = document.rootId;
+    const element = document.document.apps[id].element
+    const uzyciePrzedmiotu = element.querySelector("[data-action='uzyjPrzedmiotu']");
+    if (uzyciePrzedmiotu) {
+      uzyciePrzedmiotu.addEventListener("contextmenu", (ev) => postacSheet.#uzyjPrzedmiotu(ev, this.actor.id));
+    }
+  }
+static async #uzyjPrzedmiotu(ev, actorId) {
+
+  let actor = this.actor;
+  if(actor === undefined){
+    actor = await game.actors.get(actorId);
+  }
+  // LEFT CLICK
+  if (ev.button === 0) {
+    const adrenalina = actor.system.adrenalina.value;
+    const nowaAdrenalina = adrenalina - 2 < 0 ? 0 : adrenalina - 2;
+    if(this.actor.system.uzyto_przedmiotu){
+      ui.notifications.warn("Przedmiot charakterystyczny został już użyty. Możesz go zresetować klikając prawym przyciskiem myszy.");
+    }else{
+    await actor.update({
+      ["system.adrenalina.value"]: nowaAdrenalina,
+      ["system.uzyto_przedmiotu"]: true
+    });
+
+    ChatMessage.create({
+      speaker: { actor: actor.id },
+      content: `Użyto przedmiot charakterystyczny, tracąc 2 punkty adrenaliny.
+Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`
+    });
+  }
+  }
+  // RIGHT CLICK
+  if (ev.button === 2) {
+    await actor.update({
+      ["system.uzyto_przedmiotu"]: false
+    });
+
+    ChatMessage.create({
+      speaker: { actor: actor.id },
+      content: `Zresetowano użycie przedmiotu charakterystycznego.`
+    });
+  }
+}
 
   static async _onEditText(_event, target) {
     const { fieldPath, propertyPath } = target.dataset;

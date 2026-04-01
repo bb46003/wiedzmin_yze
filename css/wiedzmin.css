@@ -6,8 +6,8 @@
   resize: auto;
   .window-content {
     display: grid;
-    grid-template-columns:220px 410px 250px;
-    grid-template-rows: auto 270px 330px 250px 250px;
+    grid-template-columns: 250px 410px 250px;
+    grid-template-rows: auto 310px 330px 250px 250px;
     gap: 8px;
     height: 100%;
     overflow-y: auto;
@@ -21,6 +21,29 @@
   .window-content .resources {
     grid-column: 1;
     grid-row: 2;
+    .dodatkowe{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 13px;
+      .moc-label{
+        font-size: 13px;
+      }
+      .przedmiot{
+        display: flex;
+        gap: 2px;
+        align-items: center;
+      }
+      textarea{
+            width: 145px;
+    resize: none;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+      }
+      .used{
+        color: red;
+      }
+    }
   }
 
   .window-content .conditions {
@@ -203,7 +226,7 @@
       grid-template-columns: 45px 100px 1fr 1fr;
       align-items: center;
       justify-items: stretch;
-      button{
+      button {
         padding: 0;
         width: 38px;
         height: 38px;
@@ -333,6 +356,7 @@
   .moc-wrapper {
     text-align: center;
     margin-top: 12px;
+    justify-self: center;
   }
 
   .zycie-label,

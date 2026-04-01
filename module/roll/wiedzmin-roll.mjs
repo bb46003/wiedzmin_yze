@@ -4,6 +4,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
   static DIALOG_TEMPLATE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-roll.hbs`;
   static CHAT_TEMPLATE = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
   static DIALOG_CZRPANIE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-czerpanie.hbs`;
+  static CHAT_CZERPANIE = `systems/wiedzmin_yze/templates/chat/wiedzmin-czerpanie.hbs`;
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -75,7 +76,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               const index = Number(input.dataset.id);
               return item[index];
             });
-      
+
             const talentBonus = await bonusZtalentów(selectedItems);
             const basePool = attributeVal + skill + mod + talentBonus;
             const formula =
@@ -98,6 +99,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 umiejkaKey: umiejkaKey,
                 atrybutKey: atrybutKeyUse,
                 item: selectedItems,
+                type: "roll",
               },
             );
 
@@ -116,10 +118,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
     umiejkaLabel = "",
     actorID = null,
     bonusDoCzerpania = 0,
+    item = [],
+    secondArtibute = null,
     atrybutKey = "",
-    item,
+    umiejkaKey = "",
   } = {}) {
-    const maTelentBlokujacy = !talenty.some(
+    const maTelentBlokujacy = !item.some(
       (item) => item.system?.usuwaForsowanie === true,
     );
     const content = await foundry.applications.handlebars.renderTemplate(
@@ -131,9 +135,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
         atrubutLabel,
         umiejkaLabel,
         adrenalina,
+        item,
       },
     );
-        new foundry.applications.api.DialogV2({
+    new foundry.applications.api.DialogV2({
       window: { title: "Czerpanie Mocy" },
       content,
       buttons: [
@@ -142,13 +147,35 @@ export class WiedzminRoll extends foundry.dice.Roll {
           label: "Roll",
           default: true,
           callback: async (_event, _button, dialog) => {
-            const typ = dialog.element.querySelector("select[name='elementType']").value;
-            const wielkosc = dialog.element.querySelector("select[name='elementSize']").value;
+            const typ = dialog.element.querySelector(
+              "select[name='elementType']",
+            ).selectedOptions[0];
+            const typValue = typ.value;
+            const typMod = Number(typ.dataset.mod);
+            const wielkosc = dialog.element.querySelector(
+              "select[name='elementSize']",
+            ).selectedOptions[0];
+            const wielkoscValue = wielkosc.value;
+            const wielkoscMod = Number(wielkosc.dataset.mod);
             const attributeVal = attribute;
             const atrubutLabelUse = atrubutLabel;
             const atrybutKeyUse = atrybutKey;
+            const checked = Array.from(
+              dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+            );
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return item[index];
+            });
 
-            const basePool = attributeVal + skill + mod + talentBonus;
+            const talentBonus = await bonusZtalentów(selectedItems);
+            const basePool =
+              attributeVal +
+              skill +
+              typMod +
+              wielkoscMod +
+              bonusDoCzerpania +
+              talentBonus;
             const formula =
               adrenalina > 0
                 ? `${basePool}d6 + ${adrenalina}d6`
@@ -157,11 +184,28 @@ export class WiedzminRoll extends foundry.dice.Roll {
             if (!maTelentBlokujacy) {
               flavor = "Forsowanie";
             }
-          }
-        }
-      ]
+            const roll = new WiedzminRoll(
+              formula,
+              {},
+              {
+                adrenalina,
+                flavor: flavor,
+                atrubutLabel: atrubutLabelUse,
+                umiejkaLabel: umiejkaLabel,
+                actorID: actorID,
+                umiejkaKey: umiejkaKey,
+                atrybutKey: atrybutKeyUse,
+                item: selectedItems,
+                type: "czerpanie",
+                zrodlo: typValue,
+                wielkosc: wielkoscValue,
+              },
+            );
+            await roll.toMessage();
+          },
+        },
+      ],
     }).render({ force: true });
-
   }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
@@ -268,6 +312,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (options.newFormula) {
       formula = options.newFormula;
     }
+    console.log(options);
     let extraSuccesses = this.extraSuccesses;
     if (options.oldsucesses) {
       extraSuccesses = this.extraSuccesses + options.oldsucesses;
@@ -302,6 +347,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
       iloscPrzerzuconych: options.iloscPrzerzuconych,
       item: itemsUuid,
+      zrodlo: this.options?.zrodlo,
+      wielkosc: this.options?.wielkosc,
+      type: this.options?.type,
     };
   }
 
@@ -309,13 +357,17 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /*  Rendering                                   */
   /* -------------------------------------------- */
 
-  async render({
-    flavor,
-    template = this.constructor.CHAT_TEMPLATE,
-    options = {},
-  } = {}) {
+  async render({ flavor, options = {} } = {}) {
     if (!this._evaluated) await this.evaluate();
+    let template = "";
 
+    switch (options.type) {
+      case "czerpanie":
+        template = this.constructor.CHAT_CZERPANIE;
+        break;
+      default:
+        template = this.constructor.CHAT_TEMPLATE;
+    }
     const data = await this._prepareChatData(flavor, options);
     const content = await foundry.applications.handlebars.renderTemplate(
       template,
@@ -330,10 +382,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
 
   async toMessage(messageData = {}, options = {}) {
     if (!this._evaluated) await this.evaluate();
+    console.log(this.options);
     const { content, data } = await this.render({
       flavor: this.options.flavor,
       template: this.constructor.CHAT_TEMPLATE,
-      options,
+      options: this.options,
     });
 
     return ChatMessage.create(

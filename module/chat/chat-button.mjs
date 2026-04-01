@@ -4,6 +4,7 @@ import { WiedzminRoll } from "../roll/wiedzmin-roll.mjs";
 export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".forsuj-button", forsujRzut, _app);
   addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app);
+  addHtmlEventListener(html, "click", ".zaczerpMoc-button", zaczerpMoc, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -61,7 +62,6 @@ async function forsujRzut(event, message) {
       }
     }
   }
-
   const newRoll = new WiedzminRoll(
     formula,
     {},
@@ -74,6 +74,10 @@ async function forsujRzut(event, message) {
       umiejkaKey: data.umiejkaKey,
       atrybutKey: data.atrybutKey,
       item: data.item,
+      type:data.type,
+      zrodlo: data?.zrodlo, 
+      wielkosc: data?.wielkosc,
+       oldsucesses: normalSuccesses + adrenalinaSuccesses,
     },
   );
   await newRoll.evaluate();
@@ -121,4 +125,90 @@ async function otworzTalent(ev) {
       },
     ],
   }).render({ force: true });
+}
+async function zaczerpMoc(event, message) {
+  const data = message.system;
+  console.log(data);
+  if (!data) return;
+
+  const actor = game.actors.get(data.actorID);
+  if (!actor) return;
+  const flavor = data.flavor;
+  const zrodlo = data.zrodlo;
+  const normalRolls = data.normalDice?.rolls ?? [];
+  const adrenalinaRolls = data.adrenalinaDice?.rolls ?? [];
+
+  // --- SUKCESY ---
+  const normalSuccesses = normalRolls.filter(
+    (r) => r.active && r.result === 6,
+  ).length;
+
+  const adrenalinaSuccesses = adrenalinaRolls.filter(
+    (r) => r.active && r.result === 6,
+  ).length;
+  const pech = adrenalinaRolls.some((r) => r.active && r.result === 1);
+  const typZrodla = data.zrodlo;
+  const wielkoscZrodla = data.wielkosc;
+  const maksymalnaMoc = actor.system.punkty_mocy.max;
+  const aktualnaMoc = actor.system.punkty_mocy.value;
+  const brakujacaMoc = maksymalnaMoc - aktualnaMoc;
+  const mocZaczerpnieta = normalSuccesses + adrenalinaSuccesses;
+  const updateData = {};
+  if (flavor === "Forsowanie" || zrodlo === "ogien") {
+    const mocZOgnia = zrodlo === "ogien" ? 2 * mocZaczerpnieta : mocZaczerpnieta;
+    const nadwyzkaMocy = mocZOgnia - brakujacaMoc;
+    if (nadwyzkaMocy > 0) {
+      const obecneZycie = actor.system.zycie.value;
+      const noweZycie = obecneZycie - nadwyzkaMocy;
+      updateData["system.zycie.value"] = noweZycie < 0 ? 0 : noweZycie;
+      updateData["system.punkty_mocy.value"] = maksymalnaMoc;
+      ChatMessage.create({
+        speaker: { actor: actor.id },
+        content: `
+          Moc czerpano ze źródła ${typZrodla} o wielkości ${wielkoscZrodla}. Zaczerpnięto ${mocZOgnia} 
+          punktów mocy. Moc przed zaczerpnięciem to ${aktualnaMoc}. 
+          Aktualna moc po zaczerpnięciu to ${updateData["system.punkty_mocy.value"]}.
+          Nadwyżka ${nadwyzkaMocy} została odjęta od życia, 
+          z wartości ${obecneZycie} do ${updateData["system.zycie.value"]}.`,
+      });
+    } else {
+      updateData["system.punkty_mocy.value"] = aktualnaMoc + mocZOgnia;
+      ChatMessage.create({
+        speaker: { actor: actor.id },
+        content: `
+          Moc czerpano ze źródła ${typZrodla} o wielkości ${wielkoscZrodla}. Zaczerpnięto ${mocZOgnia} 
+          punktów mocy. Moc przed zaczerpnięciem to ${aktualnaMoc}. 
+          Aktualna moc po zaczerpnięciu to ${updateData["system.punkty_mocy.value"]}.`,
+      });
+    }
+  } else {
+    const mocZwykla = mocZaczerpnieta;
+    const nadwyzkaMocy = mocZwykla - brakujacaMoc;
+    if (nadwyzkaMocy > 0 && pech) {
+      const obecneZycie = actor.system.zycie.value;
+      const noweZycie = obecneZycie - nadwyzkaMocy;
+      updateData["system.zycie.value"] = noweZycie < 0 ? 0 : noweZycie;
+      updateData["system.punkty_mocy.value"] = maksymalnaMoc;
+      ChatMessage.create({
+        speaker: { actor: actor.id },
+        content: `
+          Moc czerpano ze źródła ${typZrodla} o wielkości ${wielkoscZrodla}. Zaczerpnięto ${mocZwykla} 
+          punktów mocy. Moc przed zaczerpnięciem to ${aktualnaMoc}. 
+          Aktualna moc po zaczerpnięciu to ${updateData["system.punkty_mocy.value"]}.
+          Nadwyżka ${nadwyzkaMocy} została odjęta od życia, 
+          z wartości ${obecneZycie} do ${updateData["system.zycie.value"]}.`,
+      });
+    } else {
+      updateData["system.punkty_mocy.value"] = aktualnaMoc + mocZwykla;
+      ChatMessage.create({
+        speaker: { actor: actor.id },
+        content: `
+          Moc czerpano ze źródła ${typZrodla} o wielkości ${wielkoscZrodla}. Zaczerpnięto ${mocZwykla} 
+          punktów mocy. Moc przed zaczerpnięciem to ${aktualnaMoc}. 
+          Aktualna moc po zaczerpnięciu to ${updateData["system.punkty_mocy.value"]}.`,
+      });
+    }
+  }
+  await actor.update(updateData);
+  event.target.disabled = true;
 }
