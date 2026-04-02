@@ -1,0 +1,80 @@
+New SQL Query(
+	Version( 130 ),
+	Connection(
+		New Data Connector( ID( "CWA JMP Integration Shared.CWA JMP Integration" ) )
+	),
+	QueryName( "JMPIntegration_PieceTagDataNumeric_24HourData" ),
+	Select(
+		Column( "PieceID", "t1" ),
+		Column( "MasterPieceID", "t1" ),
+		Column(
+			"FurnaceExitTrackingDateTime",
+			"t1",
+			Numeric Format( "d/m/y h:m:s", "0", "NO", "" )
+		),
+		Column(
+			"DateTimeStamp",
+			"t1",
+			Numeric Format( "d/m/y h:m:s", "0", "NO", "" )
+		),
+		Column( "WorkCentreCode", "t1" ),
+		Column( "TagID", "t1" ),
+		Column( "Description", "t1" ),
+		Column( "Value", "t1" )
+	),
+	From(
+		Table(
+			"JMPIntegration_PieceTagDataNumeric_24HourData",
+			Schema( "FISAuto" ),
+			Alias( "t1" )
+		)
+	),
+	Where(
+		EQ( Column( "TagID", "t1" ), 275, UI( Comparison( Base( "Continuous" ) ) ) )
+		 & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		) | EQ(
+			Column( "TagID", "t1" ),
+			288,
+			UI( Comparison( Base( "Continuous" ) ) )
+		) & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		) | EQ(
+			Column( "TagID", "t1" ),
+			3,
+			UI( Comparison( Base( "Continuous" ) ) )
+		) & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		) | EQ(
+			Column( "TagID", "t1" ),
+			4,
+			UI( Comparison( Base( "Continuous" ) ) )
+		) & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		) | EQ(
+			Column( "TagID", "t1" ),
+			149,
+			UI( Comparison( Base( "Continuous" ) ) )
+		) & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		) | EQ(
+			Column( "TagID", "t1" ),
+			146,
+			UI( Comparison( Base( "Continuous" ) ) )
+		) & EQ(
+			Column( "WorkCentreCode", "t1" ),
+			"CWAAPLA3",
+			UI( Comparison( Base( "Categorical" ) ) )
+		)
+	)
+) << Run Foreground( UpdateTable( Current Data Table() ) );
