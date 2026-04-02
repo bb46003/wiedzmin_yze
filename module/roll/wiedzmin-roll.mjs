@@ -5,6 +5,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
   static CHAT_TEMPLATE = `systems/wiedzmin_yze/templates/chat/wiedzmin-roll.hbs`;
   static DIALOG_CZRPANIE = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-czerpanie.hbs`;
   static CHAT_CZERPANIE = `systems/wiedzmin_yze/templates/chat/wiedzmin-czerpanie.hbs`;
+  static DIALOG_TEMPLATE_ATAK_BRONI = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-atak-bronia.hbs`;
+  static CHAT_TEMPLATE_ATAK_BRONI = `systems/wiedzmin_yze/templates/chat/wiedzmin-atak-bronia.hbs`;
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -207,6 +209,100 @@ export class WiedzminRoll extends foundry.dice.Roll {
       ],
     }).render({ force: true });
   }
+
+
+static async atakBronia({
+  attribute = 0,
+  skill = 0,
+  adrenalina = 0,
+  atrubutLabel = "",
+  umiejkaLabel = "",
+  actorID = null,
+  item = [], // talents
+  weaponId = null,
+} = {}) {
+
+  const actor = await game.actors.get(actorID);
+  const weapon = actor.items.get(weaponId);
+    const maTelentBlokujacy = !item.some(
+      (item) => item.system?.usuwaForsowanie === true,
+    );
+  if (!weapon) {
+    ui.notifications.error("Weapon not found");
+    return;
+  }
+  console.log("Talents in atakBronia:", item);
+  const content = await foundry.applications.handlebars.renderTemplate(
+    this.DIALOG_TEMPLATE_ATAK_BRONI,
+    {
+      attribute,
+      skill,
+      adrenalina,
+      item,
+      hasSecondAttribute: false
+    }
+  );
+
+  new foundry.applications.api.DialogV2({
+    window: { title: `Attack: ${weapon.name}` },
+    classes:["wiedzmin-dialog", "atak"],
+    content,
+    buttons: [
+      {
+        action: "roll",
+        label: "Attack",
+        default: true,
+        callback: async (_event, _button, dialog) => {
+
+          // 🔹 modifier from dialog
+          const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+
+          // 🔹 selected talents
+          const checked = Array.from(
+            dialog.element.querySelectorAll('input[name="stosuje"]:checked')
+          );
+
+          const selectedItems = checked.map((input) => {
+            const index = Number(input.dataset.id);
+            return item[index];
+          });
+
+          const talentBonus = await bonusZtalentów(selectedItems);
+
+          // 🔹 base dice pool
+          const basePool = attribute + skill + mod + talentBonus;
+
+          const formula =
+            adrenalina > 0
+              ? `${basePool}d6 + ${adrenalina}d6`
+              : `${basePool}d6`;
+          let flavor = "Attack";
+          if (!maTelentBlokujacy) {
+              flavor = "Forsowanie";
+            }
+          const roll = new WiedzminRoll(
+            formula,
+            {},
+            {
+              adrenalina,
+              flavor: flavor,
+              atrubutLabel,
+              umiejkaLabel,
+              actorID,
+              item: selectedItems,
+              type: "atak",              // 🔥 IMPORTANT
+              weaponId: weapon.id,
+              weaponName: weapon.name,
+            }
+          );
+
+          await roll.toMessage();
+
+        },
+      },
+    ],
+  }).render({ force: true });
+}
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
   /* -------------------------------------------- */
@@ -246,7 +342,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
         if (r.result === 1) pech = true;
       }
     }
-    if(this.options.oldsucesses !== 0 && this.options.oldsucesses !== undefined){
+
+    if (
+      this.options.oldsucesses !== 0 &&
+      this.options.oldsucesses !== undefined
+    ) {
       successes += this.options.oldsucesses;
     }
     this._normalTerm = normalTerm;
@@ -255,6 +355,19 @@ export class WiedzminRoll extends foundry.dice.Roll {
     this._successes = successes;
     this._extraSuccesses = Math.max(0, successes - 1);
     this._pech = pech;
+    if (this.options.type === "ammo") {
+      const normalTerm = this._normalTerm;
+
+      let utrataAmunicji = false;
+
+      if (normalTerm) {
+        utrataAmunicji = normalTerm.results.some(
+          (r) => r.active && r.result === 1,
+        );
+      }
+
+      this._utrataAmunicji = utrataAmunicji;
+    }
   }
 
   /* -------------------------------------------- */
@@ -275,6 +388,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
 
   get isSuccess() {
     return this.successes > 0;
+  }
+  get utrataAmunicji() {
+    return this._utrataAmunicji ?? false;
   }
 
   /* -------------------------------------------- */
@@ -326,9 +442,21 @@ export class WiedzminRoll extends foundry.dice.Roll {
       umiejkaLabel += " " + fach;
     }
     const itemsUuid = [];
-    this.options.item.forEach((item) => {
+    this.options?.item?.forEach((item) => {
       itemsUuid.push({ uuid: item.uuid, name: item.name });
     });
+    let remainingAmmo = 0;
+    if (this.options.type === "ammo") {
+      const actor = await game.actors.get(this.options.actorID);
+      const weapon = actor.items.get(this.options.weaponId);
+
+      const zapasAmunicji = weapon.system.zapasAmunicji;
+
+      remainingAmmo = Math.max(
+        zapasAmunicji - (this.utrataAmunicji ? 1 : 0),
+        0,
+      );
+    }
     return {
       formula: formula,
       total: this.total,
@@ -350,6 +478,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
       zrodlo: this.options?.zrodlo,
       wielkosc: this.options?.wielkosc,
       type: this.options?.type,
+      weaponName: this.options?.weaponName,
+      remainingAmmo: remainingAmmo,
+      utrataAmunicji: this.utrataAmunicji,
     };
   }
 
@@ -364,6 +495,13 @@ export class WiedzminRoll extends foundry.dice.Roll {
     switch (options.type) {
       case "czerpanie":
         template = this.constructor.CHAT_CZERPANIE;
+        break;
+      case "ammo":
+        template =
+          "systems/wiedzmin_yze/templates/chat/wiedzmin-sprawdzenieAmo.hbs";
+        break;
+      case "atak":
+        template = this.constructor.CHAT_TEMPLATE_ATAK_BRONI;
         break;
       default:
         template = this.constructor.CHAT_TEMPLATE;
@@ -381,23 +519,18 @@ export class WiedzminRoll extends foundry.dice.Roll {
   /* -------------------------------------------- */
 
   async toMessage(messageData = {}, options = {}) {
-    if (!this._evaluated) await this.evaluate();
-    console.log(this.options);
-    const { content, data } = await this.render({
-      flavor: this.options.flavor,
-      template: this.constructor.CHAT_TEMPLATE,
-      options: this.options,
-    });
-
-    return ChatMessage.create(
+    const data = await this.render({ flavor: this.options.flavor, options: this.options });
+    const message = await ChatMessage.create(
       {
-        system: data,
-        content,
+        system: data.data,
+        content: data.content,
         rolls: [this],
         ...messageData,
       },
       options,
     );
+
+    return { message, utrataAmunicji: this.utrataAmunicji };
   }
 }
 

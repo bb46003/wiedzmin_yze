@@ -1,0 +1,49 @@
+<div class="ammo-check">
+
+  <div class="ammo-result">
+    Sprawdzenie Amunicji dla
+    {{weaponName}}
+    zakończyło się
+    {{#if utrataAmunicji}}
+      utratą
+    {{else}}
+      zachowaniem
+    {{/if}}
+    amunicji.
+    <br />
+    Pozostały zapas amunicji:
+    {{remainingAmmo}}
+  </div>
+
+  <div class="dice-roll" data-action="expandRoll">
+
+    <div class="dice-formula">{{formula}}</div>
+
+    <div class="dice-tooltip">
+      <div class="wrapper">
+
+        <section class="tooltip-part">
+          <div class="dice">
+            <header class="part-header flexrow">
+              <span class="part-formula">
+                Ilość Kości:
+                {{normalDice.rolls.length}}d6
+              </span>
+            </header>
+
+            <ol class="dice-rolls">
+              {{#each normalDice.rolls}}
+                <li class="roll die d6 {{this.classes}}">
+                  {{this.result}}
+                </li>
+              {{/each}}
+            </ol>
+
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </div>
+</div>

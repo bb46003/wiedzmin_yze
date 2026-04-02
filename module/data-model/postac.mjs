@@ -190,7 +190,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     this._ustawZycie();
     this._prepareConditions();
-    this._prepareMoc()
+    this._prepareMoc();
   }
   _ustawZycie() {
     this.zycie.max = this.atrybuty.sila.value;
@@ -202,7 +202,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   _prepareMoc() {
     const talentMoc = this.parent.items.find(
       (i) => i.type === "talenty" && i.system.zwiekszneiePM,
-     );
+    );
     if (talentMoc) {
       this.punkty_mocy.max = talentMoc.system.dodatkowaMoc;
     } else {
@@ -257,6 +257,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       secondArtibute: secondArtibute,
     });
   }
+
   async rzutUmiejka(umiejkaKey, atrybutKey, item = []) {
     const attribute = this.atrybuty[atrybutKey];
     if (!attribute) return;
@@ -289,6 +290,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
 
     if (roll) await roll.toMessage();
   }
+
   async zwiekszAdrenaline() {
     this.adrenalina.value += 1;
     await this.parent.update({
@@ -296,7 +298,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
   }
 
-  async sprawdzTalenty(atrybutKey, extraItems = []) {
+  async sprawdzTalenty(atrybutKey, extraItems = [], atak = false) {
     const items = this.parent.items.filter((i) => i.type === "talenty");
 
     const allItems = items.concat(extraItems);
@@ -341,10 +343,16 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
           },
         );
       }
+      if(atak){
+        if(item.system.zwiekszoneObrazenia){
+          powiazaneTalenty.push(item);
+        }
+      }
     });
 
     return { powiazaneTalenty, powiazaneAtrybuty };
   }
+
   async wydanieXP(wydaneXp, item) {
     this.parent.update({ "system.pd": this.pd - wydaneXp });
     const itemName = item.name;
@@ -354,6 +362,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       content: `Postać ${this.parent.name} dodała Talent ${itemName} i wydała ${wydaneXp}PD`,
     });
   }
+
   async zwrocPD(xp, item) {
     this.parent.update({ "system.pd": this.pd + xp });
     const itemName = item.name;
@@ -363,11 +372,13 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       content: `Postać ${this.parent.name} usuną Talent ${itemName} i przywrócono ${xp}PD`,
     });
   }
+
   async zwiekszMoc(dodatkowaMoc) {
     await this.parent.update({
       "system.punkty_mocy.max": this.punkty_mocy.max + dodatkowaMoc,
     });
   }
+
   async zmniejszneieMocy(dodatkowaMoc) {
     const nowaMaxMoc = Math.max(0, this.punkty_mocy.max - dodatkowaMoc);
     const updateData = { "system.punkty_mocy.max": nowaMaxMoc };
@@ -376,6 +387,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
     await this.parent.update(updateData);
   }
+
   async _bonusZRasy(podbiceAtrybutu) {
     const updateData = {};
     const updateData2 = {};
@@ -390,6 +402,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     await this.parent.update(updateData);
     await this.parent.update(updateData2);
   }
+
   async _bonusZRasyUmiejka(podbicieUmiejki) {
     const updateData = {};
     podbicieUmiejki.forEach((podbicieUmiejki) => {
@@ -403,6 +416,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
+
   async _bonusZRasyUsun(podbiceAtrybutu) {
     const updateData = {};
     podbiceAtrybutu.forEach((podbicie) => {
@@ -412,9 +426,9 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         this.atrybuty[podbicie.atrybut].max - Number(podbicie.bonus);
       updateData[`system.atrybuty.${podbicie.atrybut}.value`] = atrybut;
     });
-    console.log(updateData);
     await this.parent.update(updateData);
   }
+
   async _bonusZRasyUmiejkaUsun(podbicieUmiejki) {
     const updateData = {};
     podbicieUmiejki.forEach((podbicieUmiejki) => {
@@ -428,6 +442,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
+
   async atrybutWiodacy(atrybutWiodacy) {
     const updateData = {};
     console.log(this.atrybuty[atrybutWiodacy].max);
@@ -436,12 +451,14 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     console.log(updateData);
     await this.parent.update(updateData);
   }
+
   async _usunAtrWiodacy(atrybutWiodacy) {
     const updateData = {};
     updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
       this.atrybuty[atrybutWiodacy].max - 1;
     await this.parent.update(updateData);
   }
+
   async _przywrucAtr(ograniczone) {
     const updateData = {};
 
@@ -450,6 +467,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
+
   async _ograniczaAtr(ograniczone) {
     const updateData = {};
 
@@ -458,6 +476,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
     await this.parent.update(updateData);
   }
+
   async pobierzMoc(bonusDoCzerpania, talenty) {
     const atrybut = this.atrybuty.rozum.value;
     const umiejka = this.atrybuty.rozum.umiejetnosci.fach;
@@ -488,5 +507,37 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     });
 
     if (roll) await roll.toMessage();
+  }
+
+  async atakBronia(bron, atrybutKey, umiejkaKey) {
+    const attribute = this.atrybuty[atrybutKey];
+    const attributeValue = Number(attribute.value) || 0;
+    const atrubutLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
+    );
+
+    const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
+    const umiejkaLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybutKey].fields.umiejetnosci.fields[
+        umiejkaKey
+      ].label,
+    );
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+
+    const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
+      await this.sprawdzTalenty(atrybutKey, [], true);
+      const roll = await globalThis.wiedzmin_yze.WiedzminRoll.atakBronia({
+      attribute: attributeValue,
+      skill: skillValue,
+      adrenalina: adrenalinaValue,
+      atrubutLabel: atrubutLabel,
+      umiejkaLabel: umiejkaLabel,
+      actorID: this.parent.id,
+      item: inneTalenty,
+      secondArtibute: secondArtibute,
+      atrybutKey: atrybutKey,
+      umiejkaKey: umiejkaKey,
+      weaponId: bron,
+    });
   }
 }

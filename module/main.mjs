@@ -11,6 +11,7 @@ import { talentySheet } from "./sheets/items/talenty.mjs";
 import { talentyItem } from "./document/tenty.mjs";
 import { rasaSheet } from "./sheets/items/rasa.mjs";
 import { profesjeSheet } from "./sheets/items/profesje.mjs";
+import { bronSheet } from "./sheets/items/bron.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -30,6 +31,7 @@ Hooks.once("init", async function () {
     talenty: models.talentyDataModel,
     rasa: models.rasaDataModel,
     profesja: models.profesjaDataModel,
+    bron: models.bronDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
@@ -56,6 +58,7 @@ Hooks.once("init", async function () {
   utils.registerSystemSheet(foundry.documents.Item, talentySheet, "talenty");
   utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
   utils.registerSystemSheet(foundry.documents.Item, profesjeSheet, "profesja");
+  utils.registerSystemSheet(foundry.documents.Item, bronSheet, "bron");
 
   registerHandlebarsHelpers();
   const templates = [

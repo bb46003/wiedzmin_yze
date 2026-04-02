@@ -1,18 +1,51 @@
 <section class="weapons">
-  <label>Bronie</label>
+  <h3>Bronie</h3>
   <table>
     <thead>
       <tr>
-        <th>Broń</th>
-        <th>OBR</th>
-        <th>Bonus</th>
-        <th>Zasięg</th>
+        <th>Nazwa</th>
+        <th data-tooltip="Celność">C</th>
+        <th data-tooltip="Obrażenia">O</th>
+        <th data-tooltip="Wartość">W</th>
+        <th data-tooltip="Amunicja">A</th>
       </tr>
     </thead>
     <tbody>
-
+      {{#each bronie}}
+        <tr>
+          <td class="nazwaBroni">
+            <a class="item-open" data-id="{{@key}}" data-action="atakBronia">
+              {{this.name}}
+            </a>
+            <a
+              class="threeDots"
+              data-action="itemContextMenu"
+              data-item="{{@key}}"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </td>
+          <td>{{this.celnosc}}</td>
+          <td>{{this.obrazenia}}</td>
+          <td>{{this.wartosc}}</td>
+          <td>
+            {{#if this.wymagaAmunicji}}
+              <a
+                class="ammo-edit"
+                data-id="{{@key}}"
+                data-action="sprawdzenieAmunicji"
+                data-tooltip="Kliknij żeby sprawdzić czy zredukowałeś ilość Amunicji"
+              >
+                {{this.zapasAmunicji}}
+              </a>
+            {{else}}
+              -
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
     </tbody>
   </table>
-  <label>Pancerz</label>
 
+  <h3>Pancerz</h3>
 </section>

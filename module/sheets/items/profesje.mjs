@@ -7,8 +7,6 @@ export class profesjeSheet extends api.HandlebarsApplicationMixin(
 ) {
   constructor(...args) {
     super(...args);
-
-    /** @type {CharacterActor} */
     this.item;
   }
   static DEFAULT_OPTIONS = {

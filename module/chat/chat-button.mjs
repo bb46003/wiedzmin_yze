@@ -74,10 +74,10 @@ async function forsujRzut(event, message) {
       umiejkaKey: data.umiejkaKey,
       atrybutKey: data.atrybutKey,
       item: data.item,
-      type:data.type,
-      zrodlo: data?.zrodlo, 
+      type: data.type,
+      zrodlo: data?.zrodlo,
       wielkosc: data?.wielkosc,
-       oldsucesses: normalSuccesses + adrenalinaSuccesses,
+      oldsucesses: normalSuccesses + adrenalinaSuccesses,
     },
   );
   await newRoll.evaluate();
@@ -155,7 +155,8 @@ async function zaczerpMoc(event, message) {
   const mocZaczerpnieta = normalSuccesses + adrenalinaSuccesses;
   const updateData = {};
   if (flavor === "Forsowanie" || zrodlo === "ogien") {
-    const mocZOgnia = zrodlo === "ogien" ? 2 * mocZaczerpnieta : mocZaczerpnieta;
+    const mocZOgnia =
+      zrodlo === "ogien" ? 2 * mocZaczerpnieta : mocZaczerpnieta;
     const nadwyzkaMocy = mocZOgnia - brakujacaMoc;
     if (nadwyzkaMocy > 0) {
       const obecneZycie = actor.system.zycie.value;

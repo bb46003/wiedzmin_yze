@@ -13,7 +13,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   }
   static DEFAULT_OPTIONS = {
     classes: ["postac-sheet"],
-    position: { width: 970, height: 850 },
+    position: { width: 1020, height: 850 },
     actions: {
       toggleCondition: postacSheet._onToggleCondition,
       rzut_atrybut: postacSheet.#rzut_atrybut,
@@ -24,6 +24,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       otwórzRase: postacSheet.#otwórzRase,
       pobierzMoc: postacSheet.#pobierzMoc,
       uzyjPrzedmiotu: postacSheet.#uzyjPrzedmiotu,
+      sprawdzenieAmunicji: postacSheet.#sprawdzenieAmunicji,
+      atakBronia: postacSheet.#atakBronia,
     },
     form: {
       submitOnChange: true,
@@ -108,6 +110,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     };
     const brakForsowania = await this.forsowanie();
     Object.assign(context, { brakForsowania });
+    const bronie = await this.prepareBronie();
+    Object.assign(context, { bronie });
     return context;
   }
 
@@ -199,6 +203,32 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       return [];
     }
   }
+  async prepareBronie() {
+    const bronie = this.actor.items.filter((item) => item.type === "bron");
+    const data = {};
+    bronie.forEach((bron) => {
+      const itemID = bron.id;
+      const img = bron.img;
+      const name = bron.name;
+      const celnosc = bron.system.celnosc;
+      const obrazenia = bron.system.obrazenia;
+      const wartosc = bron.system.wartosc;
+      const zapasAmunicji = bron.system.zapasAmunicji;
+      const wymagaAmunicji = bron.system.wymagaAmunicji;
+
+      data[itemID] = {
+        img,
+        name,
+        celnosc,
+        obrazenia,
+        wartosc,
+        zapasAmunicji,
+        wymagaAmunicji,
+      };
+    });
+
+    return data;
+  }
   async _onDrop(event) {
     event.preventDefault();
 
@@ -243,6 +273,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
           );
         }
 
+        break;
+      default:
+        await actor.createEmbeddedDocuments("Item", [itemData]);
         break;
     }
 
@@ -343,6 +376,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = ev.target.dataset.atrybut;
     this.actor.system.rzutAtrybut(atrybut);
   }
+
   static async #rzut_talen(ev) {
     const target = ev.target;
     const itemID = target.parentNode.dataset.item;
@@ -350,6 +384,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = item.system.powiazaneAtrybuty;
     this.actor.system.rzutAtrybut(atrybut, item);
   }
+
   static async #itemContextMenu(ev) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -379,6 +414,12 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Profesję</div>
     <div class="menu-option" data-action="delete">Usuń Profesje</div>
+  `;
+    }
+    if (item.type === "bron") {
+      menu.innerHTML = `
+    <div class="menu-option" data-action="open">Otwórz Broń</div>
+    <div class="menu-option" data-action="delete">Usuń Broń</div>
   `;
     }
 
@@ -471,52 +512,77 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     rasa.sheet.render({ force: true });
   }
 
+  static async #sprawdzenieAmunicji(ev) {
+    const target = ev.target;
+    const bronID = target.dataset.id;
+    const bron = this.actor.items.get(bronID);
+    await bron.system.sprawdzenieAmunicji();
+  }
+
+  static async #atakBronia(ev) {
+    const target = ev.target;
+    const bronID = target.dataset.id;
+    const bron = this.actor.items.get(bronID);
+    const bronJestDystansowa = bron.system.wymagaAmunicji;
+    let atrybut = "sila";
+    let umiejka = "walka_wrecz";
+    if (bronJestDystansowa) {
+      atrybut = "zrecznosc";
+      umiejka = "walka_dystansowa";
+    } 
+    await this.actor.system.atakBronia(bronID, atrybut, umiejka);
+  }
   async _onRender(document, options) {
     await super._onRender(document, options);
-        const id = document.rootId;
-    const element = document.document.apps[id].element
-    const uzyciePrzedmiotu = element.querySelector("[data-action='uzyjPrzedmiotu']");
+    const id = document.rootId;
+    const element = document.document.apps[id].element;
+    const uzyciePrzedmiotu = element.querySelector(
+      "[data-action='uzyjPrzedmiotu']",
+    );
     if (uzyciePrzedmiotu) {
-      uzyciePrzedmiotu.addEventListener("contextmenu", (ev) => postacSheet.#uzyjPrzedmiotu(ev, this.actor.id));
+      uzyciePrzedmiotu.addEventListener("contextmenu", (ev) =>
+        postacSheet.#uzyjPrzedmiotu(ev, this.actor.id),
+      );
     }
   }
-static async #uzyjPrzedmiotu(ev, actorId) {
+  static async #uzyjPrzedmiotu(ev, actorId) {
+    let actor = this.actor;
+    if (actor === undefined) {
+      actor = await game.actors.get(actorId);
+    }
+    // LEFT CLICK
+    if (ev.button === 0) {
+      const adrenalina = actor.system.adrenalina.value;
+      const nowaAdrenalina = adrenalina - 2 < 0 ? 0 : adrenalina - 2;
+      if (this.actor.system.uzyto_przedmiotu) {
+        ui.notifications.warn(
+          "Przedmiot charakterystyczny został już użyty. Możesz go zresetować klikając prawym przyciskiem myszy.",
+        );
+      } else {
+        await actor.update({
+          ["system.adrenalina.value"]: nowaAdrenalina,
+          ["system.uzyto_przedmiotu"]: true,
+        });
 
-  let actor = this.actor;
-  if(actor === undefined){
-    actor = await game.actors.get(actorId);
-  }
-  // LEFT CLICK
-  if (ev.button === 0) {
-    const adrenalina = actor.system.adrenalina.value;
-    const nowaAdrenalina = adrenalina - 2 < 0 ? 0 : adrenalina - 2;
-    if(this.actor.system.uzyto_przedmiotu){
-      ui.notifications.warn("Przedmiot charakterystyczny został już użyty. Możesz go zresetować klikając prawym przyciskiem myszy.");
-    }else{
-    await actor.update({
-      ["system.adrenalina.value"]: nowaAdrenalina,
-      ["system.uzyto_przedmiotu"]: true
-    });
+        ChatMessage.create({
+          speaker: { actor: actor.id },
+          content: `Użyto przedmiot charakterystyczny, tracąc 2 punkty adrenaliny.
+Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`,
+        });
+      }
+    }
+    // RIGHT CLICK
+    if (ev.button === 2) {
+      await actor.update({
+        ["system.uzyto_przedmiotu"]: false,
+      });
 
-    ChatMessage.create({
-      speaker: { actor: actor.id },
-      content: `Użyto przedmiot charakterystyczny, tracąc 2 punkty adrenaliny.
-Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`
-    });
+      ChatMessage.create({
+        speaker: { actor: actor.id },
+        content: `Zresetowano użycie przedmiotu charakterystycznego.`,
+      });
+    }
   }
-  }
-  // RIGHT CLICK
-  if (ev.button === 2) {
-    await actor.update({
-      ["system.uzyto_przedmiotu"]: false
-    });
-
-    ChatMessage.create({
-      speaker: { actor: actor.id },
-      content: `Zresetowano użycie przedmiotu charakterystycznego.`
-    });
-  }
-}
 
   static async _onEditText(_event, target) {
     const { fieldPath, propertyPath } = target.dataset;
