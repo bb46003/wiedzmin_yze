@@ -89,8 +89,8 @@ async function forsujRzut(event, message) {
       .filter((r) => r.result === 6)
       .map((r) => ({ ...r, active: true, classes: "max" })),
   );
-  newRoll._adrenalinaTerm.results.sort((a, b) => b.result - a.result);
-  newRoll._normalTerm.results.sort((a, b) => b.result - a.result);
+  newRoll?._adrenalinaTerm.results.sort((a, b) => b.result - a.result);
+  newRoll?._normalTerm.results.sort((a, b) => b.result - a.result);
   const split = data.formula.split("+");
   const adrenalinaPart = newAdrenalinaPool + "d6";
   const normalPart = split[0]?.trim() ?? "";

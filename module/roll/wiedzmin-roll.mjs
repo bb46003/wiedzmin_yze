@@ -246,7 +246,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
         if (r.result === 1) pech = true;
       }
     }
-
+    if(this.options.oldsucesses !== 0 && this.options.oldsucesses !== undefined){
+      successes += this.options.oldsucesses;
+    }
     this._normalTerm = normalTerm;
     this._adrenalinaTerm = adrenalinaTerm;
 
@@ -312,11 +314,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (options.newFormula) {
       formula = options.newFormula;
     }
-    console.log(options);
+
     let extraSuccesses = this.extraSuccesses;
-    if (options.oldsucesses) {
-      extraSuccesses = this.extraSuccesses + options.oldsucesses;
-    }
+
     let umiejkaLabel = this.options.umiejkaLabel;
     const actor = await game.actors.get(this.options.actorID);
     const fach = game.i18n.localize(
