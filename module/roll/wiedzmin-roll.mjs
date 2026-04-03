@@ -210,99 +210,117 @@ export class WiedzminRoll extends foundry.dice.Roll {
     }).render({ force: true });
   }
 
-
-static async atakBronia({
-  attribute = 0,
-  skill = 0,
-  adrenalina = 0,
-  atrubutLabel = "",
-  umiejkaLabel = "",
-  actorID = null,
-  item = [], // talents
-  weaponId = null,
-} = {}) {
-
-  const actor = await game.actors.get(actorID);
-  const weapon = actor.items.get(weaponId);
+  static async atakBronia({
+    attribute = 0,
+    skill = 0,
+    adrenalina = 0,
+    atrubutLabel = "",
+    umiejkaLabel = "",
+    actorID = null,
+    item = [], // talents
+    weaponId = null,
+    attributesList = [],
+    skillsList = [],
+  } = {}) {
+    const actor = await game.actors.get(actorID);
+    const weapon = actor.items.get(weaponId);
     const maTelentBlokujacy = !item.some(
       (item) => item.system?.usuwaForsowanie === true,
     );
-  if (!weapon) {
-    ui.notifications.error("Weapon not found");
-    return;
-  }
-  console.log("Talents in atakBronia:", item);
-  const content = await foundry.applications.handlebars.renderTemplate(
-    this.DIALOG_TEMPLATE_ATAK_BRONI,
-    {
-      attribute,
-      skill,
-      adrenalina,
-      item,
-      hasSecondAttribute: false
+    if (!weapon) {
+      ui.notifications.error("Weapon not found");
+      return;
     }
-  );
-
-  new foundry.applications.api.DialogV2({
-    window: { title: `Attack: ${weapon.name}` },
-    classes:["wiedzmin-dialog", "atak"],
-    content,
-    buttons: [
+    const content = await foundry.applications.handlebars.renderTemplate(
+      this.DIALOG_TEMPLATE_ATAK_BRONI,
       {
-        action: "roll",
-        label: "Attack",
-        default: true,
-        callback: async (_event, _button, dialog) => {
+        attributesList,
+        skillsList,
+        atrubutLabel,
+        umiejkaLabel,
+        adrenalina,
+        item,
+        hasSecondAttribute: false,
+      },
+    );
+    const cel = game.user.targets;
+    new foundry.applications.api.DialogV2({
+      window: { title: `Attack: ${weapon.name}` },
+      classes: ["wiedzmin-dialog", "atak"],
+      content,
+      buttons: [
+        {
+          action: "roll",
+          label: "Attack",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            // 🔹 modifier from dialog
+            const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
 
-          // 🔹 modifier from dialog
-          const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+            // 🔹 selected talents
+            const checked = Array.from(
+              dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+            );
 
-          // 🔹 selected talents
-          const checked = Array.from(
-            dialog.element.querySelectorAll('input[name="stosuje"]:checked')
-          );
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return item[index];
+            });
 
-          const selectedItems = checked.map((input) => {
-            const index = Number(input.dataset.id);
-            return item[index];
-          });
-
-          const talentBonus = await bonusZtalentów(selectedItems);
-
-          // 🔹 base dice pool
-          const basePool = attribute + skill + mod + talentBonus;
-
-          const formula =
-            adrenalina > 0
-              ? `${basePool}d6 + ${adrenalina}d6`
-              : `${basePool}d6`;
-          let flavor = "Attack";
-          if (!maTelentBlokujacy) {
+            const talentBonus = await bonusZtalentów(selectedItems);
+            const wybranyAtrybut = dialog.element.querySelector(
+              'select[name="attribute"]',
+            );
+            const wybranaUmiejka = dialog.element.querySelector(
+              'select[name="skill"]',
+            );
+            const atrybutWartosc = Number(
+              wybranyAtrybut.selectedOptions[0].value,
+            );
+            const umiejkaWartosc = Number(
+              wybranaUmiejka.selectedOptions[0].value,
+            );
+            const wybranyAtrybutLabel =
+              wybranyAtrybut.selectedOptions[0].dataset.label;
+            const wybranaUmiejkaLabel =
+              wybranaUmiejka.selectedOptions[0].dataset.label;
+            const basePool =
+              atrybutWartosc + umiejkaWartosc + mod + talentBonus;
+            const bonusDoObrazen =
+              Number(dialog.element.querySelector(".bonusDoObrazen").value) ||
+              0;
+            const formula =
+              adrenalina > 0
+                ? `${basePool}d6 + ${adrenalina}d6`
+                : `${basePool}d6`;
+            let flavor = "Attack";
+            if (!maTelentBlokujacy) {
               flavor = "Forsowanie";
             }
-          const roll = new WiedzminRoll(
-            formula,
-            {},
-            {
-              adrenalina,
-              flavor: flavor,
-              atrubutLabel,
-              umiejkaLabel,
-              actorID,
-              item: selectedItems,
-              type: "atak",              // 🔥 IMPORTANT
-              weaponId: weapon.id,
-              weaponName: weapon.name,
-            }
-          );
+            const roll = new WiedzminRoll(
+              formula,
+              {},
+              {
+                adrenalina,
+                flavor: flavor,
+                atrubutLabel: wybranyAtrybutLabel,
+                umiejkaLabel: wybranaUmiejkaLabel,
+                actorID,
+                item: selectedItems,
+                type: "atak", // 🔥 IMPORTANT
+                weaponId: weapon.id,
+                weaponName: weapon.name,
+                cel: cel,
+                bonusDoObrazen: bonusDoObrazen,
+              },
+            );
 
-          await roll.toMessage();
-
+            await roll.toMessage();
+          },
         },
-      },
-    ],
-  }).render({ force: true });
-}
+      ],
+    }).render({ force: true });
+  }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
   /* -------------------------------------------- */
@@ -457,6 +475,16 @@ static async atakBronia({
         0,
       );
     }
+    const cele = this.options?.cel
+      ? Array.from(this.options.cel).map((target) => {
+          const token = canvas.tokens.get(target.id);
+          return {
+            name: token.name,
+            id: target.id,
+            img: token.document.texture.src,
+          };
+        })
+      : [];
     return {
       formula: formula,
       total: this.total,
@@ -478,9 +506,12 @@ static async atakBronia({
       zrodlo: this.options?.zrodlo,
       wielkosc: this.options?.wielkosc,
       type: this.options?.type,
-      weaponName: this.options?.weaponName,
       remainingAmmo: remainingAmmo,
       utrataAmunicji: this.utrataAmunicji,
+      cel: cele,
+      bron: this.options?.weaponName,
+      bronId: this.options?.weaponId,
+      bonusDoObrazen: this.options?.bonusDoObrazen,
     };
   }
 
@@ -519,7 +550,10 @@ static async atakBronia({
   /* -------------------------------------------- */
 
   async toMessage(messageData = {}, options = {}) {
-    const data = await this.render({ flavor: this.options.flavor, options: this.options });
+    const data = await this.render({
+      flavor: this.options.flavor,
+      options: this.options,
+    });
     const message = await ChatMessage.create(
       {
         system: data.data,

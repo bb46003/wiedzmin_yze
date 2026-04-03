@@ -706,16 +706,21 @@
     margin-bottom: 15px;
   }
 }
-.wiedzmin-dialog.atak{
-  .talent-bonus{
-        display: flex;
+.wiedzmin-dialog.atak {
+  .talent-bonus {
+    display: flex;
     align-items: center;
     gap: 10px;
-    .ma-zastosowanie{
+    .ma-zastosowanie {
       display: flex;
-    align-items: center;
-    gap: 10px;
+      align-items: center;
+      gap: 10px;
     }
   }
-  
+}
+.target-token {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
 }

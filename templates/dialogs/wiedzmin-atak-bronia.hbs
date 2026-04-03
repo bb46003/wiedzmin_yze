@@ -1,45 +1,45 @@
 <form class="wiedzmin-roll-dialog flexcol">
-  {{#if hasSecondAttribute}}
     <div class="form-group">
-      <select class="wybrany-atr">
-        {{#each secondArtibute}}
-          <option
-            value="{{this.value}}"
-            data-label="{{this.label}}"
-            data-key="{{key}}"
-          >{{this.label}} Wartość {{this.value}}</option>
+      <label>Atrybut</label>
+      <select name="attribute">
+        {{#each attributesList as |attr|}}
+          <option value="{{attr.value}}" data-label="{{attr.label}}" {{#if (eq attr.label ../atrubutLabel)}}selected{{/if}}>
+            {{attr.label}} - ({{attr.value}})
+          </option>
         {{/each}}
       </select>
     </div>
-  {{else}}
-    <div class="form-group">
-      <label>Atrybut</label>
-      <input type="number" value="{{attribute}}" readonly />
-    </div>
-  {{/if}}
-  {{#if skill}}
+
+
     <div class="form-group">
       <label>Umiejętność</label>
-      <input type="number" value="{{skill}}" readonly />
+      <select name="skill">
+        {{#each skillsList as |sk|}}
+          <option value="{{sk.value}}" data-label="{{sk.label}}" {{#if (eq sk.label ../umiejkaLabel)}}selected{{/if}}>
+            {{sk.label}} - ({{sk.value}})
+          </option>
+        {{/each}}
+      </select>
     </div>
-  {{/if}}
+
   {{#if adrenalina}}
     <div class="form-group">
       <label>Adrenalina</label>
       <input type="number" value="{{adrenalina}}" readonly />
     </div>
   {{/if}}
+    <div class="form-group">
+    <label>Dodatkowy modyfikator</label>
+    <input type="number" name="modifier" value="0" />
+  </div>
+
+
+  <hr />
    <div class="form-group">
       <label>Dodatkowe obrażenia</label>
       <input type="number" class="bonusDoObrazen" />
     </div>
 
-  <hr />
-
-  <div class="form-group">
-    <label>Dodatkowy modyfikator</label>
-    <input type="number" name="modifier" value="0" />
-  </div>
   {{#if (ne item.length 0)}}
     <div class="flexcol">
       <label>Bonusy z Talentów</label>

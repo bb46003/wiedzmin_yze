@@ -343,8 +343,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
           },
         );
       }
-      if(atak){
-        if(item.system.zwiekszoneObrazenia){
+      if (atak) {
+        if (item.system.zwiekszoneObrazenia) {
           powiazaneTalenty.push(item);
         }
       }
@@ -448,7 +448,6 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     console.log(this.atrybuty[atrybutWiodacy].max);
     updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
       this.atrybuty[atrybutWiodacy].max + 1;
-    console.log(updateData);
     await this.parent.update(updateData);
   }
 
@@ -512,21 +511,61 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
   async atakBronia(bron, atrybutKey, umiejkaKey) {
     const attribute = this.atrybuty[atrybutKey];
     const attributeValue = Number(attribute.value) || 0;
+
     const atrubutLabel = game.i18n.localize(
       this.schema.fields.atrybuty.fields[atrybutKey].fields.value.label,
     );
 
     const skillValue = Number(attribute.umiejetnosci?.[umiejkaKey]) || 0;
+
     const umiejkaLabel = game.i18n.localize(
       this.schema.fields.atrybuty.fields[atrybutKey].fields.umiejetnosci.fields[
         umiejkaKey
       ].label,
     );
+
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
+
+    // ✅ ALL ATTRIBUTES
+    const attributesList = Object.entries(this.atrybuty).map(([key, attr]) => {
+      const label = game.i18n.localize(
+        this.schema.fields.atrybuty.fields[key].fields.value.label,
+      );
+
+      return {
+        key,
+        value: Number(attr.value) || 0,
+        label,
+      };
+    });
+
+    // ✅ ALL SKILLS (flattened)
+    const skillsList = Object.entries(this.atrybuty).flatMap(
+      ([attrKey, attr]) => {
+        if (!attr.umiejetnosci) return [];
+
+        return Object.entries(attr.umiejetnosci).map(
+          ([skillKey, skillValue]) => {
+            const label = game.i18n.localize(
+              this.schema.fields.atrybuty.fields[attrKey].fields.umiejetnosci
+                .fields[skillKey].label,
+            );
+
+            return {
+              key: skillKey,
+              value: Number(skillValue) || 0,
+              parent: attrKey,
+              label,
+            };
+          },
+        );
+      },
+    );
 
     const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
       await this.sprawdzTalenty(atrybutKey, [], true);
-      const roll = await globalThis.wiedzmin_yze.WiedzminRoll.atakBronia({
+
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.atakBronia({
       attribute: attributeValue,
       skill: skillValue,
       adrenalina: adrenalinaValue,
@@ -538,6 +577,12 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       atrybutKey: atrybutKey,
       umiejkaKey: umiejkaKey,
       weaponId: bron,
+
+      // 👇 NEW DATA
+      attributesList,
+      skillsList,
     });
+
+    if (roll) await roll.toMessage();
   }
 }

@@ -5,6 +5,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".forsuj-button", forsujRzut, _app);
   addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app);
   addHtmlEventListener(html, "click", ".zaczerpMoc-button", zaczerpMoc, _app);
+  addHtmlEventListener(html, "click", ".zadaj-obrazenia", zadajObrazenia, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -128,7 +129,6 @@ async function otworzTalent(ev) {
 }
 async function zaczerpMoc(event, message) {
   const data = message.system;
-  console.log(data);
   if (!data) return;
 
   const actor = game.actors.get(data.actorID);
@@ -211,5 +211,76 @@ async function zaczerpMoc(event, message) {
     }
   }
   await actor.update(updateData);
+  event.target.disabled = true;
+}
+async function zadajObrazenia(event, message) {
+  const data = message.system;
+  if (!data) return;
+
+  const actor = game.actors.get(data.actorID);
+  if (!actor) return;
+  const cel = data.cel;
+  const bronId = data.bronId;
+  const bron = actor.items.get(bronId);
+  const obrazenia = bron.system.obrazenia;
+  const telenty = data.item;
+  let modifikatorObrazen = 0;
+  for (const uuid of telenty) {
+    const item = await fromUuid(uuid.uuid);
+    if (item.system?.modifikatorObrazen) {
+      modifikatorObrazen += item.system.zwiekszoneObrazenia;
+    }
+  }
+  const calkowiteObrazenia =
+    obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses;
+  const zadaneObrazenia = [];
+
+  if (cel.length > 0) {
+    await Promise.all(
+      cel.map(async (target) => {
+        const celToken = canvas.tokens.get(target.id);
+        const celActor = celToken.actor;
+        const obecneZycie = celActor.system.zycie.value;
+        const noweZycie = obecneZycie - calkowiteObrazenia;
+
+        await celActor.update({
+          "system.zycie.value": noweZycie < 0 ? 0 : noweZycie,
+        });
+
+        zadaneObrazenia.push({
+          cel: celActor.name,
+          obrazenia: calkowiteObrazenia,
+          zyciePrzed: obecneZycie,
+          zyciePo: noweZycie < 0 ? 0 : noweZycie,
+        });
+      }),
+    );
+    let obrazeniaContent = "";
+    zadaneObrazenia.forEach((z) => {
+      obrazeniaContent += `
+        <br> Cel: ${z.cel}
+        <br> Obrażenia: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
+      `;
+    });
+    ChatMessage.create({
+      speaker: { actor: actor.id },
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+      <br> Obrażenia z broni ${bron.name} (${obrazenia})
+      <br> Modyfikatory z talentów (${modifikatorObrazen})
+      <br> Innych źródeł (${data.bonusDoObrazen})
+      <br> Ze dodatkowe sukcesy (${data.extraSuccesses}),
+      <br> Zadane obrażenia: ${obrazeniaContent}
+      `,
+    });
+  } else {
+    ChatMessage.create({
+      speaker: { actor: actor.id },
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+      <br> Obrażenia z broni ${bron.name} (${obrazenia})
+      <br> Modyfikatory z talentów (${modifikatorObrazen})
+      <br> Innych źródeł (${data.bonusDoObrazen})
+      <br> Ze dodatkowe sukcesy (${data.extraSuccesses})`,
+    });
+  }
   event.target.disabled = true;
 }

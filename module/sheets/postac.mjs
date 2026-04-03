@@ -529,7 +529,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     if (bronJestDystansowa) {
       atrybut = "zrecznosc";
       umiejka = "walka_dystansowa";
-    } 
+    }
     await this.actor.system.atakBronia(bronID, atrybut, umiejka);
   }
   async _onRender(document, options) {

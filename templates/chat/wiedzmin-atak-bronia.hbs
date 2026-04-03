@@ -1,13 +1,15 @@
 <div class="wiedzmin-roll-chat">
   <h4>
     {{#if (not forsowac)}}
-      Forsowany wynik rzutu na
+      Forsowany wynik rzutu na atak
     {{else}}
-      Wynik rzutu na
+      Wynik rzutu na atak
     {{/if}}
-    {{atrubutLabel}}
-    {{umiejkaLabel}}</h4>
-
+    <br />{{bron}}
+    z
+    <br />{{atrubutLabel}}
+    <br />{{umiejkaLabel}}</h4>
+  {{log item.lenght}}
   {{#if item}}
     <span>Wykorzytując Talenty
       {{#each item}}
@@ -96,12 +98,27 @@
 
       </div>
     </div>
-
+    {{#if cel}}
+      <p>Cel: </p>
+      <div class="target-info">
+        {{#each cel}}
+          <div class="target-token" data-targetID="{{this.id}}">
+            <image src="{{this.img}}" width="50" height="50" />
+            <p>{{this.name}}</p>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
   </div>
   {{#if (and forsowac (not pech))}}
     <div class="forsowanie">
       <button class="forsuj-button" data-action="forsuj">Forsuj</button>
     </div>
   {{/if}}
-
+  <div class="obrazenia">
+    <button class="zadaj-obrazenia" data-action="zadajObrazenia">
+      {{#if cel}}Zadaj obrażenia Celom
+      {{else}}Zadaj obrażenia{{/if}}
+    </button>
+  </div>
 </div>
