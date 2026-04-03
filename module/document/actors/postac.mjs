@@ -6,6 +6,11 @@ export class postacActor extends foundry.documents.Actor {
     if (this.type === "postac") {
       await this.updateSource({
         "prototypeToken.actorLink": true,
+        "prototypeToken.bar1.attribute": "zycie",
+        "prototypeToken.bar2.attribute": "adrenalina",
+        "prototypeToken.displayBars": 10, // Hovered by Anyone
+        "prototypeToken.sight.enabled": true, // Vision enabled
+        "prototypeToken.disposition": 1, // Friendly
       });
     }
   }

@@ -12,6 +12,7 @@ import { talentyItem } from "./document/tenty.mjs";
 import { rasaSheet } from "./sheets/items/rasa.mjs";
 import { profesjeSheet } from "./sheets/items/profesje.mjs";
 import { bronSheet } from "./sheets/items/bron.mjs";
+import { pancerzSheet } from "./sheets/items/pancerz.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -32,6 +33,7 @@ Hooks.once("init", async function () {
     rasa: models.rasaDataModel,
     profesja: models.profesjaDataModel,
     bron: models.bronDataModel,
+    pancerz: models.pancerzDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
@@ -59,6 +61,7 @@ Hooks.once("init", async function () {
   utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
   utils.registerSystemSheet(foundry.documents.Item, profesjeSheet, "profesja");
   utils.registerSystemSheet(foundry.documents.Item, bronSheet, "bron");
+  utils.registerSystemSheet(foundry.documents.Item, pancerzSheet, "pancerz");
 
   registerHandlebarsHelpers();
   const templates = [
@@ -77,3 +80,16 @@ Hooks.once("init", async function () {
   console.log("Wiedzmin YZE został zainicjiwany");
 });
 Hooks.on("renderChatMessageHTML", addChatListeners);
+Hooks.on("preCreateScene", (scene) => {
+  scene.updateSource({
+    tokenVision: true,
+    fog: {
+      exploration: true,
+    },
+    environment:{
+      globalLight:{
+        enabled : true,
+      }
+    }
+  });
+});

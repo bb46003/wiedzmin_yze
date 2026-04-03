@@ -112,6 +112,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { brakForsowania });
     const bronie = await this.prepareBronie();
     Object.assign(context, { bronie });
+    const pancerz = await this.preparePancerz();
+    Object.assign(context, { pancerz });
     return context;
   }
 
@@ -229,6 +231,30 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return data;
   }
+  async preparePancerz() {
+    const pancerz = this.actor.items.filter((item) => item.type === "pancerz");
+    const data = {};
+    pancerz.forEach((pancerzItem) => {
+      const itemID = pancerzItem.id;
+      const img = pancerzItem.img;
+      const name = pancerzItem.name;
+      const efekt = pancerzItem.system.efekt;
+      const wartosc_efektu = pancerzItem.system.wartosc_efektu;
+      const wartosc = pancerzItem.system.wartosc;
+      const wyparowanie = pancerzItem.system.wyparowanie;
+
+      data[itemID] = {
+        img,
+        name,
+        efekt,
+        wartosc_efektu,
+        wartosc,
+        wyparowanie,
+      };
+    });
+
+    return data;
+  }
   async _onDrop(event) {
     event.preventDefault();
 
@@ -285,9 +311,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
-    const name = event?.target?.name;
+    let name = event?.target?.name;
+    if (!( name instanceof String)){
+      name = event?.target?.name.name
+    }
 
-    // Jeśli kliknięto jeden z naszych checkboxów
     if (
       name === "system.adrenalina.value" ||
       name === "system.zycie.value" ||
@@ -422,6 +450,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     <div class="menu-option" data-action="delete">Usuń Broń</div>
   `;
     }
+    if (item.type === "pancerz") {
+      menu.innerHTML = `
+    <div class="menu-option" data-action="open">Otwórz Pancerz</div>
+    <div class="menu-option" data-action="delete">Usuń Pancerz</div>
+  `;
+    }
+    
 
     // Position at mouse location
     menu.style.position = "absolute";

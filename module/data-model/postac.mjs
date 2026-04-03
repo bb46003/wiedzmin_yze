@@ -445,7 +445,6 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
 
   async atrybutWiodacy(atrybutWiodacy) {
     const updateData = {};
-    console.log(this.atrybuty[atrybutWiodacy].max);
     updateData[`system.atrybuty.${atrybutWiodacy}.max`] =
       this.atrybuty[atrybutWiodacy].max + 1;
     await this.parent.update(updateData);

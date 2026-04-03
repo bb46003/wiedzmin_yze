@@ -48,4 +48,40 @@
   </table>
 
   <h3>Pancerz</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Nazwa</th>
+        <th data-tooltip="Efekt">E</th>
+        <th data-tooltip="Wartość Efektu">WE</th>
+        <th data-tooltip="Wartość">W</th>
+        <th data-tooltip="Wyparowanie">Wy</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each pancerz}}
+        <tr>
+          <td class="nazwaBroni">
+            {{#if (eq this.efekt "parowanie")}}             
+            <a class="item-open" data-id="{{@key}}"data-action="parowanie">
+              {{this.name}}      
+              </a>
+              {{else}}
+              <span> {{this.name}}</span>
+              {{/if}}
+            <a
+              class="threeDots"
+              data-action="itemContextMenu"
+              data-item="{{@key}}"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </td>
+          <td>{{efekt this.efekt}}</td>
+          <td>{{this.wartosc_efektu}}</td>
+          <td>{{this.wartosc}}</td>
+          <td>{{this.wyparowanie}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
 </section>

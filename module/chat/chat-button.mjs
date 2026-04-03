@@ -240,8 +240,13 @@ async function zadajObrazenia(event, message) {
       cel.map(async (target) => {
         const celToken = canvas.tokens.get(target.id);
         const celActor = celToken.actor;
+        const maPancerz = celActor.items.find((i) => i.type === "pancerz");
+        let redukcjaObrazen = 0;
+        if (maPancerz) {
+          redukcjaObrazen = maPancerz.system.redukcjaObrazen || 0;
+        }
         const obecneZycie = celActor.system.zycie.value;
-        const noweZycie = obecneZycie - calkowiteObrazenia;
+        const noweZycie = obecneZycie - (calkowiteObrazenia - redukcjaObrazen);
 
         await celActor.update({
           "system.zycie.value": noweZycie < 0 ? 0 : noweZycie,
@@ -252,13 +257,18 @@ async function zadajObrazenia(event, message) {
           obrazenia: calkowiteObrazenia,
           zyciePrzed: obecneZycie,
           zyciePo: noweZycie < 0 ? 0 : noweZycie,
+          redukcjaObrazen: redukcjaObrazen,
+          maPancerz: maPancerz,
         });
       }),
     );
     let obrazeniaContent = "";
     zadaneObrazenia.forEach((z) => {
+      obrazeniaContent += `<br> Cel: ${z.cel}`;
+      if (z.maPancerz) {
+        obrazeniaContent += `<br> Redukcja obrażeń z pancerza: ${z.redukcjaObrazen}`;
+      }
       obrazeniaContent += `
-        <br> Cel: ${z.cel}
         <br> Obrażenia: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
       `;
     });

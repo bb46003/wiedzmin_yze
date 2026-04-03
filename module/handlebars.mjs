@@ -53,4 +53,26 @@ export function registerHandlebarsHelpers() {
       return false;
     }
   });
+
+  Handlebars.registerHelper("efekt", function (efekt) {
+    const efekty = {
+      brak: "-",
+      sprawnosc_inicjatywa: "Sprwaność i inicjatywa",
+      parowanie: "Parowanie",
+      ciezka_rana: "Uławienie przy Cięzkiej Ranie"
+    };
+    switch (efekt) {
+      case "brak":
+        return "-";
+      case "sprawnosc_inicjatywa":
+        return new Handlebars.SafeString("<i class='fas fa-running' data-tooltip='Sprawność i inicjatywa'></i>");
+      case "parowanie":
+        return new Handlebars.SafeString("<i class='fas fa-shield-alt' data-tooltip='Parowanie'></i>");
+      case "ciezka_rana":
+        return new Handlebars.SafeString("<i class='fas fa-heart-broken' data-tooltip='Uławienie przy Cięzkiej Ranie'></i>");
+    }
+
+    
+  });
+  
 }
