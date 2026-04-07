@@ -107,6 +107,39 @@ async function forsujRzut(event, message) {
   );
 
   event.target.disabled = true;
+if (data.messageID) {
+  const oryginalMessage = game.messages.get(data.messageID);
+  if (!oryginalMessage) return;
+
+  // update system data
+  await oryginalMessage.update({
+    "system.wyparowane": newRoll.successes
+  });
+  const targetId = oryginalMessage.system.cel[0].id
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(oryginalMessage.content, "text/html");
+
+  const target = doc.querySelector(
+    `.target-token[data-targetid="${targetId}"]`
+  );
+
+  if (!target) return;
+
+  const resultDiv = target.querySelector(".parowanie-result");
+  if (resultDiv) {
+    resultDiv.textContent = `Parowanie: ${newRoll.successes}`;
+  }
+
+  const button = target.querySelector(".parowanie");
+  if (button) {
+    button.disabled = true; // optional logic
+  }
+
+  const newContent = doc.body.innerHTML;
+
+  await oryginalMessage.update({ content: newContent });
+}
 }
 async function otworzTalent(ev) {
   const target = ev.target;
@@ -233,8 +266,11 @@ async function zadajObrazenia(event, message) {
     }
   }
   const wyparowanoObrazen = data?.wyparowane || 0;
-  const calkowiteObrazenia = 
-    1 + obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses - wyparowanoObrazen ;
+const calkowiteObrazenia =
+  ( obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses);
+
+  const zadaneObrzenia = calkowiteObrazenia - wyparowanoObrazen < 0 ? 0 : calkowiteObrazenia - wyparowanoObrazen
+  
   const zadaneObrazenia = [];
 
   if (cel.length > 0) {
@@ -248,7 +284,7 @@ async function zadajObrazenia(event, message) {
           redukcjaObrazen = maPancerz.system.redukcjaObrazen || 0;
         }
         const obecneZycie = celActor.system.zycie.value;
-        const noweZycie = obecneZycie - (calkowiteObrazenia - redukcjaObrazen);
+        const noweZycie = obecneZycie - (zadaneObrzenia - redukcjaObrazen) > obecneZycie ? obecneZycie : obecneZycie - (zadaneObrzenia - redukcjaObrazen) ;
 
         await celActor.update({
           "system.zycie.value": noweZycie < 0 ? 0 : noweZycie,
@@ -256,7 +292,7 @@ async function zadajObrazenia(event, message) {
 
         zadaneObrazenia.push({
           cel: celActor.name,
-          obrazenia: calkowiteObrazenia,
+          obrazenia: (zadaneObrzenia - redukcjaObrazen) ,
           zyciePrzed: obecneZycie,
           zyciePo: noweZycie < 0 ? 0 : noweZycie,
           redukcjaObrazen: redukcjaObrazen,
@@ -274,12 +310,12 @@ async function zadajObrazenia(event, message) {
         obrazeniaContent += `<br> Wyparowoano obrażeń: ${wyparowanoObrazen}`
       }
       obrazeniaContent += `
-        <br> Obrażenia: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
+        <br> Obrażenia zadane: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
       `;
     });
     ChatMessage.create({
       speaker: { actor: actor.id },
-      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia + wyparowanoObrazen}.
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
@@ -290,7 +326,7 @@ async function zadajObrazenia(event, message) {
   } else {
     ChatMessage.create({
       speaker: { actor: actor.id },
-      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia + wyparowanoObrazen}.
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
@@ -398,7 +434,7 @@ async function parowanie(event, message) {
                 czymParujeszID,
                 bonus,
                 modifier,
-                message: message.id,
+                messageID: message.id,
                 flavor: flavor,
                 type: "parowanie",
                 wybranetalenty: selectedItems,
@@ -437,5 +473,5 @@ const updatedContent = message.content.replace(
 );
 
 await message.update({ content: updatedContent });
-console.log(message)
+
 }

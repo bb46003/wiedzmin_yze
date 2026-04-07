@@ -331,7 +331,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     czymParujeszID = "",
     bonus = 0,
     modifier = 0,
-    message = "" ,
+    messageID = "" ,
     flavor = "",
     type = "parowanie",
     wybranetalenty= [],
@@ -364,10 +364,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 type: type,
                 weaponId: bron?.id,
                 weaponName: bron?.name || 'Ręka',
+                messageID: messageID
               },
             );
     await roll.toMessage();
-    console.log(roll)
     return roll._successes
   }
   /* -------------------------------------------- */
@@ -561,6 +561,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       bron: this.options?.weaponName,
       bronId: this.options?.weaponId,
       bonusDoObrazen: this.options?.bonusDoObrazen,
+      messageID: this.options?.messageID
     };
   }
 
