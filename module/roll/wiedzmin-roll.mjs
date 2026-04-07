@@ -321,6 +321,55 @@ export class WiedzminRoll extends foundry.dice.Roll {
       ],
     }).render({ force: true });
   }
+
+  static async parowanie({ 
+    atrybutKey = "",
+    atrybut = 0,
+    umiejetnoscKey = "",
+    umiejetnosc = 0,
+    adrenalina,
+    czymParujeszID = "",
+    bonus = 0,
+    modifier = 0,
+    message = "" ,
+    flavor = "",
+    type = "parowanie",
+    wybranetalenty= [],
+    actorUUID = "",
+   } = {}) {
+    const bonusZTalentow = await bonusZtalentów(wybranetalenty);
+    const actor = await fromUuid(actorUUID);
+    let bron;
+    if(czymParujeszID !== "reka"){
+      bron = actor.items.get(czymParujeszID);
+    }
+
+    const bonusZBroni = bron?.system?.wartosc_efektu || 0;
+    const basePool =
+              atrybut + umiejetnosc + modifier + bonusZTalentow + bonusZBroni;
+    const formula =
+              adrenalina > 0
+                ? `${basePool}d6 + ${adrenalina}d6`
+                : `${basePool}d6`;
+    const roll = new WiedzminRoll(
+              formula,
+              {},
+              {
+                adrenalina,
+                flavor: flavor,
+                atrubutLabel: "Siła",
+                umiejkaLabel: "Walka Wręcz",
+                actorID: actor.id,
+                item: wybranetalenty,
+                type: type,
+                weaponId: bron?.id,
+                weaponName: bron?.name || 'Ręka',
+              },
+            );
+    await roll.toMessage();
+    console.log(roll)
+    return roll._successes
+  }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
   /* -------------------------------------------- */

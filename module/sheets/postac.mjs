@@ -312,7 +312,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   /** @inheritDoc */
   _processFormData(event, form, formData) {
     let name = event?.target?.name;
-    if (!( name instanceof String)){
+    const isString = typeof name
+
+    if (!(isString === "string")){
       name = event?.target?.name.name
     }
 

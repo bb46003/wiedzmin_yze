@@ -36,7 +36,7 @@
     <label>Dodatkowy modyfikator</label>
     <input type="number" name="modifier" value="0" />
   </div>
-  {{#if (ne item.length 0)}}
+  {{#if length}}
     <div class="flexcol">
       <label>Bonusy z Talentów</label>
       {{#each item as |item index|}}

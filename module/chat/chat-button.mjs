@@ -6,6 +6,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".openTalenet", otworzTalent, _app);
   addHtmlEventListener(html, "click", ".zaczerpMoc-button", zaczerpMoc, _app);
   addHtmlEventListener(html, "click", ".zadaj-obrazenia", zadajObrazenia, _app);
+  addHtmlEventListener(html, "click", ".parowanie", parowanie, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -231,8 +232,9 @@ async function zadajObrazenia(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
-  const calkowiteObrazenia =
-    obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses;
+  const wyparowanoObrazen = data?.wyparowane || 0;
+  const calkowiteObrazenia = 
+    1 + obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses - wyparowanoObrazen ;
   const zadaneObrazenia = [];
 
   if (cel.length > 0) {
@@ -268,13 +270,16 @@ async function zadajObrazenia(event, message) {
       if (z.maPancerz) {
         obrazeniaContent += `<br> Redukcja obrażeń z pancerza: ${z.redukcjaObrazen}`;
       }
+      if(data.wyparowane >0){
+        obrazeniaContent += `<br> Wyparowoano obrażeń: ${wyparowanoObrazen}`
+      }
       obrazeniaContent += `
         <br> Obrażenia: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
       `;
     });
     ChatMessage.create({
       speaker: { actor: actor.id },
-      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia + wyparowanoObrazen}.
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
@@ -285,7 +290,7 @@ async function zadajObrazenia(event, message) {
   } else {
     ChatMessage.create({
       speaker: { actor: actor.id },
-      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia + wyparowanoObrazen}.
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
@@ -293,4 +298,144 @@ async function zadajObrazenia(event, message) {
     });
   }
   event.target.disabled = true;
+}
+async function parowanie(event, message) {
+  const targetId = event.target.dataset.targetid;
+  const targetToken = canvas.tokens.get(targetId);
+  if (!targetToken) return;
+
+  const targetActor = targetToken.actor;
+  if (!targetActor) return;
+
+  const czytarcza = targetActor.items.filter(
+    (i) => i.type === "pancerz" && i.system.efekt === "parowanie"
+  );
+
+  const czymParujesz = [{ name: "Ręka", id: "reka", bonus: 0 }];
+
+  if (czytarcza.length !== 0) {
+    czymParujesz.push(
+      ...czytarcza.map((b) => ({
+        name: b.name,
+        id: b.id,
+        bonus: b.system.wartosc_efektu,
+      }))
+    );
+  }
+
+  const bronie = targetActor.items.filter((i) => i.type === "bron");
+  bronie.forEach((b) => {
+    czymParujesz.push({ name: b.name, id: b.id, bonus: 0 });
+  });
+
+  const maTelentBlokujacy = targetActor.items.some(
+    (item) => item.system?.usuwaForsowanie === true
+  );
+
+  let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+
+  const {
+    powiazaneTalenty: inneTalenty,
+  } = await targetActor.system.sprawdzTalenty("sila", []);
+
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
+    { czymParujesz: czymParujesz, talenty: inneTalenty }
+  );
+
+  // 🔥 FIX: wrap dialog in Promise
+  const wyparowanoObrazen = await new Promise((resolve) => {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Parowanie - ${targetActor.name}` },
+      content: content,
+      buttons: [
+        {
+          action: "paruj",
+          label: "Paruj",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const selection = dialog.element.querySelector(".parowanie");
+
+            const czymParujeszID =
+              selection.selectedOptions[0].dataset.id;
+
+            const bonus = Number(
+              selection.selectedOptions[0].dataset.bonus || 0
+            );
+
+            const modifier =
+              parseInt(
+                dialog.element.querySelector(
+                  "input[name='modifier']"
+                )?.value
+              ) || 0;
+
+            const atrybut = targetActor.system.atrybuty.sila.value;
+            const umiejetnosc =
+              targetActor.system.atrybuty.sila.umiejetnosci.walka_wrecz;
+
+            // 🔥 FIX: selected talents
+            const checked = Array.from(
+              dialog.element.querySelectorAll(
+                'input[name="stosuje"]:checked'
+              )
+            );
+
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return inneTalenty[index]; // ✅ fixed
+            });
+
+            const adrenalina = targetActor.system.adrenalina.value;
+
+            const result =
+              await globalThis.wiedzmin_yze.WiedzminRoll.parowanie({
+                atrybutKey: "sila",
+                atrybut,
+                umiejetnoscKey: "walka_wrecz",
+                umiejetnosc,
+                adrenalina,
+                czymParujeszID,
+                bonus,
+                modifier,
+                message: message.id,
+                flavor: flavor,
+                type: "parowanie",
+                wybranetalenty: selectedItems,
+                actorUUID: targetActor.uuid,
+              });
+
+            resolve(result); // 🔥 return value to outer function
+          },
+        },
+      ],
+    }).render({ force: true });
+  });
+
+
+
+// disable button
+
+
+
+// update system data
+await message.update({
+  "system.wyparowane": wyparowanoObrazen
+});
+
+// HTML to insert
+const resultHTML = `<div class="parowanie-result">Parowanie: -${wyparowanoObrazen}</div>`;
+
+// 🔥 1. update DOM instantly
+const button = event.target.closest("button.parowanie");
+button.insertAdjacentHTML("afterend", resultHTML);
+
+// 🔥 2. persist in message
+const updatedContent = message.content.replace(
+  /(<button[^>]*class="[^"]*parowanie[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
+  `$1 disabled$2${resultHTML}`
+);
+
+await message.update({ content: updatedContent });
+console.log(message)
 }

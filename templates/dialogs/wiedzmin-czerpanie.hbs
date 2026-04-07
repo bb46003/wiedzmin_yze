@@ -16,7 +16,7 @@
   {{#if (ne bonusDoCzerpania 0)}}
     <label>Bonus do czerpania z Talentów to {{bonusDoCzerpania}}</label>
   {{/if}}
-  {{#if (ne item.length 0)}}
+  {{#if item}}
     <div class="flexcol">
       <label>Bonusy z Talentów</label>
       {{#each item as |item index|}}
