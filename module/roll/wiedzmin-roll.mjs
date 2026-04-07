@@ -322,7 +322,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     }).render({ force: true });
   }
 
-  static async parowanie({ 
+  static async parowanie({
     atrybutKey = "",
     atrybut = 0,
     umiejetnoscKey = "",
@@ -331,44 +331,42 @@ export class WiedzminRoll extends foundry.dice.Roll {
     czymParujeszID = "",
     bonus = 0,
     modifier = 0,
-    messageID = "" ,
+    messageID = "",
     flavor = "",
     type = "parowanie",
-    wybranetalenty= [],
+    wybranetalenty = [],
     actorUUID = "",
-   } = {}) {
+  } = {}) {
     const bonusZTalentow = await bonusZtalentów(wybranetalenty);
     const actor = await fromUuid(actorUUID);
     let bron;
-    if(czymParujeszID !== "reka"){
+    if (czymParujeszID !== "reka") {
       bron = actor.items.get(czymParujeszID);
     }
 
     const bonusZBroni = bron?.system?.wartosc_efektu || 0;
     const basePool =
-              atrybut + umiejetnosc + modifier + bonusZTalentow + bonusZBroni;
+      atrybut + umiejetnosc + modifier + bonusZTalentow + bonusZBroni;
     const formula =
-              adrenalina > 0
-                ? `${basePool}d6 + ${adrenalina}d6`
-                : `${basePool}d6`;
+      adrenalina > 0 ? `${basePool}d6 + ${adrenalina}d6` : `${basePool}d6`;
     const roll = new WiedzminRoll(
-              formula,
-              {},
-              {
-                adrenalina,
-                flavor: flavor,
-                atrubutLabel: "Siła",
-                umiejkaLabel: "Walka Wręcz",
-                actorID: actor.id,
-                item: wybranetalenty,
-                type: type,
-                weaponId: bron?.id,
-                weaponName: bron?.name || 'Ręka',
-                messageID: messageID
-              },
-            );
+      formula,
+      {},
+      {
+        adrenalina,
+        flavor: flavor,
+        atrubutLabel: "Siła",
+        umiejkaLabel: "Walka Wręcz",
+        actorID: actor.id,
+        item: wybranetalenty,
+        type: type,
+        weaponId: bron?.id,
+        weaponName: bron?.name || "Ręka",
+        messageID: messageID,
+      },
+    );
     await roll.toMessage();
-    return roll._successes
+    return roll._successes;
   }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */
@@ -561,7 +559,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       bron: this.options?.weaponName,
       bronId: this.options?.weaponId,
       bonusDoObrazen: this.options?.bonusDoObrazen,
-      messageID: this.options?.messageID
+      messageID: this.options?.messageID,
     };
   }
 

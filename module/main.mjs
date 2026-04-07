@@ -86,10 +86,10 @@ Hooks.on("preCreateScene", (scene) => {
     fog: {
       exploration: true,
     },
-    environment:{
-      globalLight:{
-        enabled : true,
-      }
-    }
+    environment: {
+      globalLight: {
+        enabled: true,
+      },
+    },
   });
 });

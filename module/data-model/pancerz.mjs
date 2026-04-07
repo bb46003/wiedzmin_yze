@@ -20,14 +20,13 @@ export class pancerzDataModel extends foundry.abstract.TypeDataModel {
     return {
       efekt: new StringField({
         initial: "brak",
-        choices: 
-            {
-               brak: "-",
-               sprawnosc_inicjatywa: "Sprwaność i inicjatywa",
-               parowanie: "Parowanie",
-               ciezka_rana: "Uławienie przy Cięzkiej Ranie"
-            },
-        
+        choices: {
+          brak: "-",
+          sprawnosc_inicjatywa: "Sprwaność i inicjatywa",
+          parowanie: "Parowanie",
+          ciezka_rana: "Uławienie przy Cięzkiej Ranie",
+        },
+
         required: true,
         label: "wiedzmin.bron.celnosc",
       }),

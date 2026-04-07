@@ -466,10 +466,9 @@
   }
   .nazwaBroni {
     display: flex;
-    span{
-      min-width: 80%
+    span {
+      min-width: 80%;
     }
-
   }
 }
 .all-attribues {
@@ -727,4 +726,8 @@
   gap: 10px;
   align-items: center;
   margin-bottom: 10px;
+}
+
+.unik-icon{
+  height:30px
 }

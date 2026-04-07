@@ -191,11 +191,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     this._ustawZycie();
     this._prepareConditions();
     this._prepareMoc();
-    this._maxZycia()
+    this._maxZycia();
   }
-  _maxZycia(){
-    if(this.zycie.value > this.zycie.max){
-      this.zycie.value = this.zycie.max
+  _maxZycia() {
+    if (this.zycie.value > this.zycie.max) {
+      this.zycie.value = this.zycie.max;
     }
   }
   _ustawZycie() {

@@ -312,10 +312,10 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
   /** @inheritDoc */
   _processFormData(event, form, formData) {
     let name = event?.target?.name;
-    const isString = typeof name
+    const isString = typeof name;
 
-    if (!(isString === "string")){
-      name = event?.target?.name.name
+    if (!(isString === "string")) {
+      name = event?.target?.name.name;
     }
 
     if (
@@ -458,7 +458,6 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     <div class="menu-option" data-action="delete">Usuń Pancerz</div>
   `;
     }
-    
 
     // Position at mouse location
     menu.style.position = "absolute";

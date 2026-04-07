@@ -100,16 +100,19 @@
 
   </div>
   <div>
-        {{#if cel}}
+    {{#if cel}}
       <p>Cel: </p>
       <div class="target-info">
         {{#each cel}}
           <div class="target-token" data-targetID="{{this.id}}">
             <image src="{{this.img}}" width="50" height="50" />
             <p>{{this.name}}</p>
+            <button class="unik" data-targetID="{{this.id}}">
+              <img class="unik-icon" src="systems\wiedzmin_yze\assets\jump.png" data-tooltip="Unik"></img>
+            </button>
             <button class="parowanie" data-targetID="{{this.id}}">
               <i class="fas fa-shield-alt" data-tooltip="Parowanie"></i>
-            </button> 
+            </button>
 
           </div>
         {{/each}}

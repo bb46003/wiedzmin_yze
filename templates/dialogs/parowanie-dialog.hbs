@@ -1,17 +1,23 @@
 <div>
-    <labelel>Próbujesz parować</labelel>
-    <select class="parowanie">
-      {{#each czymParujesz as |par|}}
-        <option value="{{par.name}}" data-id="{{par.id}}" data-bonus="{{par.bonus}}">
-          {{par.name}} - Bonus do parowania: {{par.bonus}}
-        </option>
-      {{/each}}
-    </select>
-    <div class="mod">
-        <label>Dodatkowy modyfikator</label>
-        <input type="number" name="modifier" value="0" />
-    </div>
-      {{#if talenty}}
+  <labelel>Próbujesz parować</labelel>
+  <select class="parowanie">
+    {{#each czymParujesz as |par|}}
+      <option
+        value="{{par.name}}"
+        data-id="{{par.id}}"
+        data-bonus="{{par.bonus}}"
+      >
+        {{par.name}}
+        - Bonus do parowania:
+        {{par.bonus}}
+      </option>
+    {{/each}}
+  </select>
+  <div class="mod">
+    <label>Dodatkowy modyfikator</label>
+    <input type="number" name="modifier" value="0" />
+  </div>
+  {{#if talenty}}
     <div class="flexcol">
       <label>Bonusy z Talentów</label>
       {{#each talenty as |item index|}}
@@ -28,4 +34,4 @@
       {{/each}}
     </div>
   {{/if}}
-  </div>
+</div>
