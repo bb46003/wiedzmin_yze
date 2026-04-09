@@ -89,4 +89,14 @@
   <a {{#if system.uzyto_przedmiotu}}class="used"{{/if}} data-action="uzyjPrzedmiotu" data-tooltip="Kliknij lewym żeby użyć, prawym żeby zresetować"><i class="fas fa-hand-paper"></i></a>
   </div>
 </div>
+<div class="moc-wrapper">
+  <div class="moc-label">Szybkość</div>
+  <div class="przedmiot">
+  {{formInput
+    systemFields.szybkosc.fields.podstawa
+    value=system.szybkosc.podstawa
+    type="number"
+  }}
+  </div>
+</div>
 </section>

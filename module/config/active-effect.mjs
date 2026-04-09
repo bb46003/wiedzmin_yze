@@ -26,6 +26,7 @@ export const CONDITIONS = /** @type {const} */ ({
 export const STATUS_EFFECTS = /** @type {const} */ ({
   dead: {
     id: "dead",
+    type: "ae-like",
     name: "EFFECT.StatusDead",
     special: "DEFEATED",
     hud: { actorTypes: ["postac"] },

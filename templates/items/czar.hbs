@@ -1,0 +1,98 @@
+<section class="talents-section">
+  <div class="talent-card" data-item-id="{{item.id}}">
+
+    <header class="talent-header flexrow">
+      <div class="image-container">
+        <img
+          class="profile-img"
+          src="{{item.img}}"
+          data-edit="img"
+          data-action="editImage"
+        />
+      </div>
+
+      <h3>Nazwa Czaru
+        <input
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="Nazwa czaru"
+        />
+        <div class="form-group">
+          <label>poziom</label>
+          {{formInput systemFields.poziom value=system.poziom}}
+        </div>
+      </h3>
+
+    </header>
+
+    <div class="czar-glowna">
+      <div class="form-group">
+        <label>koszt</label>
+        {{formInput
+          systemFields.koszt.fields.bazowy
+          value=system.koszt
+          type="number"
+        }}
+      </div>
+      <div class="form-group">
+        <label>koszt podtrzymywania </label>
+        {{formInput
+          systemFields.koszt.fields.podtrzymanie
+          value=system.koszt
+          type="number"
+        }}
+      </div>
+
+      <div class="form-group">
+        <label>czas trwania</label>
+        {{formInput
+          systemFields.czas_trwania.fields.typ
+          value=system.czas_trwania.typ
+        }}
+        {{formInput
+          systemFields.czas_trwania.fields.wartosc
+          value=system.czas_trwania.wartosc
+        }}
+      </div>
+
+      <div class="form-group">
+        <label>zasieg</label>
+        {{formInput systemFields.zasieg.fields.typ value=system.zasieg.typ}}
+        {{formInput
+          systemFields.zasieg.fields.wartosc
+          value=system.zasieg.wartosc
+        }}
+      </div>
+
+      <div class="form-group">
+        <label>Cel</label>
+        {{formInput systemFields.cel.fields.typ value=system.cel.typ}}
+        {{formInput systemFields.cel.fields.wartosc value=system.cel.wartosc}}
+      </div>
+
+      <div class="form-group">
+        <label>Obrona</label>
+        {{formInput systemFields.obrona.fields.typ value=system.obrona.typ}}
+        {{formInput
+          systemFields.obrona.fields.modyfikator
+          value=system.obrona.modyfikator
+        }}
+      </div>
+
+    </div>
+
+    <div class="profesja-body">
+      <div class="form-group enriched">
+        <label>Opis</label>
+        {{formInput
+          opis.field
+          value=opis.value
+          enriched=opis.enriched
+          toggled="true"
+        }}
+      </div>
+    </div>
+
+  </div>
+</section>

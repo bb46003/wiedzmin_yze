@@ -7,7 +7,7 @@
   .window-content {
     display: grid;
     grid-template-columns: 250px 410px 320px;
-    grid-template-rows: auto 310px 330px 250px 250px;
+    grid-template-rows: auto 320px 330px 250px 250px;
     gap: 8px;
     height: 100%;
     overflow-y: auto;
@@ -57,16 +57,13 @@
     overflow: auto;
   }
 
-  .window-content .talents {
+  .window-content .lewa {
     grid-column: 3;
-    grid-row: 2;
+    grid-row: 2/4;
     overflow-y: auto;
   }
-
-  .window-content .weapons {
-    grid-column: 3;
-    grid-row: 3;
-    overflow-y: auto;
+  .lewa.hiden{
+    display: none;
   }
 
   .window-content .equipment {
@@ -728,6 +725,26 @@
   margin-bottom: 10px;
 }
 
-.unik-icon{
-  height:30px
+.unik-icon {
+  height: 30px;
+}
+.czar-sheet {
+  .window-content {
+    overflow-y: visible;
+  }
+  .image-container {
+    display: flex;
+    max-width: 130px;
+    background: #e2dbc9;
+    border: 4px solid black;
+    border-radius: 20px;
+    align-items: center;
+    margin: 10px;
+  }
+  .czar-glowna {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
 }

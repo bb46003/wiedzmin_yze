@@ -49,11 +49,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       template: "systems/wiedzmin_yze/templates/postac/attributes.hbs",
     },
     talenty: {
-      id: "tabs",
       template: "systems/wiedzmin_yze/templates/postac/talents.hbs",
     },
     bronie: {
-      id: "tabs",
       template: "systems/wiedzmin_yze/templates/postac/weapons.hbs",
     },
     eq: {
@@ -63,6 +61,19 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     notatki: {
       id: "tabs",
       template: "systems/wiedzmin_yze/templates/postac/notes.hbs",
+    },
+    czary: {
+      template: "systems/wiedzmin_yze/templates/postac/czary.hbs",
+    },
+  };
+  static TABS = {
+    items: {
+      tabs: [
+        { id: "bronie", group: "items", label: ""  },
+        { id: "talenty", group: "items", label: ""  },
+         { id: "czary", group: "items", label: "" },
+      ],
+      initial: "bronie",
     },
   };
   /** @override */

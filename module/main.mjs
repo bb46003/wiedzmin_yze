@@ -13,6 +13,8 @@ import { rasaSheet } from "./sheets/items/rasa.mjs";
 import { profesjeSheet } from "./sheets/items/profesje.mjs";
 import { bronSheet } from "./sheets/items/bron.mjs";
 import { pancerzSheet } from "./sheets/items/pancerz.mjs";
+import { WiedzminTokenRuler } from "./token-ruler.mjs";
+import { czarSheet } from "./sheets/items/czar.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -34,6 +36,7 @@ Hooks.once("init", async function () {
     profesja: models.profesjaDataModel,
     bron: models.bronDataModel,
     pancerz: models.pancerzDataModel,
+    czar: models.czarDataModel,
   };
 
   foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
@@ -55,13 +58,14 @@ Hooks.once("init", async function () {
   ActiveEffectWiedzmin_YZE._configureStatusEffects();
 
   CONFIG.Dice.rolls.push(WiedzminRoll);
-
+  CONFIG.Token.rulerClass = WiedzminTokenRuler;
   utils.registerSystemSheet(foundry.documents.Actor, postacSheet, "postac");
   utils.registerSystemSheet(foundry.documents.Item, talentySheet, "talenty");
   utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
   utils.registerSystemSheet(foundry.documents.Item, profesjeSheet, "profesja");
   utils.registerSystemSheet(foundry.documents.Item, bronSheet, "bron");
   utils.registerSystemSheet(foundry.documents.Item, pancerzSheet, "pancerz");
+  utils.registerSystemSheet(foundry.documents.Item, czarSheet, "czar");
 
   registerHandlebarsHelpers();
   const templates = [

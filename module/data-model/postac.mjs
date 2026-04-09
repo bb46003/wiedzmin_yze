@@ -175,6 +175,20 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         initial: "",
         required: true,
       }),
+      szybkosc: new SchemaField({
+        podstawa: new NumberField({
+          required: true,
+          nullable: false,
+          integer: true,
+          initial: 5,
+          min: 0,
+        }),
+      }),
+      inicjatywa: new NumberField({
+        initial: 0,
+        required: true,
+        integer: true,
+      }),
     };
   }
 
@@ -192,6 +206,15 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     this._prepareConditions();
     this._prepareMoc();
     this._maxZycia();
+    this._inicjatywa();
+  }
+  _inicjatywa() {
+    const pancerz = this.parent.items.filter(
+      (i) => i.type === "pancerz" && i.system.efekt === "sprawnosc_inicjatywa",
+    );
+    if (pancerz.length > 0) {
+      this.inicjatywa = pancerz[0].system.wartosc_efektu;
+    }
   }
   _maxZycia() {
     if (this.zycie.value > this.zycie.max) {

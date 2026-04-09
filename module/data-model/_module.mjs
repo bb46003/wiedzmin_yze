@@ -5,3 +5,4 @@ export * from "./rasa.mjs";
 export * from "./profesja.mjs";
 export * from "./bron.mjs";
 export * from "./pancerz.mjs";
+export * from "./czar.mjs";

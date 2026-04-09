@@ -1,0 +1,35 @@
+<div>
+  <div>
+    <label>Typ broni przecinika</label>
+    <select class="typ-broni">
+      <option value="0" data-typ="brak">Brak: 0</option>
+      <option value="2" data-typ="bron-zwykla">Broń krótka/Pazury: -2</option>
+      <option value="3" data-typ="bron-dluga">Broń długa/Wielkie Pazury: -3</option>
+    </select>
+  </div>
+  <div>
+    <label>Dodatkowe Modyfikatory</label>
+    <input type="number" min="0" class="inne-mody" />
+  </div>
+  <div>
+    <label>Unikasz ostrzału?</label>
+    <input type="checkbox" class="ostrzal" />
+  </div>
+  {{#if talenty}}
+    <div class="flexcol">
+      <label>Bonusy z Talentów</label>
+      {{#each talenty as |item index|}}
+        {{#if (ne item.system.bonu 0)}}
+          <div class="talent-bonus">
+            <label>{{item.name}}</label>
+            <span>{{item.system.bonu}}</span>
+            <div>
+              <label>Talent ma zastosowanie?</label>
+              <input type="checkbox" name="stosuje" data-id="{{index}}" />
+            </div>
+          </div>
+        {{/if}}
+      {{/each}}
+    </div>
+  {{/if}}
+</div>

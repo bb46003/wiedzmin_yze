@@ -7,6 +7,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
   static CHAT_CZERPANIE = `systems/wiedzmin_yze/templates/chat/wiedzmin-czerpanie.hbs`;
   static DIALOG_TEMPLATE_ATAK_BRONI = `systems/wiedzmin_yze/templates/dialogs/wiedzmin-atak-bronia.hbs`;
   static CHAT_TEMPLATE_ATAK_BRONI = `systems/wiedzmin_yze/templates/chat/wiedzmin-atak-bronia.hbs`;
+  static CHAT_TEMPLATE_UNIKI =
+    "systems/wiedzmin_yze/templates/chat/wiedzmin-uniki.hbs";
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -284,8 +286,13 @@ export class WiedzminRoll extends foundry.dice.Roll {
               wybranyAtrybut.selectedOptions[0].dataset.label;
             const wybranaUmiejkaLabel =
               wybranaUmiejka.selectedOptions[0].dataset.label;
+            const celnoscBroni = weapon.system.celnosc;
             const basePool =
-              atrybutWartosc + umiejkaWartosc + mod + talentBonus;
+              atrybutWartosc +
+              umiejkaWartosc +
+              mod +
+              talentBonus +
+              celnoscBroni;
             const bonusDoObrazen =
               Number(dialog.element.querySelector(".bonusDoObrazen").value) ||
               0;
@@ -362,6 +369,52 @@ export class WiedzminRoll extends foundry.dice.Roll {
         type: type,
         weaponId: bron?.id,
         weaponName: bron?.name || "Ręka",
+        messageID: messageID,
+      },
+    );
+    await roll.toMessage();
+    return roll._successes;
+  }
+
+  static async unik({
+    atrybutKey = "",
+    atrybut = 0,
+    umiejetnoscKey = "",
+    umiejetnosc = 0,
+    adrenalina = 0,
+    czymJestesAtakowny = "",
+    bonus = 0,
+    modifier = 0,
+    messageID = "",
+    flavor = "",
+    type = "unik",
+    unikaszOstrzalu = false,
+    wybranetalenty = [],
+    actorUUID = "",
+  } = {}) {
+    const bonusZTalentow = await bonusZtalentów(wybranetalenty);
+    const actor = await fromUuid(actorUUID);
+    let modOstrzalu = 0;
+    if (unikaszOstrzalu) {
+      modOstrzalu = 6;
+    }
+    const basePool =
+      atrybut + umiejetnosc + modifier + bonusZTalentow - bonus - modOstrzalu;
+    const formula =
+      adrenalina > 0 ? `${basePool}d6 + ${adrenalina}d6` : `${basePool}d6`;
+    const roll = new WiedzminRoll(
+      formula,
+      {},
+      {
+        adrenalina,
+        flavor: flavor,
+        atrubutLabel: "Zręczność",
+        umiejkaLabel: "Zwinność",
+        actorID: actor.id,
+        item: wybranetalenty,
+        type: type,
+        czymJestesAtakowny: czymJestesAtakowny,
+        unikaszOstrzalu: unikaszOstrzalu,
         messageID: messageID,
       },
     );
@@ -532,6 +585,23 @@ export class WiedzminRoll extends foundry.dice.Roll {
           };
         })
       : [];
+    let czymJestesAtakowany = "";
+    if (this.options?.czymJestesAtakowny) {
+      switch (this.options?.czymJestesAtakowny) {
+        case "brak":
+          czymJestesAtakowany = "Bez broni";
+          break;
+        case "bron-zwyka":
+          czymJestesAtakowany = "Broń krótka/Pazury";
+          break;
+        case "bron-dluga":
+          czymJestesAtakowany = "Broń długa/Wielkie Pazury";
+          break;
+      }
+    }
+    if (this.options?.unikaszOstrzalu) {
+      czymJestesAtakowany = "Unikasz ostrzału";
+    }
     return {
       formula: formula,
       total: this.total,
@@ -548,7 +618,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       actorID: this.options.actorID,
       normalDice: this._buildDicePart(this._normalTerm, "normal"),
       adrenalinaDice: this._buildDicePart(this._adrenalinaTerm, "adrenalina"),
-      iloscPrzerzuconych: options.iloscPrzerzuconych,
+      iloscPrzerzuconych: this.options?.iloscPrzerzuconych,
       item: itemsUuid,
       zrodlo: this.options?.zrodlo,
       wielkosc: this.options?.wielkosc,
@@ -560,6 +630,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       bronId: this.options?.weaponId,
       bonusDoObrazen: this.options?.bonusDoObrazen,
       messageID: this.options?.messageID,
+      czymJestesAtakowany: czymJestesAtakowany,
     };
   }
 
@@ -581,6 +652,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
         break;
       case "atak":
         template = this.constructor.CHAT_TEMPLATE_ATAK_BRONI;
+        break;
+      case "unik":
+        template = this.constructor.CHAT_TEMPLATE_UNIKI;
         break;
       default:
         template = this.constructor.CHAT_TEMPLATE;

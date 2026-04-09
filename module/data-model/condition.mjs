@@ -1,6 +1,13 @@
 import { ActiveEffectWiedzmin_YZE } from "../document/active-effect.mjs";
 
-const { SetField, StringField, NumberField } = foundry.data.fields;
+const {
+  SetField,
+  StringField,
+  NumberField,
+  ArrayField,
+  SchemaField,
+  ObjectField,
+} = foundry.data.fields;
 
 export class Condition extends foundry.abstract.TypeDataModel {
   static metadata = Object.freeze({});
@@ -11,7 +18,24 @@ export class Condition extends foundry.abstract.TypeDataModel {
         label: "wiedzmin.CONDITION.Targets",
         hint: "wiedzmin.CONDITION.TargetsHint",
       }),
+
       value: new NumberField({ required: true, initial: 0, integer: true }),
+
+      changes: new ArrayField(
+        new SchemaField({
+          key: new StringField({ required: true, nullable: false }),
+          mode: new NumberField({ initial: "", required: true, integer: true }),
+          value: new StringField({ required: true, nullable: false }),
+          priority: new NumberField({
+            required: true,
+            integer: true,
+            initial: 0,
+          }),
+          type: new StringField({ initial: "", required: true }),
+          phase: new StringField({ initial: "", required: true }),
+        }),
+        { initial: [] },
+      ),
     };
   }
 

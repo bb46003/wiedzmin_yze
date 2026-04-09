@@ -7,7 +7,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".zaczerpMoc-button", zaczerpMoc, _app);
   addHtmlEventListener(html, "click", ".zadaj-obrazenia", zadajObrazenia, _app);
   addHtmlEventListener(html, "click", ".parowanie", parowanie, _app);
-  addHtmlEventListener(html, "click", ".unik", unik, _app)
+  addHtmlEventListener(html, "click", ".unik", unik, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -285,7 +285,7 @@ async function zadajObrazenia(event, message) {
         const maPancerz = celActor.items.find((i) => i.type === "pancerz");
         let redukcjaObrazen = 0;
         if (maPancerz) {
-          redukcjaObrazen = maPancerz.system.redukcjaObrazen || 0;
+          redukcjaObrazen = maPancerz.system.wyparowanie || 0;
         }
         const obecneZycie = celActor.system.zycie.value;
         const noweZycie =
@@ -315,6 +315,9 @@ async function zadajObrazenia(event, message) {
       }
       if (data.wyparowane > 0) {
         obrazeniaContent += `<br> Wyparowoano obrażeń: ${wyparowanoObrazen}`;
+      }
+      if (data?.uniki > 0) {
+        obrazeniaContent += `<br> Uniknięto obrażeń: ${data.uniki}`;
       }
       obrazeniaContent += `
         <br> Obrażenia zadane: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
@@ -385,7 +388,6 @@ async function parowanie(event, message) {
     { czymParujesz: czymParujesz, talenty: inneTalenty },
   );
 
-
   const wyparowanoObrazen = await new Promise((resolve) => {
     new foundry.applications.api.DialogV2({
       window: { title: `Parowanie - ${targetActor.name}` },
@@ -413,7 +415,6 @@ async function parowanie(event, message) {
             const umiejetnosc =
               targetActor.system.atrybuty.sila.umiejetnosci.walka_wrecz;
 
-        
             const checked = Array.from(
               dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
             );
@@ -443,7 +444,7 @@ async function parowanie(event, message) {
               },
             );
 
-            resolve(result); 
+            resolve(result);
           },
         },
       ],
@@ -462,13 +463,124 @@ async function parowanie(event, message) {
     `$1 disabled$2${resultHTML}`,
   );
   updatedContent = updatedContent.replace(
-  /(<button[^>]*class="[^"]*unik[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
-  `$1 disabled$2`
-);
+    /(<button[^>]*class="[^"]*unik[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
+    `$1 disabled$2`,
+  );
 
   await message.update({ content: updatedContent });
 }
-
 async function unik(event, message) {
-  
+  const targetId = event.target.dataset.targetid;
+  const targetToken = canvas.tokens.get(targetId);
+  if (!targetToken) return;
+
+  const targetActor = targetToken.actor;
+  if (!targetActor) return;
+  const maTelentBlokujacy = targetActor.items.some(
+    (item) => item.system?.usuwaForsowanie === true,
+  );
+
+  let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+
+  const { powiazaneTalenty: inneTalenty } =
+    await targetActor.system.sprawdzTalenty("zrecznosc", []);
+  const atrybutKey = "zrecznosc";
+  const umiejkaKey = "zwinnosc";
+  const atrybut = targetActor.system.atrybuty.zrecznosc.value;
+  const umiejka = targetActor.system.atrybuty.zrecznosc.umiejetnosci.zwinnosc;
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/wiedzmin_yze/templates/dialogs/uniki-dialog.hbs",
+    { talenty: inneTalenty },
+  );
+  const uniki = await new Promise((resolve) => {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Unikanie - ${targetActor.name}` },
+      content: content,
+      buttons: [
+        {
+          action: "paruj",
+          label: "Unikaj",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const selection = dialog.element.querySelector(".typ-broni");
+
+            const czymJestesAtakowny = selection.selectedOptions[0].dataset.typ;
+
+            const bonus = Number(
+              selection.selectedOptions[0].dataset.bonus || 0,
+            );
+
+            const modifier =
+              parseInt(
+                dialog.element.querySelector("input[name='inne-mody']")?.value,
+              ) || 0;
+
+            const checked = Array.from(
+              dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+            );
+
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return inneTalenty[index];
+            });
+            const unikaszOstrzalu =
+              dialog.element.querySelector(".ostrzal").checked;
+            const adrenalina = targetActor.system.adrenalina.value;
+
+            const result = await globalThis.wiedzmin_yze.WiedzminRoll.unik({
+              atrybutKey: atrybutKey,
+              atrybut: atrybut,
+              umiejetnoscKey: umiejkaKey,
+              umiejetnosc: umiejka,
+              adrenalina: adrenalina,
+              czymJestesAtakowny: czymJestesAtakowny,
+              bonus: bonus,
+              modifier: modifier,
+              messageID: message.id,
+              flavor: flavor,
+              type: "unik",
+              unikaszOstrzalu: unikaszOstrzalu,
+              wybranetalenty: selectedItems,
+              actorUUID: targetActor.uuid,
+            });
+
+            resolve(result);
+          },
+        },
+      ],
+    }).render({ force: true });
+  });
+
+  await message.update({
+    "system.uniki": uniki,
+    "system.extraSuccesses": message.system.extraSuccesses - uniki,
+  });
+  let resultHTML = `<div class="parowanie-result">Unika ${uniki}</div>`;
+  if (message.system.successes < uniki) {
+    resultHTML = `<div class="parowanie-result">Unikną ataku</div>`;
+    const zadajObr =
+      event.target.parentElement.parentElement.parentElement.parentElement.querySelector(
+        "button.zadaj-obrazenia",
+      );
+    zadajObr.disabled = true;
+  }
+
+  const button = event.target.parentElement.querySelector("button.parowanie");
+  button.insertAdjacentHTML("afterend", resultHTML);
+  let updatedContent = message.content.replace(
+    /(<button[^>]*class="[^"]*parowanie[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
+    `$1 disabled$2${resultHTML}`,
+  );
+  updatedContent = updatedContent.replace(
+    /(<button[^>]*class="[^"]*unik[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
+    `$1 disabled$2`,
+  );
+  if (message.system.successes < uniki) {
+    updatedContent = updatedContent.replace(
+      /(<button[^>]*class="[^"]*zadaj-obrazenia[^"]*"[^>]*)(>[\s\S]*?<\/button>)/,
+      `$1 disabled$2`,
+    );
+  }
+
+  await message.update({ content: updatedContent });
 }

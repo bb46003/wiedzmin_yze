@@ -45,7 +45,7 @@
     "distance": 1,
     "units": "m"
   },
-  "initiative": "1d6 + @atrybuty.zrecznosc.value",
+  "initiative": "1d6 + @atrybuty.zrecznosc.value + @inicjatywa",
   "manifest": "https://raw.githubusercontent.com/bb46003/wiedzmin_yze/refs/heads/main/system.json",
   "download": "https://github.com/bb46003/wiedzmin_yze/archive/refs/heads/main.zip"
 }
