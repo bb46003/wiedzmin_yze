@@ -646,9 +646,12 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     await super._onRender(document, options);
     const id = document.rootId;
     const element = document.document.apps[id].element;
+    element.classList.remove("light")
+    element.classList.remove("dark")
     const appTheme = game.settings.get("core", "uiConfig").colorScheme
       .applications;
     element.classList.add(appTheme);
+
     const uzyciePrzedmiotu = element.querySelector(
       "[data-action='uzyjPrzedmiotu']",
     );

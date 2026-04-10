@@ -16,6 +16,7 @@ import { pancerzSheet } from "./sheets/items/pancerz.mjs";
 import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
 
+
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
   models,
@@ -96,4 +97,15 @@ Hooks.on("preCreateScene", (scene) => {
       },
     },
   });
+});
+Hooks.on("clientSettingChanged", (setting) => {
+  if (setting === "core.uiConfig") {
+    for (const actor of game.actors.contents) {
+      if (actor.isOwner) {
+        if (actor.sheet.rendered) {
+          actor.sheet.render({force:true});
+        }
+      }
+    }
+  }
 });
