@@ -7,12 +7,24 @@
   .window-content {
     display: grid;
     grid-template-columns: 250px 410px 320px;
-    grid-template-rows: auto 320px 330px 250px 250px;
+    grid-template-rows: auto 420px 330px 250px 250px;
     gap: 8px;
     height: 100%;
     overflow-y: auto;
   }
-
+  .tab.lewa{
+    h3{
+      margin-top: 50px;
+    }
+  }
+  nav{
+        display: flex;
+        min-width: 200px;
+        height: 50px;
+        font-size: 20px;
+        overflow: hidden !important;
+        border-bottom: double black 10px;;
+  }
   .window-content .sheet-header {
     grid-column: 1 / 4;
     grid-row: 1;
@@ -26,9 +38,14 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       font-size: 13px;
+                  align-items: end;
       .moc-label {
         font-size: 13px;
+        a, i{
+          font-size: 8px;
+        }
       }
+      
       .przedmiot {
         display: flex;
         gap: 2px;
@@ -40,7 +57,20 @@
         overflow-wrap: break-word;
         white-space: pre-wrap;
       }
-      .used {
+
+    }
+    .moc-label.flexrow{
+      a{         
+           max-width: 15px;
+          max-height: 15px;
+          margin-right: 5px; 
+          i{
+          max-width: 15px;
+          max-height: 15px;
+      }
+
+    }
+                .used {
         color: red;
       }
     }

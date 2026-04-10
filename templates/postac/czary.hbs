@@ -1,7 +1,39 @@
-<section class="tab czary lewa {{#if tabs.czary.active}} {{tabs.czary.cssClass}} {{else}} hiden {{/if}}"  action-data="tab"
+<section class="tab czary lewa {{tabs.czary.cssClass}} "  action-data="tab"
   data-group="items" data-tab="czary">
 
   <h3>Czary</h3>
   <div class="czary-list">
+    <table>
+    <thead>
+      <tr>
+        <th>Nazwa</th>
+        <th data-tooltip="Poziom">P</th>
+        <th data-tooltip="Koszt">K</th>
+        <th data-tooltip="Zasieg">Z</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each czary}}
+        <tr>
+          <td class="nazwaBroni">
+            <a class="item-open" data-id="{{@key}}" data-action="rzucCzar">
+              {{this.name}}
+            </a>
+            <a
+              class="threeDots"
+              data-action="itemContextMenu"
+              data-item="{{@key}}"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </td>
+          <td>{{this.poziom}}</td>
+          <td>{{this.koszt.bazowy}}</td>
+          <td>{{this.zasieg.typ}}/{{this.zasieg.wartosc}}</td>
+          
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
   </div>
 </section>

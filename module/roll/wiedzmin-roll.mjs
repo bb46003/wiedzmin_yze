@@ -49,6 +49,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
         secondArtibute,
         hasSecondAttribute,
         maTelentBlokujacy,
+        umiejkaLabel
       },
     );
 
@@ -420,6 +421,35 @@ export class WiedzminRoll extends foundry.dice.Roll {
     );
     await roll.toMessage();
     return roll._successes;
+  }
+
+  static async rzucanieCzaru({
+      attribute = 0,
+      skill = 0,
+      adrenalina = 0,
+      atrubutLabel = "",
+      umiejkaLabel = "",
+      actorID = "",
+      item = [],
+      secondArtibute = "",
+      atrybutKey = "",
+      umiejkaKey = "",
+      czarID = "",
+      dostepnaMoc = ""
+  }={}){
+    const actor = await game.actors.get(actorID);
+    const czar = actor.items.get(czarID);
+    const maTelentBlokujacy = !item.some(
+      (item) => item.system?.usuwaForsowanie === true,
+    );
+    if (!czar) {
+      ui.notifications.error("Nie znaleziono czaru u Postaci");
+      return;
+    }
+    let flavor = "Czar";
+    if (!maTelentBlokujacy) {
+      flavor = "Forsowanie";
+    }
   }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */

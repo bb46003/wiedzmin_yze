@@ -613,4 +613,43 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
 
     if (roll) await roll.toMessage();
   }
+
+  async rzucanieCzaru(czarID, atrybut, umiejka){
+    const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
+      await this.sprawdzTalenty(atrybut, [], true);
+
+        const attribute = this.atrybuty[atrybut];
+    const attributeValue = Number(attribute.value) || 0;
+
+    const atrubutLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybut].fields.value.label,
+    );
+
+    const skillValue = Number(attribute.umiejetnosci?.[umiejka]) || 0;
+
+    const umiejkaLabel = game.i18n.localize(
+      this.schema.fields.atrybuty.fields[atrybut].fields.umiejetnosci.fields[
+        umiejka
+      ].label,
+    );
+    const dostepnaMoc = this.punkty_mocy.value;
+    const adrenalinaValue = Number(this.adrenalina.value) || 0;
+        const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
+      attribute: attributeValue,
+      skill: skillValue,
+      adrenalina: adrenalinaValue,
+      atrubutLabel: atrubutLabel,
+      umiejkaLabel: umiejkaLabel,
+      actorID: this.parent.id,
+      item: inneTalenty,
+      secondArtibute: secondArtibute,
+      atrybutKey: atrybut,
+      umiejkaKey: umiejka,
+      czarID: czarID,
+      dostepnaMoc: dostepnaMoc
+
+    });
+
+    if (roll) await roll.toMessage();
+  }
 }

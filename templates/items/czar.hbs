@@ -78,6 +78,12 @@
           systemFields.obrona.fields.modyfikator
           value=system.obrona.modyfikator
         }}
+        {{#if (eq system.obrona.typ "inny")}}
+          {{formInput
+            systemFields.obrona.field.inny
+            value = system.obrona.inny
+          }}
+        {{/if}}
       </div>
 
     </div>
