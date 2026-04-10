@@ -15,32 +15,32 @@ export const umiejki = /** @type {const} */ ({
   Medycyna: {
     label: "wiedzmin.atrubut.specjalizacja.medycyna",
     atrybKey: "rozum",
-    umiejkaKey: "fach"
+    umiejkaKey: "fach",
   },
-  Magia: { 
-    label: "wiedzmin.atrubut.specjalizacja.magia", 
+  Magia: {
+    label: "wiedzmin.atrubut.specjalizacja.magia",
     atrybKey: "rozum",
-    umiejkaKey: "fach" 
+    umiejkaKey: "fach",
   },
   Tworzenie: {
     label: "wiedzmin.atrubut.specjalizacja.tworzenie",
     atrybKey: "rozum",
-     umiejkaKey: "fach"
+    umiejkaKey: "fach",
   },
-  Handel: { 
-    label: "wiedzmin.atrubut.specjalizacja.handel", 
+  Handel: {
+    label: "wiedzmin.atrubut.specjalizacja.handel",
     atrybKey: "rozum",
-    umiejkaKey: "fach"
-   },
+    umiejkaKey: "fach",
+  },
   Czarostwo: {
     label: "wiedzmin.atrubut.specjalizacja.czarostwo",
     atrybKey: "rozum",
-    umiejkaKey: "fach"
+    umiejkaKey: "fach",
   },
-  Sztuka: { 
+  Sztuka: {
     label: "wiedzmin.atrubut.specjalizacja.sztuka",
-     atrybKey: "rozum",
-     umiejkaKey: "fach"
+    atrybKey: "rozum",
+    umiejkaKey: "fach",
   },
   zwinnosc: { label: "wiedzmin.atrubut.zwinnosc", atrybKey: "zrecznosc" },
   wakla_dystansowa: {

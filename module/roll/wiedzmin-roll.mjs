@@ -9,6 +9,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
   static CHAT_TEMPLATE_ATAK_BRONI = `systems/wiedzmin_yze/templates/chat/wiedzmin-atak-bronia.hbs`;
   static CHAT_TEMPLATE_UNIKI =
     "systems/wiedzmin_yze/templates/chat/wiedzmin-uniki.hbs";
+  static DIALOG_TEMPLATE_RZUCANIE_CZAROW =
+    "systems/wiedzmin_yze/templates/dialogs/wiedzmin-rzut-czar.hbs";
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -49,7 +51,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
         secondArtibute,
         hasSecondAttribute,
         maTelentBlokujacy,
-        umiejkaLabel
+        umiejkaLabel,
       },
     );
 
@@ -424,32 +426,92 @@ export class WiedzminRoll extends foundry.dice.Roll {
   }
 
   static async rzucanieCzaru({
-      attribute = 0,
-      skill = 0,
-      adrenalina = 0,
-      atrubutLabel = "",
-      umiejkaLabel = "",
-      actorID = "",
-      item = [],
-      secondArtibute = "",
-      atrybutKey = "",
-      umiejkaKey = "",
-      czarID = "",
-      dostepnaMoc = ""
-  }={}){
+    attribute = 0,
+    skill = 0,
+    adrenalina = 0,
+    atrubutLabel = "",
+    umiejkaLabel = "",
+    actorID = "",
+    item = [],
+    secondArtibute = "",
+    atrybutKey = "",
+    umiejkaKey = "",
+    czarID = "",
+    dostepnaMoc = "",
+  } = {}) {
     const actor = await game.actors.get(actorID);
     const czar = actor.items.get(czarID);
-    const maTelentBlokujacy = !item.some(
-      (item) => item.system?.usuwaForsowanie === true,
-    );
     if (!czar) {
       ui.notifications.error("Nie znaleziono czaru u Postaci");
       return;
     }
-    let flavor = "Czar";
-    if (!maTelentBlokujacy) {
-      flavor = "Forsowanie";
-    }
+    let flavor = "Forsowanie";
+    const content = await foundry.applications.handlebars.renderTemplate(
+      this.DIALOG_TEMPLATE_RZUCANIE_CZAROW,
+      {
+        mocPostaci: actor.system.punkty_mocy.value,
+        mocZaklecia: czar.system.koszt.bazowy,
+        attribute,
+        skill,
+        atrubutLabel,
+        umiejkaLabel,
+        adrenalina,
+        item,
+      },
+    );
+    const cel = game.user.targets;
+    const dialog = new foundry.applications.api.DialogV2({
+      window: { title: `Rzucasz Czar: ${czar.name}` },
+      classes: ["wiedzmin-dialog", "atak"],
+      content,
+      buttons: [
+        {
+          action: "roll",
+          label: "Rzuć",
+          default: true,
+          callback: async (_event, _button, dialog) => {},
+        },
+      ],
+    });
+    dialog._onRender = function () {
+      const dostepnaMoc = actor.system.punkty_mocy.value;
+      const wybranaMoc = this.element.querySelector(".dodatkowa-moc");
+
+      wybranaMoc.addEventListener("change", (ev) => {
+        const uzytaMoc = Number(ev.target.value);
+        const obrazenia = uzytaMoc - dostepnaMoc;
+
+        // sprawdz czy komunikat już istnieje
+        let komunikat = this.element.querySelector(".moc-warning");
+
+        if (uzytaMoc > dostepnaMoc) {
+          // dodaj klasę
+          wybranaMoc.classList.add("red");
+
+          // jeśli nie istnieje → stwórz
+          if (!komunikat) {
+            komunikat = document.createElement("div");
+            komunikat.classList.add("moc-warning");
+
+            // wstaw POD inputem
+            wybranaMoc.insertAdjacentElement("afterend", komunikat);
+          }
+
+          // aktualizuj tekst
+          komunikat.innerHTML = `Masz za mało Mocy.<br>
+        Osłabisz swoje ciało, zadasz sobie ${obrazenia} obrażeń!`;
+        } else {
+          // usuń klasę jeśli była
+          wybranaMoc.classList.remove("red");
+
+          // usuń komunikat jeśli istnieje
+          if (komunikat) {
+            komunikat.remove();
+          }
+        }
+      });
+    };
+    dialog.render({ force: true });
   }
   /* -------------------------------------------- */
   /*  Evaluation Override (v13 style)             */

@@ -118,7 +118,7 @@ export class czarDataModel extends foundry.abstract.TypeDataModel {
             unik: "Unik",
             wola: "Wola",
             kondycja: "Kondycja",
-            inny: "Inny"
+            inny: "Inny",
           },
           required: true,
         }),
@@ -126,7 +126,7 @@ export class czarDataModel extends foundry.abstract.TypeDataModel {
           initial: 0,
           required: true,
         }),
-        inny: new StringField({initial:""})
+        inny: new StringField({ initial: "" }),
       }),
 
       // 📝 OPIS

@@ -614,11 +614,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     if (roll) await roll.toMessage();
   }
 
-  async rzucanieCzaru(czarID, atrybut, umiejka){
+  async rzucanieCzaru(czarID, atrybut, umiejka) {
     const { powiazaneTalenty: inneTalenty, powiazaneAtrybuty: secondArtibute } =
       await this.sprawdzTalenty(atrybut, [], true);
 
-        const attribute = this.atrybuty[atrybut];
+    const attribute = this.atrybuty[atrybut];
     const attributeValue = Number(attribute.value) || 0;
 
     const atrubutLabel = game.i18n.localize(
@@ -634,7 +634,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     );
     const dostepnaMoc = this.punkty_mocy.value;
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
-        const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
       attribute: attributeValue,
       skill: skillValue,
       adrenalina: adrenalinaValue,
@@ -646,8 +646,7 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
       atrybutKey: atrybut,
       umiejkaKey: umiejka,
       czarID: czarID,
-      dostepnaMoc: dostepnaMoc
-
+      dostepnaMoc: dostepnaMoc,
     });
 
     if (roll) await roll.toMessage();

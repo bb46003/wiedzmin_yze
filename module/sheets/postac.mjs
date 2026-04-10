@@ -26,7 +26,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       uzyjPrzedmiotu: postacSheet.#uzyjPrzedmiotu,
       sprawdzenieAmunicji: postacSheet.#sprawdzenieAmunicji,
       atakBronia: postacSheet.#atakBronia,
-      rzucCzar: postacSheet.#rzucCzar
+      rzucCzar: postacSheet.#rzucCzar,
     },
     form: {
       submitOnChange: true,
@@ -66,16 +66,16 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     czary: {
       template: "systems/wiedzmin_yze/templates/postac/czary.hbs",
     },
-    nac:{
-      template:"systems/wiedzmin_yze/templates/postac/nav.hbs"
-    }
+    nac: {
+      template: "systems/wiedzmin_yze/templates/postac/nav.hbs",
+    },
   };
   static TABS = {
     items: {
       tabs: [
-        { id: "bronie", group: "items", label: ""  },
-        { id: "talenty", group: "items", label: ""  },
-         { id: "czary", group: "items", label: "" },
+        { id: "bronie", group: "items", label: "" },
+        { id: "talenty", group: "items", label: "" },
+        { id: "czary", group: "items", label: "" },
       ],
       initial: "bronie",
     },
@@ -129,8 +129,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { bronie });
     const pancerz = await this.preparePancerz();
     Object.assign(context, { pancerz });
-    const czary = await this.prepareCzary()
-    Object.assign(context,{ czary })
+    const czary = await this.prepareCzary();
+    Object.assign(context, { czary });
+
     return context;
   }
 
@@ -272,7 +273,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
     return data;
   }
-  async prepareCzary(){
+  async prepareCzary() {
     const czary = this.actor.items.filter((item) => item.type === "czar");
     const data = {};
     czary.forEach((czar) => {
@@ -282,7 +283,6 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       const poziom = czar.system.poziom;
       const koszt = czar.system.koszt;
       const zasieg = czar.system.zasieg;
-   
 
       data[itemID] = {
         img,
@@ -327,7 +327,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
         break;
       }
-      case "profesja":{
+      case "profesja": {
         const posiadaProfesje = this.actor.items.filter(
           (i) => i.type === "profesja",
         );
@@ -341,25 +341,22 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
 
         break;
       }
-      case "czar":{
+      case "czar": {
         const maMoc = this.actor.system.punkty_mocy.max;
-        if(maMoc === 0){
+        if (maMoc === 0) {
           ui.notifications.warn(
-            "Twoja Postać nie posiada Punktów Mocy i nie może znać Czarów"
-          )
-        }
-        else{
+            "Twoja Postać nie posiada Punktów Mocy i nie może znać Czarów",
+          );
+        } else {
           await actor.createEmbeddedDocuments("Item", [itemData]);
         }
         break;
       }
-      
-        default:
+
+      default:
         await actor.createEmbeddedDocuments("Item", [itemData]);
         break;
     }
-
-
   }
   /** @inheritDoc */
   _processFormData(event, form, formData) {
@@ -466,14 +463,14 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = item.system.powiazaneAtrybuty;
     let umiejka = item.system.powiazanaUmiejka;
     const fach = wiedzmin_yze.config?.umiejki[umiejka];
-    if(fach?.umiejkaKey){
-      umiejka = fach.umiejkaKey
-    }else{
-      umiejka = umiejka.toLowerCase()
+    if (fach?.umiejkaKey) {
+      umiejka = fach.umiejkaKey;
+    } else {
+      umiejka = umiejka.toLowerCase();
     }
-    if(umiejka === "brak"){
-    this.actor.system.rzutAtrybut(atrybut, item);
-    }else{
+    if (umiejka === "brak") {
+      this.actor.system.rzutAtrybut(atrybut, item);
+    } else {
       this.actor.system.rzutUmiejka(umiejka, atrybut);
     }
   }
@@ -521,7 +518,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     <div class="menu-option" data-action="delete">Usuń Pancerz</div>
   `;
     }
-        if (item.type === "czar") {
+    if (item.type === "czar") {
       menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Czar</div>
     <div class="menu-option" data-action="delete">Usuń Czar</div>
@@ -637,7 +634,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     }
     await this.actor.system.atakBronia(bronID, atrybut, umiejka);
   }
-  static async #rzucCzar(ev){
+  static async #rzucCzar(ev) {
     const target = ev.target;
     const czarID = target.dataset.id;
     const atrybut = "rozum";
@@ -649,6 +646,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     await super._onRender(document, options);
     const id = document.rootId;
     const element = document.document.apps[id].element;
+    const appTheme = game.settings.get("core", "uiConfig").colorScheme
+      .applications;
+    element.classList.add(appTheme);
     const uzyciePrzedmiotu = element.querySelector(
       "[data-action='uzyjPrzedmiotu']",
     );
