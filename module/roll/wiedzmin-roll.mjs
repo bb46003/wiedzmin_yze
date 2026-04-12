@@ -11,7 +11,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
     "systems/wiedzmin_yze/templates/chat/wiedzmin-uniki.hbs";
   static DIALOG_TEMPLATE_RZUCANIE_CZAROW =
     "systems/wiedzmin_yze/templates/dialogs/wiedzmin-rzut-czar.hbs";
-    static CHAT_TEMPLATE_CZAR =   "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs"
+  static CHAT_TEMPLATE_CZAR =
+    "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
 
   constructor(formula, data = {}, options = {}) {
     super(formula, data, options);
@@ -472,10 +473,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             const dodatkowaMoc = Number(
-              dialog.element.querySelector(".dodatkowa-moc").value
+              dialog.element.querySelector(".dodatkowa-moc").value,
             );
             const mody = Number(
-              dialog.element.querySelector('input[name="modifier"]').value
+              dialog.element.querySelector('input[name="modifier"]').value,
             );
             const checked = Array.from(
               dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
@@ -485,12 +486,13 @@ export class WiedzminRoll extends foundry.dice.Roll {
               const index = Number(input.dataset.id);
               return item[index];
             });
-            const dostepnaMoc = actor.system.punkty_mocy.value - czar.system.koszt.bazowy;
-            let obrazeniaDlaRzucajacego = false
+            const dostepnaMoc =
+              actor.system.punkty_mocy.value - czar.system.koszt.bazowy;
+            let obrazeniaDlaRzucajacego = false;
             let iloscObrazen = 0;
-            if(dostepnaMoc < (dodatkowaMoc)){
+            if (dostepnaMoc < dodatkowaMoc) {
               obrazeniaDlaRzucajacego = true;
-              iloscObrazen = dodatkowaMoc - dostepnaMoc
+              iloscObrazen = dodatkowaMoc - dostepnaMoc;
             }
             const talentBonus = await bonusZtalentów(selectedItems);
             const basePool =
@@ -500,35 +502,37 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 ? `${basePool}d6 + ${adrenalina}d6`
                 : `${basePool}d6`;
             const roll = new WiedzminRoll(
-      formula,
-      {},
-      {
-        adrenalina,
-        flavor: flavor,
-        atrubutLabel: atrubutLabel,
-        umiejkaLabel: umiejkaLabel,
-        actorID: actor.id,
-        item: selectedItems,
-        type: "czar",
-        czarID : czarID,
-        cel: cel,
-        obrazeniaDlaRzucajacego: obrazeniaDlaRzucajacego,
-        iloscObrazen: iloscObrazen
-      },
-      
-    );
-     await roll.toMessage();
-     await actor.system.wydawaniePM(czar.system.koszt.bazowy, dodatkowaMoc);
-     if(obrazeniaDlaRzucajacego){
-      await actor.system.obrazeniaZCzaru(iloscObrazen)
-     }
-
+              formula,
+              {},
+              {
+                adrenalina,
+                flavor: flavor,
+                atrubutLabel: atrubutLabel,
+                umiejkaLabel: umiejkaLabel,
+                actorID: actor.id,
+                item: selectedItems,
+                type: "czar",
+                czarID: czarID,
+                cel: cel,
+                obrazeniaDlaRzucajacego: obrazeniaDlaRzucajacego,
+                iloscObrazen: iloscObrazen,
+              },
+            );
+            await roll.toMessage();
+            await actor.system.wydawaniePM(
+              czar.system.koszt.bazowy,
+              dodatkowaMoc,
+            );
+            if (obrazeniaDlaRzucajacego) {
+              await actor.system.obrazeniaZCzaru(iloscObrazen);
+            }
           },
         },
       ],
     });
     dialog._onRender = function () {
-      const dostepnaMoc = actor.system.punkty_mocy.value - czar.system.koszt.bazowy;
+      const dostepnaMoc =
+        actor.system.punkty_mocy.value - czar.system.koszt.bazowy;
       const wybranaMoc = this.element.querySelector(".dodatkowa-moc");
 
       wybranaMoc.addEventListener("change", (ev) => {
@@ -747,9 +751,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (this.options?.unikaszOstrzalu) {
       czymJestesAtakowany = "Unikasz ostrzału";
     }
-    let czar
-    if(this.options?.czarID){
-      czar = await actor.items.get(this.options?.czarID)
+    let czar;
+    if (this.options?.czarID) {
+      czar = await actor.items.get(this.options?.czarID);
     }
     return {
       formula: formula,
@@ -782,7 +786,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       czymJestesAtakowany: czymJestesAtakowany,
       czar: czar,
       obrazeniaDlaRzucajacego: this.options?.obrazeniaDlaRzucajacego,
-      iloscObrazen: this.options?.iloscObrazen
+      iloscObrazen: this.options?.iloscObrazen,
     };
   }
 
@@ -809,7 +813,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
         template = this.constructor.CHAT_TEMPLATE_UNIKI;
         break;
       case "czar":
-        template = this.constructor.CHAT_TEMPLATE_CZAR
+        template = this.constructor.CHAT_TEMPLATE_CZAR;
         break;
       default:
         template = this.constructor.CHAT_TEMPLATE;

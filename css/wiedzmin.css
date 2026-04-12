@@ -844,19 +844,19 @@
     gap: 10px;
     margin-bottom: 10px;
   }
-  .talents-section.disable{    
-    pointer-events: none;  
+  .talents-section.disable {
+    pointer-events: none;
   }
-.czary-dialog {
-  display: grid;
-  grid-template-columns: 200px 50px;
-  justify-content: space-between;
-  p {
-    align-self: center;
-    justify-self: center;
+  .czary-dialog {
+    display: grid;
+    grid-template-columns: 200px 50px;
+    justify-content: space-between;
+    p {
+      align-self: center;
+      justify-self: center;
+    }
+    input {
+      text-align: center;
+    }
   }
-  input {
-    text-align: center;
-  }
-}
 }

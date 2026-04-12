@@ -592,6 +592,14 @@ async function unik(event, message) {
 
   await message.update({ content: updatedContent });
 }
+
+function mapTypToShape(typ) {
+  switch (typ) {
+    case "stozek": return "cone";
+    case "linia": return "ray";
+    case "obszar": return "circle";
+  }
+}
 async function stworzTemplate(event, message) {
   const data = message.system;
   const czar = data.czar;
@@ -601,40 +609,141 @@ async function stworzTemplate(event, message) {
 
   const templateType = mapTypToShape(typ);
 
-  const token = canvas.tokens.controlled[0];
-  if (!token) {
-    ui.notifications.warn("Select token first");
-    return;
-  }
-
   const templateData = {
     t: templateType,
     user: game.user.id,
-    x: token.center.x,
-    y: token.center.y,
+    x: 0,
+    y: 0,
     direction: 0,
-    width:1,
     distance: wielkosc,
+    width: typ === "linia" ? 1 : undefined,
     angle: typ === "stozek" ? 90 : undefined,
     fillColor: game.user.color
   };
 
-  // 🔥 THIS is the correct v14-compatible way
-  const template = await CONFIG.MeasuredTemplate.documentClass.create(templateData, {
-    parent: canvas.scene,
-    temporary: true   // 👈 THIS enables preview-like behavior
+  startTemplatePreview(templateData);
+}
+
+
+async function startTemplatePreview(templateData) {
+
+if(game.generation.release < 14){
+
+ const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, {
+    parent: canvas.scene
   });
 
-  // activate layer so user can place it
-  canvas.templates.activate();
+  const template = new CONFIG.MeasuredTemplate.objectClass(doc);
 
-  // control it (user can move it)
-  template.object.control({releaseOthers: true});
+  // 2. Add to preview layer
+  canvas.templates.preview.addChild(template);
+}else{
+  const doc = new CONFIG.Region.documentClass({  name: "Spell Region",
+  x: 100,
+  y: 100,
+  elevation: { bottom: 0, top: 100 },
+  shapes: [
+    {
+      type: "circle",
+      x: 0,
+      y: 0,
+      radius: 20
+    }
+  ]},{parent: canvas.scene})
+const template = new CONFIG.Region.objectClass(doc)
+  canvas.templates.preview.addChild(template);
+  await template.draw();
+
 }
-function mapTypToShape(typ) {
-  switch (typ) {
-    case "stozek": return "cone";
-    case "linia": return "ray";
-    case "obszar": return "circle";
+  await template.draw();
+
+  let direction = 0;
+
+  // --- MOUSE MOVE ---
+const moveHandler = (event) => {
+  const pos = event.data.getLocalPosition(canvas.app.stage);
+
+  const snapped = canvas.grid.getSnappedPoint(
+    { x: pos.x, y: pos.y },
+    { mode: CONST.GRID_SNAPPING_MODES.CENTER }
+  );
+
+  template.document.updateSource({
+    x: snapped.x,
+    y: snapped.y,
+    direction: direction
+  });
+
+  template.refresh();
+};
+
+  // --- ROTATION (MOUSE WHEEL) ---
+  const wheelHandler = (event) => {
+    event.preventDefault();
+
+    const delta = Math.sign(event.deltaY);
+    direction += delta * 15; // change step if needed
+
+    template.document.updateSource({ direction });
+    template.refresh();
+  };
+
+  // --- CONFIRM (LEFT CLICK) ---
+  const clickHandler = async (event) => {
+    cleanup();
+
+    const data = template.document.toObject();
+    console.log(data)
+    if(game.release.generation < 14){
+      await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [data]);
+    }
+    else{
+      const regionData = {
+  name: "Spell Region",
+  x: 100,
+  y: 100,
+  elevation: { bottom: 0, top: 100 },
+    displayMeasurements: true,
+    highlightMode: "coverage",
+    visibility: 2,
+  shapes: [
+    {
+      type: data.t,
+      x: data.x,
+      y: data.y,
+      length: data.distance*canvas.scene.dimensions.distancePixels,
+        angle: data.angle,
+        radius: data.distance*canvas.scene.dimensions.distancePixels,
+        rotation: data.direction,
+        
+    }
+  ]
+};
+
+ await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
+    }
+    };
+
+  // --- CANCEL (RIGHT CLICK) ---
+  const cancelHandler = (event) => {
+    if (event.button === 2) {
+      cleanup();
+    }
+  };
+
+  // --- CLEANUP ---
+  function cleanup() {
+    canvas.app.stage.off("mousemove", moveHandler);
+    canvas.app.stage.off("mousedown", clickHandler);
+    canvas.app.stage.off("rightdown", cancelHandler);
+    window.removeEventListener("wheel", wheelHandler);
+
+    template.destroy();
   }
+
+  // 3. Activate listeners
+  canvas.app.stage.on("mousemove", moveHandler);
+  canvas.app.stage.on("mousedown", clickHandler);
+  canvas.app.stage.on("rightdown", cancelHandler);
+  window.addEventListener("wheel", wheelHandler);
 }
