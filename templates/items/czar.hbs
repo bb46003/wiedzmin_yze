@@ -82,7 +82,16 @@
           {{formInput systemFields.obrona.field.inny value=system.obrona.inny}}
         {{/if}}
       </div>
-
+      <div class="form-group">
+        <label>CZy zadaje obrażenia?</label>
+        {{formInput systemFields.obrazenia.fields.zadajeObrazenia value=system.obrazenia.zadajeObrazenia}}
+        {{#if system.obrazenia.zadajeObrazenia}}
+          <label>Podstawowe obrażenia Czaru</label>
+          {{formInput systemFields.obrazenia.fields.podstawowe value=system.obrazenia.podstawowe}}
+          <label>Obrażenia za dodatkowe sukcesy</label>
+          {{formInput systemFields.obrazenia.fields.zaDodatkoweSuksecy0 value=system.obrazenia.zaDodatkoweSuksecy}}
+        {{/if}}
+      </div>
     </div>
 
     <div class="profesja-body">

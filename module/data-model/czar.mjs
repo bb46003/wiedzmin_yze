@@ -128,6 +128,17 @@ export class czarDataModel extends foundry.abstract.TypeDataModel {
         }),
         inny: new StringField({ initial: "" }),
       }),
+      obrazenia: new SchemaField({
+        zadajeObrazenia: new BooleanField({
+          initial :false
+        }),
+        podstawowe: new NumberField({
+          initial: 1,
+        }),
+        zaDodatkoweSuksecy: new NumberField({
+          initial: 1
+        })
+      }),
 
       // 📝 OPIS
       opis: new HTMLField({

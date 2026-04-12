@@ -651,4 +651,23 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
 
     if (roll) await roll.toMessage();
   }
+  async wydaniePM(kosztBazowy, dodatkowaMoc){
+    const obecnaMoc = this.system.punkty_mocy.value;
+    let nowaMoc = obecnaMoc - kosztBazowy - dodatkowaMoc;
+    
+    if(nowaMoc <= 0){
+      nowaMoc = 0;
+    } 
+
+    await this.parent.update({"system.poziom_mocy.vaule": nowaMoc})
+
+  }
+  async obrazeniaZCzaru(obrazenia){
+    const obecneZdrowie = this.zycie.value;
+    let noweZdrowie = obecneZdrowie - obrazenia;
+    if(noweZdrowie < 0){
+      noweZdrowie = 0;
+    }
+    await this.parent.update({"system.zycie.value": noweZdrowie})
+  }
 }
