@@ -472,10 +472,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             const dodatkowaMoc = Number(
-              dialog.element.querySelector(".dodatkowa-moc"),
+              dialog.element.querySelector(".dodatkowa-moc").value
             );
             const mody = Number(
-              dialog.element.querySelector('input[name="modifier"]'),
+              dialog.element.querySelector('input[name="modifier"]').value
             );
             const checked = Array.from(
               dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
@@ -748,8 +748,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
       czymJestesAtakowany = "Unikasz ostrzału";
     }
     let czar
-    if(this.option?.czarID){
-      czar = await actor.items.get(this.option?.czarID)
+    if(this.options?.czarID){
+      czar = await actor.items.get(this.options?.czarID)
     }
     return {
       formula: formula,
@@ -780,9 +780,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
       bonusDoObrazen: this.options?.bonusDoObrazen,
       messageID: this.options?.messageID,
       czymJestesAtakowany: czymJestesAtakowany,
-      czar: this.options?.czarID,
-      obrazeniaDlaRzucajacego: this.option?.obrazeniaDlaRzucajacego,
-      iloscObrazen: this.option?.iloscObrazen
+      czar: czar,
+      obrazeniaDlaRzucajacego: this.options?.obrazeniaDlaRzucajacego,
+      iloscObrazen: this.options?.iloscObrazen
     };
   }
 

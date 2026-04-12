@@ -844,7 +844,9 @@
     gap: 10px;
     margin-bottom: 10px;
   }
-}
+  .talents-section.disable{    
+    pointer-events: none;  
+  }
 .czary-dialog {
   display: grid;
   grid-template-columns: 200px 50px;
@@ -856,4 +858,5 @@
   input {
     text-align: center;
   }
+}
 }

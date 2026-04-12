@@ -8,6 +8,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".zadaj-obrazenia", zadajObrazenia, _app);
   addHtmlEventListener(html, "click", ".parowanie", parowanie, _app);
   addHtmlEventListener(html, "click", ".unik", unik, _app);
+  addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app)
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -147,6 +148,12 @@ async function otworzTalent(ev) {
   const item = await fromUuid(target.dataset.itemid);
   const itemName = item.name;
   const opis = item.system.opis;
+  if(item.type === "czar"){
+      const czar = await item.sheet.render({force:true})
+      czar.element.querySelector(".talents-section").classList.add("disable")
+      console.log(czar)
+  }else{
+
   new foundry.applications.api.DialogV2({
     window: { title: `Talent ${itemName}` },
     content: opis,
@@ -161,6 +168,7 @@ async function otworzTalent(ev) {
       },
     ],
   }).render({ force: true });
+}
 }
 async function zaczerpMoc(event, message) {
   const data = message.system;
@@ -583,4 +591,50 @@ async function unik(event, message) {
   }
 
   await message.update({ content: updatedContent });
+}
+async function stworzTemplate(event, message) {
+  const data = message.system;
+  const czar = data.czar;
+
+  const typ = czar.system.cel.typ;
+  const wielkosc = czar.system.cel.wartosc;
+
+  const templateType = mapTypToShape(typ);
+
+  const token = canvas.tokens.controlled[0];
+  if (!token) {
+    ui.notifications.warn("Select token first");
+    return;
+  }
+
+  const templateData = {
+    t: templateType,
+    user: game.user.id,
+    x: token.center.x,
+    y: token.center.y,
+    direction: 0,
+    width:1,
+    distance: wielkosc,
+    angle: typ === "stozek" ? 90 : undefined,
+    fillColor: game.user.color
+  };
+
+  // 🔥 THIS is the correct v14-compatible way
+  const template = await CONFIG.MeasuredTemplate.documentClass.create(templateData, {
+    parent: canvas.scene,
+    temporary: true   // 👈 THIS enables preview-like behavior
+  });
+
+  // activate layer so user can place it
+  canvas.templates.activate();
+
+  // control it (user can move it)
+  template.object.control({releaseOthers: true});
+}
+function mapTypToShape(typ) {
+  switch (typ) {
+    case "stozek": return "cone";
+    case "linia": return "ray";
+    case "obszar": return "circle";
+  }
 }

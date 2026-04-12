@@ -31,7 +31,7 @@
         <label>koszt</label>
         {{formInput
           systemFields.koszt.fields.bazowy
-          value=system.koszt
+          value=system.koszt.bazowy
           type="number"
         }}
       </div>
@@ -39,7 +39,7 @@
         <label>koszt podtrzymywania </label>
         {{formInput
           systemFields.koszt.fields.podtrzymanie
-          value=system.koszt
+          value=system.koszt.podtrzymanie
           type="number"
         }}
       </div>
@@ -89,7 +89,7 @@
           <label>Podstawowe obrażenia Czaru</label>
           {{formInput systemFields.obrazenia.fields.podstawowe value=system.obrazenia.podstawowe}}
           <label>Obrażenia za dodatkowe sukcesy</label>
-          {{formInput systemFields.obrazenia.fields.zaDodatkoweSuksecy0 value=system.obrazenia.zaDodatkoweSuksecy}}
+          {{formInput systemFields.obrazenia.fields.zaDodatkoweSuksecy value=system.obrazenia.zaDodatkoweSuksecy}}
         {{/if}}
       </div>
     </div>

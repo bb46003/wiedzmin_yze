@@ -1,17 +1,16 @@
 <div class="wiedzmin-roll-chat">
   <h4>
       Wynik rzutu na Czar
-    <br />{{czar}}
-    z
-    <br />{{atrubutLabel}}
+    <br />        <button
+          class="openTalenet"
+          data-itemID="{{czar.uuid}}"
+        >{{czar.name}}</button>
+    z{{atrubutLabel}}
     <br />{{umiejkaLabel}}</h4>
   {{#if item}}
     <span>Wykorzytując Talenty
       {{#each item}}
-        <button
-          class="openTalenet"
-          data-itemID="{{this.uuid}}"
-        >{{this.name}}</button>
+
       {{/each}}
     </span>
   {{/if}}

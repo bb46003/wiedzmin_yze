@@ -651,15 +651,15 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
 
     if (roll) await roll.toMessage();
   }
-  async wydaniePM(kosztBazowy, dodatkowaMoc){
-    const obecnaMoc = this.system.punkty_mocy.value;
+  async wydawaniePM(kosztBazowy, dodatkowaMoc){
+    const obecnaMoc = this.punkty_mocy.value;
     let nowaMoc = obecnaMoc - kosztBazowy - dodatkowaMoc;
     
     if(nowaMoc <= 0){
       nowaMoc = 0;
     } 
 
-    await this.parent.update({"system.poziom_mocy.vaule": nowaMoc})
+    await this.parent.update({"system.punkty_mocy.value": nowaMoc})
 
   }
   async obrazeniaZCzaru(obrazenia){
