@@ -7,6 +7,17 @@
         >{{czar.name}}</button>
     z{{atrubutLabel}}
     <br />{{umiejkaLabel}}</h4>
+    <diiv>
+      <label>Zużyto {{wydanaMoc.bazowa}} Punktów Magii z kosztu bazowego czaru</label>
+      {{#if wydanaMoc.dodatkowaMoc}}
+        <label>oraz {{wydanaMoc.dodatkowaMoc}} Punktów Magii z dodatkowej mocy</label>
+      {{/if}}
+    </diiv>
+      {{#if obrazeniaDlaRzucajacego}}
+    <div>
+        <label>Zurzyto więcej Punktów Magii niż pozwala Poziom Mocy, co spododowało zadanie {{iloscObrazen}} obrażeń.</label>
+    </div>
+  {{/if}}
   {{#if item}}
     <span>Wykorzytując Talenty
       {{#each item}}
@@ -14,11 +25,7 @@
       {{/each}}
     </span>
   {{/if}}
-  {{#if obrazeniaDlaRzucajacego}}
-    <div>
-        <label>Zurzyto więcej Punktów Mocy niż posiadano, co spododowało zadanie {{iloscObrazen}} obrażeń.</label>
-    </div>
-  {{/if}}
+
   <div class="result-summary">
 
     {{#if isSuccess}}
@@ -132,14 +139,14 @@
   </div>
   {{#if (ne czar.system.cel.typ "pojedynczy")}}
   <div class="obszar">
-    <button class="stworz-template" data-action="stworzTemplate"{{#if uzytRegion}} disabled{{/if}} >
+    <button class="stworz-template" data-action="stworzTemplate"{{#if uzytoRegion}} disabled{{/if}} >
         <p>Stwórz {{czar.system.cel.typ}} o wielkości {{czar.system.cel.wartosc}} m</p>
     </button>
   </div>
   {{/if}}
   {{#if czar.system.obrazenia.zadajeObrazenia}}
   <div class="obrazenia">
-    <button class="zadaj-obrazenia" data-action="zadajObrazenia">
+    <button class="zadaj-obrazenia-czar" data-action="zadajObrazenia">
       {{#if cel}}Zadaj obrażenia Celom
       {{else}}Zadaj obrażenia{{/if}}
     </button>

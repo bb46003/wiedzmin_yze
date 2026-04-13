@@ -263,8 +263,8 @@ async function zadajObrazenia(event, message) {
   if (!actor) return;
   const cel = data.cel;
   const bronId = data.bronId;
-  let bron = actor.items.get(bronId);
-  let obrazenia = bron.system.obrazenia;
+  const bron = actor.items.get(bronId);
+  const obrazenia = bron.system.obrazenia;
   const telenty = data.item;
   let modifikatorObrazen = 0;
   for (const uuid of telenty) {
@@ -597,7 +597,12 @@ function mapTypToShape(typ) {
     case "stozek":
       return "cone";
     case "linia":
-      return "ray";
+      if(game.release.generation < 14){
+        return "ray";
+      }else{
+        return "line"
+      }
+
     case "obszar":
       return "circle";
   }
@@ -626,7 +631,9 @@ async function stworzTemplate(event, message) {
   };
 
   startTemplatePreview(templateData);
-
+  if (game.release.generation < 14) {
+    event.target.disabled = true;
+  }
 }
 
 async function startTemplatePreview(templateData) {
@@ -637,8 +644,6 @@ async function startTemplatePreview(templateData) {
     });
 
     template = new CONFIG.MeasuredTemplate.objectClass(doc);
-
-    // 2. Add to preview layer
     canvas.templates.preview.addChild(template);
   } else {
     const doc = new CONFIG.Region.documentClass(
@@ -664,6 +669,9 @@ async function startTemplatePreview(templateData) {
               templateData.distance * canvas.scene.dimensions.distancePixels,
             angle: templateData.angle,
             rotation: templateData.direction,
+            width: 1*canvas.scene.dimensions.distancePixels,
+            length: templateData.distance * canvas.scene.dimensions.distancePixels,
+
           },
         ],
       },
@@ -676,7 +684,7 @@ async function startTemplatePreview(templateData) {
 
   let direction = 0;
 
-  // --- MOUSE MOVE ---
+
   const moveHandler = (event) => {
     const pos = event.data.getLocalPosition(canvas.app.stage);
 
@@ -701,12 +709,12 @@ async function startTemplatePreview(templateData) {
     }
   };
 
-  // --- ROTATION (MOUSE WHEEL) ---
+
   const wheelHandler = (event) => {
     event.preventDefault();
     if(event.ctrlKey){
     const delta = Math.sign(event.deltaY);
-    direction += delta * 15; // change step if needed
+    direction += delta * 15; 
     if (game.release.generation < 14) {
       template.document.updateSource({ direction });
       template.refresh();
@@ -721,7 +729,6 @@ async function startTemplatePreview(templateData) {
   }
   };
 
-  // --- CONFIRM (LEFT CLICK) ---
   const clickHandler = async (event) => {
      event.preventDefault();
     cleanup();
@@ -742,7 +749,7 @@ const message = game.messages.get(templateData.messageID);
     }
   };
 
-  // --- CANCEL (RIGHT CLICK) ---
+
   const cancelHandler = (event) => {
 
     if (event.button === 2 && event.ctrlKey === false) {
@@ -750,7 +757,7 @@ const message = game.messages.get(templateData.messageID);
     }
   };
 
-  // --- CLEANUP ---
+
   function cleanup() {
     canvas.app.stage.off("mousemove", moveHandler);
     canvas.app.stage.off("mousedown", clickHandler);
@@ -760,7 +767,7 @@ const message = game.messages.get(templateData.messageID);
     template.destroy();
   }
 
-  // 3. Activate listeners
+
   canvas.app.stage.on("mousemove", moveHandler);
   canvas.app.stage.on("mousedown", clickHandler);
   canvas.app.stage.on("rightdown", cancelHandler);

@@ -451,7 +451,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE_RZUCANIE_CZAROW,
       {
-        mocPostaci: actor.system.punkty_mocy.value,
+        mocPostaci: actor.system.punkty_mocy.value - czar.system.koszt.bazowy,
         mocZaklecia: czar.system.koszt.bazowy,
         attribute,
         skill,
@@ -488,15 +488,27 @@ export class WiedzminRoll extends foundry.dice.Roll {
             });
             const dostepnaMoc =
               actor.system.punkty_mocy.value - czar.system.koszt.bazowy;
+            const poziomMocy = actor.system.poziomMocy;
             let obrazeniaDlaRzucajacego = false;
             let iloscObrazen = 0;
-            if (dostepnaMoc < dodatkowaMoc) {
+            if (dodatkowaMoc !== 0) {
               obrazeniaDlaRzucajacego = true;
-              iloscObrazen = dodatkowaMoc - dostepnaMoc;
+              switch (poziomMocy) {
+                case "adept":
+                  iloscObrazen = dodatkowaMoc - 1< 0 ? 0 : dodatkowaMoc - 1;;
+                  break;
+                case "mistrz":
+                  iloscObrazen = dodatkowaMoc - 2< 0 ? 0 : dodatkowaMoc - 2;;
+                  break;
+                case "arcymistrz":
+                  iloscObrazen = dodatkowaMoc - 3 < 0 ? 0 : dodatkowaMoc - 3;
+                  break;  
+              }
+
             }
             const talentBonus = await bonusZtalentów(selectedItems);
             const basePool =
-              attribute + skill + mody + talentBonus - dodatkowaMoc;
+              attribute + skill + mody + talentBonus + dodatkowaMoc;
             const formula =
               adrenalina > 0
                 ? `${basePool}d6 + ${adrenalina}d6`
@@ -516,6 +528,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 cel: cel,
                 obrazeniaDlaRzucajacego: obrazeniaDlaRzucajacego,
                 iloscObrazen: iloscObrazen,
+                wydanaMoc:{
+                  bazowa: czar.system.koszt.bazowy,
+                  dodatkowaMoc: dodatkowaMoc,
+                }
               },
             );
             await roll.toMessage();
@@ -787,6 +803,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       czar: czar,
       obrazeniaDlaRzucajacego: this.options?.obrazeniaDlaRzucajacego,
       iloscObrazen: this.options?.iloscObrazen,
+      wydanaMoc: this.options?.wydanaMoc,
     };
   }
 

@@ -189,6 +189,15 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         required: true,
         integer: true,
       }),
+      poziomMocy: new StringField({
+        initial: "brak",
+        choices: {
+          brak: "Brak",
+          adept: "Adept",
+          mistrz: "Mistrz",
+          arcymistrz: "Arcymistrz",
+        }
+      })
     };
   }
 

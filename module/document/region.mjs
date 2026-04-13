@@ -6,7 +6,7 @@ export class WiedzminRegionDocument extends CONFIG.Region.documentClass {
     const messageID = this.flags?.wiedzmin_yze?.messageID;
     if (!messageID) return;
 
-    // wait for actual RegionObject render
+
     Hooks.once("drawRegion", async (regionObj) => {
       if (regionObj.document.id !== this.id) return;
 
