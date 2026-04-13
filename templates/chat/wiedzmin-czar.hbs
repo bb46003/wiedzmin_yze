@@ -107,23 +107,23 @@
           <div class="target-token" data-targetID="{{this.id}}">
             <image src="{{this.img}}" width="50" height="50" />
             <p>{{this.name}}</p>
-            {{#if (eq czar.system.obrona.typ "brak")}}
+            {{#if (eq ../czar.system.obrona.typ "brak")}}
 
             {{else}}
-            {{#if (eq czar.system.obrona.typ "unik")}}
+            {{#if (eq ../czar.system.obrona.typ "unik")}}
             <button class="unik" data-targetID="{{this.id}}">
               <img class="unik-icon" src="systems\wiedzmin_yze\assets\jump.png" data-tooltip="Unik"></img>
             </button>
             {{else}}
             <p>Cel wykonuje test na 
-                {{#if (eq czar.system.obrona.typ "inny")}} 
-                {{czar.system.obrona.inny}}
+                {{#if (eq ../czar.system.obrona.typ "inny")}} 
+                {{../czar.system.obrona.inny}}
                 {{else}}
-                {{czar.system.obrona.typ}}
+                {{../czar.system.obrona.typ}}
                 {{/if}}
                 </p>
             {{/if}}
-            <p> Z Modyfikatorem {{czar.system.obrona.modyfikator}}</p>        
+            <p> Z Modyfikatorem {{../czar.system.obrona.modyfikator}}</p>        
             {{/if}}
           </div>
         {{/each}}
@@ -132,7 +132,7 @@
   </div>
   {{#if (ne czar.system.cel.typ "pojedynczy")}}
   <div class="obszar">
-    <button class="stworz-template" data-action="stworzTemplate">
+    <button class="stworz-template" data-action="stworzTemplate"{{#if uzytRegion}} disabled{{/if}} >
         <p>Stwórz {{czar.system.cel.typ}} o wielkości {{czar.system.cel.wartosc}} m</p>
     </button>
   </div>

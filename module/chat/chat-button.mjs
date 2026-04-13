@@ -8,7 +8,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".zadaj-obrazenia", zadajObrazenia, _app);
   addHtmlEventListener(html, "click", ".parowanie", parowanie, _app);
   addHtmlEventListener(html, "click", ".unik", unik, _app);
-  addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app)
+  addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -148,27 +148,26 @@ async function otworzTalent(ev) {
   const item = await fromUuid(target.dataset.itemid);
   const itemName = item.name;
   const opis = item.system.opis;
-  if(item.type === "czar"){
-      const czar = await item.sheet.render({force:true})
-      czar.element.querySelector(".talents-section").classList.add("disable")
-      console.log(czar)
-  }else{
-
-  new foundry.applications.api.DialogV2({
-    window: { title: `Talent ${itemName}` },
-    content: opis,
-    buttons: [
-      {
-        action: "ok",
-        label: "Zamknij",
-        default: true,
-        callback: async (_event, _button, dialog) => {
-          dialog.close();
+  if (item.type === "czar") {
+    const czar = await item.sheet.render({ force: true });
+    czar.element.querySelector(".talents-section").classList.add("disable");
+    console.log(czar);
+  } else {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Talent ${itemName}` },
+      content: opis,
+      buttons: [
+        {
+          action: "ok",
+          label: "Zamknij",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            dialog.close();
+          },
         },
-      },
-    ],
-  }).render({ force: true });
-}
+      ],
+    }).render({ force: true });
+  }
 }
 async function zaczerpMoc(event, message) {
   const data = message.system;
@@ -264,8 +263,8 @@ async function zadajObrazenia(event, message) {
   if (!actor) return;
   const cel = data.cel;
   const bronId = data.bronId;
-  const bron = actor.items.get(bronId);
-  const obrazenia = bron.system.obrazenia;
+  let bron = actor.items.get(bronId);
+  let obrazenia = bron.system.obrazenia;
   const telenty = data.item;
   let modifikatorObrazen = 0;
   for (const uuid of telenty) {
@@ -595,9 +594,12 @@ async function unik(event, message) {
 
 function mapTypToShape(typ) {
   switch (typ) {
-    case "stozek": return "cone";
-    case "linia": return "ray";
-    case "obszar": return "circle";
+    case "stozek":
+      return "cone";
+    case "linia":
+      return "ray";
+    case "obszar":
+      return "circle";
   }
 }
 async function stworzTemplate(event, message) {
@@ -618,115 +620,132 @@ async function stworzTemplate(event, message) {
     distance: wielkosc,
     width: typ === "linia" ? 1 : undefined,
     angle: typ === "stozek" ? 90 : undefined,
-    fillColor: game.user.color
+    fillColor: game.user.color,
+    czarName: czar.name,
+    messageID: message.id,
   };
 
   startTemplatePreview(templateData);
-}
 
+}
 
 async function startTemplatePreview(templateData) {
+  let template;
+  if (game.release.generation < 14) {
+    const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, {
+      parent: canvas.scene,
+    });
 
-if(game.generation.release < 14){
+    template = new CONFIG.MeasuredTemplate.objectClass(doc);
 
- const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, {
-    parent: canvas.scene
-  });
-
-  const template = new CONFIG.MeasuredTemplate.objectClass(doc);
-
-  // 2. Add to preview layer
-  canvas.templates.preview.addChild(template);
-}else{
-  const doc = new CONFIG.Region.documentClass({  name: "Spell Region",
-  x: 100,
-  y: 100,
-  elevation: { bottom: 0, top: 100 },
-  shapes: [
-    {
-      type: "circle",
-      x: 0,
-      y: 0,
-      radius: 20
-    }
-  ]},{parent: canvas.scene})
-const template = new CONFIG.Region.objectClass(doc)
-  canvas.templates.preview.addChild(template);
-  await template.draw();
-
-}
+    // 2. Add to preview layer
+    canvas.templates.preview.addChild(template);
+  } else {
+    const doc = new CONFIG.Region.documentClass(
+      {
+        flags: {
+          wiedzmin_yze: {
+            messageID: templateData.messageID,
+          },
+        },
+        name: templateData.czarName,
+        x: 100,
+        y: 100,
+        elevation: { bottom: 0, top: 100 },
+        displayMeasurements: true,
+        highlightMode: "coverage",
+        visibility: 2,
+        shapes: [
+          {
+            type: templateData.t,
+            x: 0,
+            y: 0,
+            radius:
+              templateData.distance * canvas.scene.dimensions.distancePixels,
+            angle: templateData.angle,
+            rotation: templateData.direction,
+          },
+        ],
+      },
+      { parent: canvas.scene },
+    );
+    template = new CONFIG.Region.objectClass(doc);
+    canvas.templates.preview.addChild(template);
+  }
   await template.draw();
 
   let direction = 0;
 
   // --- MOUSE MOVE ---
-const moveHandler = (event) => {
-  const pos = event.data.getLocalPosition(canvas.app.stage);
+  const moveHandler = (event) => {
+    const pos = event.data.getLocalPosition(canvas.app.stage);
 
-  const snapped = canvas.grid.getSnappedPoint(
-    { x: pos.x, y: pos.y },
-    { mode: CONST.GRID_SNAPPING_MODES.CENTER }
-  );
-
-  template.document.updateSource({
-    x: snapped.x,
-    y: snapped.y,
-    direction: direction
-  });
-
-  template.refresh();
-};
+    const snapped = canvas.grid.getSnappedPoint(
+      { x: pos.x, y: pos.y },
+      { mode: CONST.GRID_SNAPPING_MODES.CENTER },
+    );
+    if (game.release.generation < 14) {
+      template.document.updateSource({
+        x: snapped.x,
+        y: snapped.y,
+      });
+      template.refresh();
+    } else {
+      template.document.shapes[0].updateSource({
+        x: snapped.x,
+        y: snapped.y,
+      });
+      template.renderFlags.set({
+        refreshMeasurements: true,
+      });
+    }
+  };
 
   // --- ROTATION (MOUSE WHEEL) ---
   const wheelHandler = (event) => {
     event.preventDefault();
-
+    if(event.ctrlKey){
     const delta = Math.sign(event.deltaY);
     direction += delta * 15; // change step if needed
-
-    template.document.updateSource({ direction });
-    template.refresh();
+    if (game.release.generation < 14) {
+      template.document.updateSource({ direction });
+      template.refresh();
+    } else {
+      template.document.shapes[0].updateSource({
+        rotation: direction,
+      });
+      template.renderFlags.set({
+        refreshMeasurements: true,
+      });
+    }
+  }
   };
 
   // --- CONFIRM (LEFT CLICK) ---
   const clickHandler = async (event) => {
+     event.preventDefault();
     cleanup();
 
     const data = template.document.toObject();
-    console.log(data)
-    if(game.release.generation < 14){
-      await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [data]);
-    }
-    else{
-      const regionData = {
-  name: "Spell Region",
-  x: 100,
-  y: 100,
-  elevation: { bottom: 0, top: 100 },
-    displayMeasurements: true,
-    highlightMode: "coverage",
-    visibility: 2,
-  shapes: [
-    {
-      type: data.t,
-      x: data.x,
-      y: data.y,
-      length: data.distance*canvas.scene.dimensions.distancePixels,
-        angle: data.angle,
-        radius: data.distance*canvas.scene.dimensions.distancePixels,
-        rotation: data.direction,
-        
-    }
-  ]
-};
 
- await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
+    if (game.release.generation < 14) {
+      await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [data]);
+    } else {
+      const region = await canvas.scene.createEmbeddedDocuments("Region", [
+        data,
+      ]);
+const regionDoc = region[0];
+const message = game.messages.get(templateData.messageID);
+     message.updateSource({
+        "system.region": regionDoc.id,
+      });
     }
-    };
+  };
 
   // --- CANCEL (RIGHT CLICK) ---
   const cancelHandler = (event) => {
-    if (event.button === 2) {
+
+    if (event.button === 2 && event.ctrlKey === false) {
       cleanup();
     }
   };
@@ -745,5 +764,5 @@ const moveHandler = (event) => {
   canvas.app.stage.on("mousemove", moveHandler);
   canvas.app.stage.on("mousedown", clickHandler);
   canvas.app.stage.on("rightdown", cancelHandler);
-  window.addEventListener("wheel", wheelHandler);
+  window.addEventListener("wheel", wheelHandler, { passive: false });
 }

@@ -15,6 +15,7 @@ import { bronSheet } from "./sheets/items/bron.mjs";
 import { pancerzSheet } from "./sheets/items/pancerz.mjs";
 import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
+import { WiedzminRegionDocument } from "./document/region.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -26,6 +27,7 @@ export { config };
 Hooks.once("init", async function () {
   CONFIG.Actor.documentClass = postacActor;
   CONFIG.Item.documentClass = talentyItem;
+  CONFIG.Region.documentClass = WiedzminRegionDocument;
 
   CONFIG.Actor.dataModels = {
     postac: models.postacDataModel,
