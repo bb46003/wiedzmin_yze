@@ -407,6 +407,9 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         );
       }
     }
+    if(name.includes("name")){
+     this.actor.system.zmianaTokenow(formData.object.name)
+    }
 
     return super._processFormData(event, form, formData);
   }

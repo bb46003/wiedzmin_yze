@@ -531,7 +531,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 wydanaMoc:{
                   bazowa: czar.system.koszt.bazowy,
                   dodatkowaMoc: dodatkowaMoc,
-                }
+                },
               },
             );
             await roll.toMessage();
