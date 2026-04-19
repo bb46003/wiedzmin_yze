@@ -27,6 +27,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       sprawdzenieAmunicji: postacSheet.#sprawdzenieAmunicji,
       atakBronia: postacSheet.#atakBronia,
       rzucCzar: postacSheet.#rzucCzar,
+      parowanie: postacSheet.#parowanie,
     },
     form: {
       submitOnChange: true,
@@ -643,6 +644,106 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = "rozum";
     const umiejka = "fach";
     await this.actor.system.rzucanieCzaru(czarID, atrybut, umiejka);
+  }
+
+  static async #parowanie(ev) {
+    const target = ev.target;
+    const bronID = target.dataset.id;
+    const actor = this.actor;
+    const bronie = actor.items.filter((i) => i.type === "bron");
+  bronie.forEach((b) => {
+    czymParujesz.push({ name: b.name, id: b.id, bonus: 0 });
+  });
+
+  const maTelentBlokujacy = targetActor.items.some(
+    (item) => item.system?.usuwaForsowanie === true,
+  );
+const czytarcza = targetActor.items.filter(
+    (i) => i.type === "pancerz" && i.system.efekt === "parowanie",
+  );
+
+  const czymParujesz = [{ name: "Ręka", id: "reka", bonus: 0 }];
+
+  if (czytarcza.length !== 0) {
+    czymParujesz.push(
+      ...czytarcza.map((b) => ({
+        name: b.name,
+        id: b.id,
+        bonus: b.system.wartosc_efektu,
+      })),
+    );
+  }
+  let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+
+  const { powiazaneTalenty: inneTalenty } =
+    await targetActor.system.sprawdzTalenty("sila", []);
+
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
+    { czymParujesz: czymParujesz, talenty: inneTalenty, bronID: bronID },
+  );
+ new foundry.applications.api.DialogV2({
+      window: { title: `Parowanie - ${targetActor.name}` },
+      content: content,
+      buttons: [
+        {
+          action: "paruj",
+          label: "Paruj",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const selection = dialog.element.querySelector(".parowanie");
+
+            const czymParujeszID = selection.selectedOptions[0].dataset.id;
+
+            const bonus = Number(
+              selection.selectedOptions[0].dataset.bonus || 0,
+            );
+
+            const modifier =
+              parseInt(
+                dialog.element.querySelector("input[name='modifier']")?.value,
+              ) || 0;
+
+            const atrybut = targetActor.system.atrybuty.sila.value;
+            const umiejetnosc =
+              targetActor.system.atrybuty.sila.umiejetnosci.walka_wrecz;
+
+            const checked = Array.from(
+              dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+            );
+
+            const selectedItems = checked.map((input) => {
+              const index = Number(input.dataset.id);
+              return inneTalenty[index]; // ✅ fixed
+            });
+
+            const adrenalina = targetActor.system.adrenalina.value;
+
+            const result = await globalThis.wiedzmin_yze.WiedzminRoll.parowanie(
+              {
+                atrybutKey: "sila",
+                atrybut,
+                umiejetnoscKey: "walka_wrecz",
+                umiejetnosc,
+                adrenalina,
+                czymParujeszID,
+                bonus,
+                modifier,
+                messageID: message.id,
+                flavor: flavor,
+                type: "parowanie",
+                wybranetalenty: selectedItems,
+                actorUUID: targetActor.uuid,
+              },
+            );
+            result.toMessage();
+
+            
+          },
+        },
+      ],
+    }).render({ force: true });
+  
   }
 
   async _onRender(document, options) {

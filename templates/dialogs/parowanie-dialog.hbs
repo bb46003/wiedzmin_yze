@@ -6,6 +6,7 @@
         value="{{par.name}}"
         data-id="{{par.id}}"
         data-bonus="{{par.bonus}}"
+        {{#if (eq par.id bronID)}} selected {{/if}}
       >
         {{par.name}}
         - Bonus do parowania:

@@ -10,6 +10,10 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".unik", unik, _app);
   addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app);
   addHtmlEventListener(html, "click", ".rzut-obrazenia", rzutObrazen, _app);
+  addHtmlEventListener(html, "click", ".zadaj-obrazenia-czar", zadajObrazeniaCzar, _app);
+  addHtmlEventListener(html, "click", ".rzut-obrazenia-czar", rzutObrazeniaCzar, _app);
+
+
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -674,6 +678,41 @@ async function unik(event, message) {
   }
 
   await message.update({ content: updatedContent });
+}
+async function zadajObrazeniaCzar(event, message) {
+  const data = message.system;
+  if (!data) return;
+
+  const actor = game.actors.get(data.actorID);
+  if (!actor) return;
+  const cel = data.cel;
+  const czarId = data.czarId;
+  const czar = actor.items.get(czarId);
+   const dodatkoweObrazenia = await Promise(resolve => {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Dodatkowe obrażenia` },
+      content: `
+        <div class="form-group">
+        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
+        </div>
+        <div class="form-group">
+          <label for="extraSuccesses">Dodatkowe sukcesy:</label>
+          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max="${data.extraSuccesses}" min="0">
+        </div>
+      `,
+      buttons: [
+        {
+          action: "confirm",
+          label: "Potwierdź",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            resolve(extraSuccesses);
+          },
+        },
+      ],
+    }).render({ force: true });
+  });
 }
 
 function mapTypToShape(typ) {
