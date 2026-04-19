@@ -9,6 +9,7 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".parowanie", parowanie, _app);
   addHtmlEventListener(html, "click", ".unik", unik, _app);
   addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app);
+  addHtmlEventListener(html, "click", ".rzut-obrazenia", rzutObrazen, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -273,9 +274,34 @@ async function zadajObrazenia(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
+  const dodatkoweObrazenia = await Promise(resolve => {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Dodatkowe obrażenia` },
+      content: `
+        <div class="form-group">
+        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
+        </div>
+        <div class="form-group">
+          <label for="extraSuccesses">Dodatkowe sukcesy:</label>
+          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max="${data.extraSuccesses}" min="0">
+        </div>
+      `,
+      buttons: [
+        {
+          action: "confirm",
+          label: "Potwierdź",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            resolve(extraSuccesses);
+          },
+        },
+      ],
+    }).render({ force: true });
+  });
   const wyparowanoObrazen = data?.wyparowane || 0;
   const calkowiteObrazenia =
-    obrazenia + modifikatorObrazen + data.bonusDoObrazen + data.extraSuccesses;
+    obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
 
   const zadaneObrzenia =
     calkowiteObrazenia - wyparowanoObrazen < 0
@@ -336,7 +362,7 @@ async function zadajObrazenia(event, message) {
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
-      <br> Ze dodatkowe sukcesy (${data.extraSuccesses}),
+      <br> Ze dodatkowe sukcesy (${dodatkoweObrazenia}),
       <br> Zadane obrażenia: ${obrazeniaContent}
       `,
     });
@@ -347,10 +373,68 @@ async function zadajObrazenia(event, message) {
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
-      <br> Ze dodatkowe sukcesy (${data.extraSuccesses})`,
+      <br> Ze dodatkowe sukcesy (${dodatkoweObrazenia})`,
     });
   }
   event.target.disabled = true;
+}
+async function rzutObrazen(event, message) {
+  const data = message.system;
+  if (!data) return;
+
+  const actor = game.actors.get(data.actorID);
+  if (!actor) return;
+  const bronId = data.bronId;
+  const bron = actor.items.get(bronId);
+  const obrazenia = bron.system.obrazenia;
+  const telenty = data.item;
+  let modifikatorObrazen = 0;
+  for (const uuid of telenty) {
+    const item = await fromUuid(uuid.uuid);
+    if (item.system?.modifikatorObrazen) {
+      modifikatorObrazen += item.system.zwiekszoneObrazenia;
+    }
+  }
+  const dodatkoweObrazenia = await Promise(resolve => {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Dodatkowe obrażenia` },
+      content: `
+        <div class="form-group">
+        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
+        </div>
+        <div class="form-group">
+          <label for="extraSuccesses">Dodatkowe sukcesy:</label>
+          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max="${data.extraSuccesses}" min="0">
+        </div>
+      `,
+      buttons: [
+        {
+          action: "confirm",
+          label: "Potwierdź",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            resolve(extraSuccesses);
+          },
+        },
+      ],
+    }).render({ force: true });
+  });
+  const calkowiteObrazenia =
+    obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
+
+  
+    ChatMessage.create({
+      speaker: { actor: actor.id },
+      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+      <br> Obrażenia z broni ${bron.name} (${obrazenia})
+      <br> Modyfikatory z talentów (${modifikatorObrazen})
+      <br> Innych źródeł (${data.bonusDoObrazen})
+      <br> Ze dodatkowe sukcesy (${dodatkoweObrazenia})`,
+    });
+  
+  event.target.disabled = true;
+
 }
 async function parowanie(event, message) {
   const targetId = event.target.dataset.targetid;
