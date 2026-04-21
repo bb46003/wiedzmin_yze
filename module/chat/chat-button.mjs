@@ -10,10 +10,20 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".unik", unik, _app);
   addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app);
   addHtmlEventListener(html, "click", ".rzut-obrazenia", rzutObrazen, _app);
-  addHtmlEventListener(html, "click", ".zadaj-obrazenia-czar", zadajObrazeniaCzar, _app);
-  addHtmlEventListener(html, "click", ".rzut-obrazenia-czar", rzutObrazeniaCzar, _app);
-
-
+  addHtmlEventListener(
+    html,
+    "click",
+    ".zadaj-obrazenia-czar",
+    zadajObrazeniaCzar,
+    _app,
+  );
+  addHtmlEventListener(
+    html,
+    "click",
+    ".rzut-obrazenia-czar",
+    rzutObrazeniaCzar,
+    _app,
+  );
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -278,7 +288,7 @@ async function zadajObrazenia(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
-  const dodatkoweObrazenia = await Promise(resolve => {
+  const dodatkoweObrazenia = await Promise((resolve) => {
     new foundry.applications.api.DialogV2({
       window: { title: `Dodatkowe obrażenia` },
       content: `
@@ -296,21 +306,18 @@ async function zadajObrazenia(event, message) {
           label: "Potwierdź",
           default: true,
           callback: async (_event, _button, dialog) => {
-            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            const extraSuccesses =
+              parseInt(
+                dialog.element.querySelector("input[name='extraSuccesses']")
+                  .value,
+              ) || 0;
             resolve(extraSuccesses);
           },
         },
       ],
     }).render({ force: true });
   });
-  const wyparowanoObrazen = data?.wyparowane || 0;
-  const calkowiteObrazenia =
-    obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
 
-  const zadaneObrzenia =
-    calkowiteObrazenia - wyparowanoObrazen < 0
-      ? 0
-      : calkowiteObrazenia - wyparowanoObrazen;
 
   const zadaneObrazenia = [];
 
@@ -319,6 +326,14 @@ async function zadajObrazenia(event, message) {
       cel.map(async (target) => {
         const celToken = canvas.tokens.get(target.id);
         const celActor = celToken.actor;
+          const wyparowanoObrazen = data?.wyparowane[target.id] || 0;
+  const calkowiteObrazenia =
+    obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
+
+  const zadaneObrzenia =
+    calkowiteObrazenia - wyparowanoObrazen < 0
+      ? 0
+      : calkowiteObrazenia - wyparowanoObrazen;
         const maPancerz = celActor.items.find((i) => i.type === "pancerz");
         let redukcjaObrazen = 0;
         if (maPancerz) {
@@ -399,7 +414,7 @@ async function rzutObrazen(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
-  const dodatkoweObrazenia = await Promise(resolve => {
+  const dodatkoweObrazenia = await Promise((resolve) => {
     new foundry.applications.api.DialogV2({
       window: { title: `Dodatkowe obrażenia` },
       content: `
@@ -417,7 +432,11 @@ async function rzutObrazen(event, message) {
           label: "Potwierdź",
           default: true,
           callback: async (_event, _button, dialog) => {
-            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            const extraSuccesses =
+              parseInt(
+                dialog.element.querySelector("input[name='extraSuccesses']")
+                  .value,
+              ) || 0;
             resolve(extraSuccesses);
           },
         },
@@ -427,18 +446,16 @@ async function rzutObrazen(event, message) {
   const calkowiteObrazenia =
     obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
 
-  
-    ChatMessage.create({
-      speaker: { actor: actor.id },
-      content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
+  ChatMessage.create({
+    speaker: { actor: actor.id },
+    content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
       <br> Obrażenia z broni ${bron.name} (${obrazenia})
       <br> Modyfikatory z talentów (${modifikatorObrazen})
       <br> Innych źródeł (${data.bonusDoObrazen})
       <br> Ze dodatkowe sukcesy (${dodatkoweObrazenia})`,
-    });
-  
-  event.target.disabled = true;
+  });
 
+  event.target.disabled = true;
 }
 async function parowanie(event, message) {
   const targetId = event.target.dataset.targetid;
@@ -646,10 +663,10 @@ async function unik(event, message) {
     }).render({ force: true });
   });
 
-  await message.update({
-    "system.uniki": uniki,
-    "system.extraSuccesses": message.system.extraSuccesses - uniki,
-  });
+await message.update({
+  [`system.uniki.${targetActor.id}`]: uniki,
+  [`system.extraSuccesses.${targetActor.id}`]: message.system.extraSuccesses - uniki,
+});
   let resultHTML = `<div class="parowanie-result">Unika ${uniki}</div>`;
   if (message.system.successes < uniki) {
     resultHTML = `<div class="parowanie-result">Unikną ataku</div>`;
@@ -679,17 +696,20 @@ async function unik(event, message) {
 
   await message.update({ content: updatedContent });
 }
-async function zadajObrazeniaCzar(event, message) {
+async function rzutObrazeniaCzar(event, message) {
   const data = message.system;
   if (!data) return;
 
   const actor = game.actors.get(data.actorID);
   if (!actor) return;
-  const cel = data.cel;
-  const czarId = data.czarId;
-  const czar = actor.items.get(czarId);
-   const dodatkoweObrazenia = await Promise(resolve => {
-    new foundry.applications.api.DialogV2({
+
+  const czar = data.czar;
+  const dodatkoweObrazenia = await new Promise((resolve) => {
+    if (data.extraSuccesses <= 0) {
+      resolve(0);
+      return;
+    }
+    const dialog = new foundry.applications.api.DialogV2({
       window: { title: `Dodatkowe obrażenia` },
       content: `
         <div class="form-group">
@@ -706,13 +726,115 @@ async function zadajObrazeniaCzar(event, message) {
           label: "Potwierdź",
           default: true,
           callback: async (_event, _button, dialog) => {
-            const extraSuccesses = parseInt(dialog.element.querySelector("input[name='extraSuccesses']").value) || 0;
+            const extraSuccesses =
+              parseInt(
+                dialog.element.querySelector("input[name='extraSuccesses']")
+                  .value,
+              ) || 0;
             resolve(extraSuccesses);
           },
         },
       ],
     }).render({ force: true });
+    dialog._onRender = function () {
+      const input = dialog.element.querySelector(
+        "input[name='extraSuccesses']",
+      );
+      const max = Number(input.max);
+      input.addEventListener("change", function () {
+        if (this.value > max) {
+          this.value = max;
+          ui.notifications.warn(
+            `Nie możesz wykorzystać więcej niż ${max} dodatkowych sukcesów.`,
+          );
+        } else if (this.value < 0) {
+          this.value = 0;
+        }
+      });
+    };
   });
+  const obrazenia =
+    czar.system.obrazenia.podstawowe +
+    dodatkoweObrazenia * czar.system.obrazenia.zaDodatkoweSuksecy;
+  ChatMessage.create({
+    speaker: { actor: actor.id },
+    content: `Całkowite zadane obrażenia czarem ${czar.name}: ${obrazenia}.
+      <br> Obrażenia z czaru (${czar.system.obrazenia.podstawowe})
+      <br> Ze dodatkowe sukcesy (${dodatkoweObrazenia * czar.system.obrazenia.zaDodatkoweSuksecy})`,
+  });
+  event.target.disabled = true;
+  const zadajObr =
+    event.target.parentElement.parentElement.parentElement.parentElement.querySelector(
+      "button.zadaj-obrazenia-czar",
+    );
+  zadajObr.disabled = true;
+  message.update({ "system.zadanoObrazenia": true });
+  const template = "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
+  const content = await foundry.applications.handlebars.renderTemplate(
+    template,
+    message.system,
+  );
+  await message.update({ content }, { wiedzminUpdate: true });
+}
+
+async function zadajObrazeniaCzar(event, message) {
+  const data = message.system;
+  const cel = data.cel;
+  const obrazenia = data.czar.system.obrazenia.podstawowe;
+  const dodatkoweObrazenia = await new Promise((resolve) => {
+    if (data.extraSuccesses <= 0) {
+      resolve(0);
+      return;
+    }
+    const dialog = new foundry.applications.api.DialogV2({
+      window: { title: `Dodatkowe obrażenia` },
+      content: `
+        <div class="form-group">
+        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
+        </div>
+        <div class="form-group">
+          <label for="extraSuccesses">Dodatkowe sukcesy:</label>
+          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max="${data.extraSuccesses}" min="0">
+        </div>
+      `,
+      buttons: [
+        {
+          action: "confirm",
+          label: "Potwierdź",
+          default: true,
+          callback: async (_event, _button, dialog) => {
+            const extraSuccesses =
+              parseInt(
+                dialog.element.querySelector("input[name='extraSuccesses']")
+                  .value,
+              ) || 0;
+            resolve(extraSuccesses);
+          },
+        },
+      ],
+    }).render({ force: true });
+
+    dialog._onRender = function () {
+      const input = dialog.element.querySelector(
+        "input[name='extraSuccesses']",
+      );
+      const max = Number(input.max);
+      input.addEventListener("change", function () {
+        if (this.value > max) {
+          this.value = max;
+          ui.notifications.warn(
+            `Nie możesz wykorzystać więcej niż ${max} dodatkowych sukcesów.`,
+          );
+        } else if (this.value < 0) {
+          this.value = 0;
+        }
+      });
+    };
+  });
+  const obrazeniaZaDodatkoweSukcesy = dodatkoweObrazenia * data.czar.system.obrazenia.zaDodatkoweSuksecy;
+  const calkowiteObrazenia = obrazenia + obrazeniaZaDodatkoweSukcesy;
+
+
 }
 
 function mapTypToShape(typ) {
@@ -720,10 +842,10 @@ function mapTypToShape(typ) {
     case "stozek":
       return "cone";
     case "linia":
-      if(game.release.generation < 14){
+      if (game.release.generation < 14) {
         return "ray";
-      }else{
-        return "line"
+      } else {
+        return "line";
       }
 
     case "obszar":
@@ -792,9 +914,9 @@ async function startTemplatePreview(templateData) {
               templateData.distance * canvas.scene.dimensions.distancePixels,
             angle: templateData.angle,
             rotation: templateData.direction,
-            width: 1*canvas.scene.dimensions.distancePixels,
-            length: templateData.distance * canvas.scene.dimensions.distancePixels,
-
+            width: 1 * canvas.scene.dimensions.distancePixels,
+            length:
+              templateData.distance * canvas.scene.dimensions.distancePixels,
           },
         ],
       },
@@ -806,7 +928,6 @@ async function startTemplatePreview(templateData) {
   await template.draw();
 
   let direction = 0;
-
 
   const moveHandler = (event) => {
     const pos = event.data.getLocalPosition(canvas.app.stage);
@@ -832,28 +953,27 @@ async function startTemplatePreview(templateData) {
     }
   };
 
-
   const wheelHandler = (event) => {
     event.preventDefault();
-    if(event.ctrlKey){
-    const delta = Math.sign(event.deltaY);
-    direction += delta * 15; 
-    if (game.release.generation < 14) {
-      template.document.updateSource({ direction });
-      template.refresh();
-    } else {
-      template.document.shapes[0].updateSource({
-        rotation: direction,
-      });
-      template.renderFlags.set({
-        refreshMeasurements: true,
-      });
+    if (event.ctrlKey) {
+      const delta = Math.sign(event.deltaY);
+      direction += delta * 15;
+      if (game.release.generation < 14) {
+        template.document.updateSource({ direction });
+        template.refresh();
+      } else {
+        template.document.shapes[0].updateSource({
+          rotation: direction,
+        });
+        template.renderFlags.set({
+          refreshMeasurements: true,
+        });
+      }
     }
-  }
   };
 
   const clickHandler = async (event) => {
-     event.preventDefault();
+    event.preventDefault();
     cleanup();
 
     const data = template.document.toObject();
@@ -864,22 +984,19 @@ async function startTemplatePreview(templateData) {
       const region = await canvas.scene.createEmbeddedDocuments("Region", [
         data,
       ]);
-const regionDoc = region[0];
-const message = game.messages.get(templateData.messageID);
-     message.updateSource({
+      const regionDoc = region[0];
+      const message = game.messages.get(templateData.messageID);
+      message.updateSource({
         "system.region": regionDoc.id,
       });
     }
   };
 
-
   const cancelHandler = (event) => {
-
     if (event.button === 2 && event.ctrlKey === false) {
       cleanup();
     }
   };
-
 
   function cleanup() {
     canvas.app.stage.off("mousemove", moveHandler);
@@ -889,7 +1006,6 @@ const message = game.messages.get(templateData.messageID);
 
     template.destroy();
   }
-
 
   canvas.app.stage.on("mousemove", moveHandler);
   canvas.app.stage.on("mousedown", clickHandler);

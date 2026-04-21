@@ -196,8 +196,8 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
           adept: "Adept",
           mistrz: "Mistrz",
           arcymistrz: "Arcymistrz",
-        }
-      })
+        },
+      }),
     };
   }
 
@@ -644,8 +644,10 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     const czar = this.parent.items.get(czarID);
     const dostepnaMoc = this.punkty_mocy.value;
     const kosztBazowy = czar.system.koszt.bazowy;
-    if(kosztBazowy>dostepnaMoc){
-      ui.notifications.error("Nie masz wystarczająco Punktów Mocy, by rzucić ten czar!");
+    if (kosztBazowy > dostepnaMoc) {
+      ui.notifications.error(
+        "Nie masz wystarczająco Punktów Mocy, by rzucić ten czar!",
+      );
       return;
     }
     const adrenalinaValue = Number(this.adrenalina.value) || 0;
@@ -684,15 +686,15 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
     }
     await this.parent.update({ "system.zycie.value": noweZdrowie });
   }
-async zmianaTokenow(tokenName) {
-  await this.parent.prototypeToken.update({ name: tokenName });
-  const dependedTokens = this.parent._dependentTokens;
-  		for (const scene of dependedTokens) {
-			for (const token of scene[0].tokens) {
-				if (token.actorId === this.parent.id) {
-					token.update({ name: tokenName });
-				}
-			}
-		}
-}
+  async zmianaTokenow(tokenName) {
+    await this.parent.prototypeToken.update({ name: tokenName });
+    const dependedTokens = this.parent._dependentTokens;
+    for (const scene of dependedTokens) {
+      for (const token of scene[0].tokens) {
+        if (token.actorId === this.parent.id) {
+          token.update({ name: tokenName });
+        }
+      }
+    }
+  }
 }

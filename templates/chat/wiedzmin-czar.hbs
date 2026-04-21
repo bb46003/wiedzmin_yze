@@ -149,10 +149,11 @@
   {{/if}}
   {{#if czar.system.obrazenia.zadajeObrazenia}}
     <div class="obrazenia">
-    <button class="zadaj-obrazenia" data-action="zadajObrazeniaCzar">
+      {{log this}}
+    <button class="zadaj-obrazenia-czar" data-action="zadajObrazeniaCzar" {{#if zadaneObrazeniaCzar}} disabled {{/if}}>
       Zadaj obrażenia Celom
     </button>
-    <button class="rzut-obrazenia" data-action="rzutObrazeniaCzar">
+    <button class="rzut-obrazenia-czar" data-action="rzutObrazeniaCzar" {{#if zadaneObrazeniaCzar}} disabled {{/if}}>
       Rzut na obrażenia
     </button>
   </div>

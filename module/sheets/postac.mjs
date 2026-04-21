@@ -408,8 +408,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
         );
       }
     }
-    if(name.includes("name")){
-     this.actor.system.zmianaTokenow(formData.object.name)
+    if (name.includes("name")) {
+      this.actor.system.zmianaTokenow(formData.object.name);
     }
 
     return super._processFormData(event, form, formData);
@@ -651,38 +651,38 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const bronID = target.dataset.id;
     const actor = this.actor;
     const bronie = actor.items.filter((i) => i.type === "bron");
-  bronie.forEach((b) => {
-    czymParujesz.push({ name: b.name, id: b.id, bonus: 0 });
-  });
+    bronie.forEach((b) => {
+      czymParujesz.push({ name: b.name, id: b.id, bonus: 0 });
+    });
 
-  const maTelentBlokujacy = targetActor.items.some(
-    (item) => item.system?.usuwaForsowanie === true,
-  );
-const czytarcza = targetActor.items.filter(
-    (i) => i.type === "pancerz" && i.system.efekt === "parowanie",
-  );
-
-  const czymParujesz = [{ name: "Ręka", id: "reka", bonus: 0 }];
-
-  if (czytarcza.length !== 0) {
-    czymParujesz.push(
-      ...czytarcza.map((b) => ({
-        name: b.name,
-        id: b.id,
-        bonus: b.system.wartosc_efektu,
-      })),
+    const maTelentBlokujacy = targetActor.items.some(
+      (item) => item.system?.usuwaForsowanie === true,
     );
-  }
-  let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+    const czytarcza = targetActor.items.filter(
+      (i) => i.type === "pancerz" && i.system.efekt === "parowanie",
+    );
 
-  const { powiazaneTalenty: inneTalenty } =
-    await targetActor.system.sprawdzTalenty("sila", []);
+    const czymParujesz = [{ name: "Ręka", id: "reka", bonus: 0 }];
 
-  const content = await foundry.applications.handlebars.renderTemplate(
-    "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
-    { czymParujesz: czymParujesz, talenty: inneTalenty, bronID: bronID },
-  );
- new foundry.applications.api.DialogV2({
+    if (czytarcza.length !== 0) {
+      czymParujesz.push(
+        ...czytarcza.map((b) => ({
+          name: b.name,
+          id: b.id,
+          bonus: b.system.wartosc_efektu,
+        })),
+      );
+    }
+    let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+
+    const { powiazaneTalenty: inneTalenty } =
+      await targetActor.system.sprawdzTalenty("sila", []);
+
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
+      { czymParujesz: czymParujesz, talenty: inneTalenty, bronID: bronID },
+    );
+    new foundry.applications.api.DialogV2({
       window: { title: `Parowanie - ${targetActor.name}` },
       content: content,
       buttons: [
@@ -737,13 +737,10 @@ const czytarcza = targetActor.items.filter(
               },
             );
             result.toMessage();
-
-            
           },
         },
       ],
     }).render({ force: true });
-  
   }
 
   async _onRender(document, options) {

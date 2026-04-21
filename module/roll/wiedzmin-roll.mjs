@@ -495,16 +495,15 @@ export class WiedzminRoll extends foundry.dice.Roll {
               obrazeniaDlaRzucajacego = true;
               switch (poziomMocy) {
                 case "adept":
-                  iloscObrazen = dodatkowaMoc - 1< 0 ? 0 : dodatkowaMoc - 1;;
+                  iloscObrazen = dodatkowaMoc - 1 < 0 ? 0 : dodatkowaMoc - 1;
                   break;
                 case "mistrz":
-                  iloscObrazen = dodatkowaMoc - 2< 0 ? 0 : dodatkowaMoc - 2;;
+                  iloscObrazen = dodatkowaMoc - 2 < 0 ? 0 : dodatkowaMoc - 2;
                   break;
                 case "arcymistrz":
                   iloscObrazen = dodatkowaMoc - 3 < 0 ? 0 : dodatkowaMoc - 3;
-                  break;  
+                  break;
               }
-
             }
             const talentBonus = await bonusZtalentów(selectedItems);
             const basePool =
@@ -528,7 +527,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 cel: cel,
                 obrazeniaDlaRzucajacego: obrazeniaDlaRzucajacego,
                 iloscObrazen: iloscObrazen,
-                wydanaMoc:{
+                wydanaMoc: {
                   bazowa: czar.system.koszt.bazowy,
                   dodatkowaMoc: dodatkowaMoc,
                 },
