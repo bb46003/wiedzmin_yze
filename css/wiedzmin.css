@@ -860,3 +860,14 @@
     }
   }
 }
+.wiedzmin-header-effects {
+  grid-column: 1 / -1;   /* span full row */
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  margin: 6px 0;
+  padding: 4px 0;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+  color: #c0a060;
+}

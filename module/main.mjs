@@ -54,7 +54,7 @@ Hooks.once("init", async function () {
   // Active Effect
   CONFIG.ActiveEffect.documentClass = ActiveEffectWiedzmin_YZE;
   CONFIG.ActiveEffect.dataModels = {
-    condition: models.Condition,
+    wiedzmin_YZE: models.Condition,
   };
   CONFIG.ActiveEffect.legacyTransferral = false;
   ActiveEffectWiedzmin_YZE._configureStatusEffects();
@@ -109,4 +109,30 @@ Hooks.on("clientSettingChanged", (setting) => {
       }
     }
   }
+});
+
+
+Hooks.on("renderTokenHUD", (hud, html) => {
+  const palette = html.querySelector('.palette.status-effects');
+  if (!palette) return;
+
+  // prevent duplicates
+  if (palette.querySelector('.wiedzmin-header-effects')) return;
+
+  // create header
+  const header = document.createElement("div");
+  header.className = "wiedzmin-header-effects";
+  header.textContent = "Statusy z Wiedzmina";
+
+
+
+  // find first custom effect
+  const firstCustom = palette.querySelector('[data-status-id="glod"]');
+
+  if (firstCustom) {
+    palette.insertBefore(header, firstCustom);
+  } else {
+    palette.appendChild(header);
+  }
+  palette.style.height = "285px"
 });
