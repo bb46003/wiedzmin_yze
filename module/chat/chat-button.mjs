@@ -10,20 +10,9 @@ export function addChatListeners(_app, html, _data) {
   addHtmlEventListener(html, "click", ".unik", unik, _app);
   addHtmlEventListener(html, "click", ".stworz-template", stworzTemplate, _app);
   addHtmlEventListener(html, "click", ".rzut-obrazenia", rzutObrazen, _app);
-  addHtmlEventListener(
-    html,
-    "click",
-    ".zadaj-obrazenia-czar",
-    zadajObrazeniaCzar,
-    _app,
-  );
-  addHtmlEventListener(
-    html,
-    "click",
-    ".rzut-obrazenia-czar",
-    rzutObrazeniaCzar,
-    _app,
-  );
+  addHtmlEventListener(html,"click",".zadaj-obrazenia-czar",zadajObrazeniaCzar,_app);
+  addHtmlEventListener(html,"click",".rzut-obrazenia-czar", rzutObrazeniaCzar, _app);
+  addHtmlEventListener(html,"click",".obrona_czar", rzutObronnyCzar, _app);
 }
 async function forsujRzut(event, message) {
   const data = message.system;
@@ -836,6 +825,135 @@ async function zadajObrazeniaCzar(event, message) {
 
 
 }
+async function  rzutObronnyCzar(event, message) {
+  const target = event.target;
+  const targetID = target.dataset.targetid;
+  const obrona = target.dataset.obrona;
+  const targetToken = canvas.tokens.get(targetID);
+  if (!targetToken) return;
+
+  const targetActor = targetToken.actor;
+  if (!targetActor) return;
+  const maTelentBlokujacy = targetActor.items.some(
+    (item) => item.system?.usuwaForsowanie === true,
+  );
+
+  let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
+
+  const { powiazaneTalenty: inneTalenty } =
+    await targetActor.system.sprawdzTalenty(obrona, []);
+
+  let atrybutKey = "";
+  let umiejkaKey = "";
+  switch (obrona){
+    case "unik":
+      atrybutKey = "zrecznosc";
+      umiejkaKey =  "zwinnosc";
+      break;
+    case "wola":
+      atrybutKey = "empatia";
+      umiejkaKey = "wola";
+      break;
+    case "kondycja":
+      atrybutKey = "sila";
+      umiejkaKey = "krzepa"
+      break;
+  }
+const atrybut = targetActor.system.atrybuty?.[atrybutKey]?.value ?? 0;
+const umiejka = targetActor.system.atrybuty?.[atrybutKey]?.umiejetnosci?.[umiejkaKey] ?? 0;
+const adrenalina = targetActor.system.adrenalina.value;
+const secondArtibute = "";
+const hasSecondAttribute = false;
+const umiejkaLabel = game.i18n.localize( `wiedzmin.atrubut.${umiejkaKey}` );
+const atrubutLabel = game.i18n.localize( `wiedzmin.atrubut.${atrybutKey}` );
+const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/wiedzmin_yze/templates/dialogs/wiedzmin-roll.hbs",
+      {
+        attribute: atrybut,
+        skill: umiejka,
+        adrenalina: adrenalina,
+        item: inneTalenty,
+        secondArtibute: secondArtibute,
+        hasSecondAttribute: hasSecondAttribute,
+        maTelentBlokujacy: maTelentBlokujacy,
+        umiejkaLabel: umiejkaLabel,
+      },
+    );
+    const obronaRzut = await new Promise((resolve) => {
+      const dialog =  new foundry.applications.api.DialogV2({
+            window: { title: "Wiedzmin Roll" },
+            content,
+            buttons: [
+              {
+                action: "roll",
+                label: "Roll",
+                default: true,
+                callback: async (_event, _button, dialog) => {
+                  const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+                  let attributeVal = atrybut;
+                  let atrubutLabelUse = atrubutLabel;
+                  let atrybutKeyUse = atrybutKey;
+                  if (hasSecondAttribute) {
+                    const select = dialog.element.querySelector(".wybrany-atr");
+                    const selectedOption = select.selectedOptions[0];
+      
+                    attributeVal = Number(selectedOption.value);
+                    atrubutLabelUse = selectedOption.dataset.label;
+                    atrybutKeyUse = selectedOption.dataset.key;
+                  }
+                  const checked = Array.from(
+                    dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
+                  );
+                  const selectedItems = checked.map((input) => {
+                    const index = Number(input.dataset.id);
+                    return item[index];
+                  });
+      
+                  const talentBonus = await bonusZtalentów(selectedItems);
+                  const basePool = attributeVal + umiejka + mod + talentBonus;
+                  const formula =
+                    adrenalina > 0
+                      ? `${basePool}d6 + ${adrenalina}d6`
+                      : `${basePool}d6`;
+                  let flavor = "Test";
+                  if (maTelentBlokujacy) {
+                    flavor = "Forsowanie";
+                  }
+                  const roll = new WiedzminRoll(
+                    formula,
+                    {},
+                    {
+                      adrenalina,
+                      flavor: flavor,
+                      atrubutLabel: atrubutLabelUse,
+                      umiejkaLabel: umiejkaLabel,
+                      actorID: targetActor.id,
+                      umiejkaKey: umiejkaKey,
+                      atrybutKey: atrybutKeyUse,
+                      item: selectedItems,
+                      type: "roll",
+                    },
+                  );
+      
+                  await roll.toMessage();
+                  resolve(roll);
+                },
+              },
+            ],
+          })
+
+          dialog._onRender = function () {
+                  const input = dialog.element.querySelector("input[name='modifier']");
+                  const modyfikator = message.system.czar.system.obrona.modyfikator;
+                  input.value = -1* modyfikator
+          }
+          dialog.render({ force: true });
+
+  });
+  console.log(message)
+  console.log(obronaRzut)
+
+}
 
 function mapTypToShape(typ) {
   switch (typ) {
@@ -950,6 +1068,7 @@ async function startTemplatePreview(templateData) {
       template.renderFlags.set({
         refreshMeasurements: true,
       });
+      console.log(template)
     }
   };
 
@@ -1011,4 +1130,14 @@ async function startTemplatePreview(templateData) {
   canvas.app.stage.on("mousedown", clickHandler);
   canvas.app.stage.on("rightdown", cancelHandler);
   window.addEventListener("wheel", wheelHandler, { passive: false });
+}
+
+async function bonusZtalentów(item) {
+  let bonusZTalentow = 0;
+  item.forEach((telent) => {
+    if (telent.system.bonu !== 0) {
+      bonusZTalentow += telent.system.bonu;
+    }
+  });
+  return bonusZTalentow;
 }

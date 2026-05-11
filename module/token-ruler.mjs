@@ -25,6 +25,7 @@ export class WiedzminTokenRuler extends BaseRuler {
         context.rangeClass = "dash-range";
       }
     }
+    context.units = "m"
     return context;
   }
 
