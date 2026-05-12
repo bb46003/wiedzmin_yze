@@ -119,13 +119,13 @@ async function forsujRzut(event, message) {
     const obronaCzar = oryginalMessage.flags?.wiedzmin_yze?.obronaCzar;
     if(obronaCzar){
 
-      const maSukces = obronaRzut.isSuccess;
+      const maSukces = newRoll.isSuccess;
 let wynikObrony = -1;
 
 if (maSukces) {
-  wynikObrony = obronaRzut.extraSuccesses;
+  wynikObrony = newRoll.extraSuccesses + 1;
 }
-
+const targetID = oryginalMessage.flags.wiedzmin_yze.targetActor[data.actorID];
 const index = oryginalMessage.system.cel.findIndex(obj => obj.id === targetID);
 if (index !== -1) {
   const celArray = foundry.utils.deepClone(oryginalMessage.system.cel);
@@ -985,7 +985,7 @@ const maSukces = obronaRzut.isSuccess;
 let wynikObrony = -1;
 
 if (maSukces) {
-  wynikObrony = obronaRzut.extraSuccesses;
+  wynikObrony = obronaRzut.extraSuccesses + 1;
 }
 
 const index = message.system.cel.findIndex(obj => obj.id === targetID);
@@ -1005,6 +1005,7 @@ if (index !== -1) {
     message.system,
   );
   await message.setFlag("wiedzmin_yze","obronaCzar",true)
+  await message.setFlag("wiedzmin_yze", "targetActor", {[targetActor.id]: targetID});
   await message.update({ content:messageContent }, { wiedzminUpdate: true });
  
 
