@@ -34,6 +34,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     atrybutKey = "",
     item,
     secondArtibute,
+    messageID = ""
   } = {}) {
     const hasSecondAttribute =
       secondArtibute && Object.keys(secondArtibute).length > 0;
@@ -109,6 +110,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 atrybutKey: atrybutKeyUse,
                 item: selectedItems,
                 type: "roll",
+                messageID: messageID
               },
             );
 
@@ -746,6 +748,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
             name: token.name,
             id: target.id,
             img: token.document.texture.src,
+            obrona: 0
           };
         })
       : [];

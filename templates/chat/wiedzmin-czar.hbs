@@ -117,34 +117,42 @@
           <div class="target-token" data-targetID="{{this.id}}">
             <image src="{{this.img}}" width="50" height="50" />
             <p>{{this.name}}</p>
-            {{#if (eq ../czar.system.obrona.typ "brak")}}
+            {{#if (eq this.obrona 0)}}
+              
+              {{#if (eq ../czar.system.obrona.typ "brak")}}
 
-            {{else}}
-            {{#if (eq ../czar.system.obrona.typ "unik")}}
-            <button class="obrona_czar" data-obrona="unik" data-targetID="{{this.id}}">
-              <img class="unik-icon" src="systems\wiedzmin_yze\assets\jump.png" data-tooltip="Unik"></img>
-            </button>
-            {{/if}}
-            {{#if (eq ../czar.system.obrona.typ "wola")}}
-            <button class="obrona_czar" data-obrona="wola"  data-targetID="{{this.id}}">
-              <p data-tooltip="Wola">Wola</p>
-            </button>
-            {{/if}}
-            {{#if (eq ../czar.system.obrona.typ "kondycja")}}
-            <button class="obrona_czar" data-obrona="kondycja" data-targetID="{{this.id}}">
-              <p  data-tooltip="Kondycja">Kondycja</p>
-            </button>
-            
-            {{else}}
-            <p>Cel wykonuje test na 
-                {{#if (eq ../czar.system.obrona.typ "inny")}} 
-                {{../czar.system.obrona.inny}}
-                {{else}}
-                {{../czar.system.obrona.typ}}
+              {{else}}
+                {{#if (eq ../czar.system.obrona.typ "unik")}}
+                  <button class="obrona_czar" data-obrona="unik" data-targetID="{{this.id}}">
+                    <img class="unik-icon" src="systems\wiedzmin_yze\assets\jump.png" data-tooltip="Unik"></img>
+                  </button>
                 {{/if}}
-                </p>
-            {{/if}}
-            <p> Z Modyfikatorem {{../czar.system.obrona.modyfikator}}</p>        
+                {{#if (eq ../czar.system.obrona.typ "wola")}}
+                  <button class="obrona_czar" data-obrona="wola"  data-targetID="{{this.id}}">
+                    <p data-tooltip="Wola">Wola</p>
+                  </button>
+                {{/if}}
+                {{#if (eq ../czar.system.obrona.typ "kondycja")}}
+                <button class="obrona_czar" data-obrona="kondycja" data-targetID="{{this.id}}">
+                  <p data-tooltip="Kondycja">Kondycja</p>
+                </button>
+                {{else}}
+                  <p>Cel wykonuje test na 
+                  {{#if (eq ../czar.system.obrona.typ "inny")}} 
+                    {{../czar.system.obrona.inny}}
+                  {{else}}
+                    {{../czar.system.obrona.typ}}
+                  {{/if}}
+                  </p>
+                {{/if}}
+                <p> Z Modyfikatorem {{../czar.system.obrona.modyfikator}}</p>
+              {{/if}}        
+            {{else}}
+              {{#if (eq this.obrona -1)}}
+                <p>Porażka na Obronie przed czarem</p>
+              {{else}}
+                <p>Cel odniusł sukces na teście Obrony uzyskując {{this.obrona}} sukcesów.</p>
+              {{/if}}
             {{/if}}
           </div>
         {{/each}}
@@ -160,13 +168,15 @@
   {{/if}}
   {{#if czar.system.obrazenia.zadajeObrazenia}}
     <div class="obrazenia">
-      {{log this}}
-    <button class="zadaj-obrazenia-czar" data-action="zadajObrazeniaCzar" {{#if zadaneObrazeniaCzar}} disabled {{/if}}>
+   {{#if cel}}
+    <button class="zadaj-obrazenia-czar" data-action="zadajObrazeniaCzar" {{#if zadanoObrazenia}} disabled {{/if}}>
       Zadaj obrażenia Celom
     </button>
-    <button class="rzut-obrazenia-czar" data-action="rzutObrazeniaCzar" {{#if zadaneObrazeniaCzar}} disabled {{/if}}>
+    {{/if}}
+    <button class="rzut-obrazenia-czar" data-action="rzutObrazeniaCzar" {{#if zadanoObrazenia}} disabled {{/if}}>
       Rzut na obrażenia
     </button>
+
   </div>
   {{/if}}
 </div>

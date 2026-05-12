@@ -113,10 +113,38 @@ async function forsujRzut(event, message) {
   );
 
   event.target.disabled = true;
-  if (data.messageID) {
+  if (data.messageID !== "" && data.messageID !== undefined) {
     const oryginalMessage = game.messages.get(data.messageID);
     if (!oryginalMessage) return;
+    const obronaCzar = oryginalMessage.flags?.wiedzmin_yze?.obronaCzar;
+    if(obronaCzar){
 
+      const maSukces = obronaRzut.isSuccess;
+let wynikObrony = -1;
+
+if (maSukces) {
+  wynikObrony = obronaRzut.extraSuccesses;
+}
+
+const index = oryginalMessage.system.cel.findIndex(obj => obj.id === targetID);
+if (index !== -1) {
+  const celArray = foundry.utils.deepClone(oryginalMessage.system.cel);
+
+  celArray[index].obrona = wynikObrony;
+
+  await oryginalMessage.update({
+    "system.cel": celArray
+  });
+}
+
+  const template = "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
+  const messageContent = await foundry.applications.handlebars.renderTemplate(
+    template,
+    oryginalMessage.system,
+  );
+  await oryginalMessage.setFlag("wiedzmin_yze","obronaCzar",true)
+  await oryginalMessage.update({ content:messageContent }, { wiedzminUpdate: true });
+    } 
     // update system data
     await oryginalMessage.update({
       "system.wyparowane": newRoll.successes,
@@ -764,6 +792,7 @@ async function rzutObrazeniaCzar(event, message) {
     message.system,
   );
   await message.update({ content }, { wiedzminUpdate: true });
+  
 }
 
 async function zadajObrazeniaCzar(event, message) {
@@ -889,7 +918,7 @@ const content = await foundry.applications.handlebars.renderTemplate(
                 label: "Roll",
                 default: true,
                 callback: async (_event, _button, dialog) => {
-                  const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+                  const mod = Number(dialog.element.querySelector("input[name='modifier']").value)|| 0;
                   let attributeVal = atrybut;
                   let atrubutLabelUse = atrubutLabel;
                   let atrybutKeyUse = atrybutKey;
@@ -932,6 +961,8 @@ const content = await foundry.applications.handlebars.renderTemplate(
                       atrybutKey: atrybutKeyUse,
                       item: selectedItems,
                       type: "roll",
+                      messageID: message.id
+
                     },
                   );
       
@@ -950,8 +981,32 @@ const content = await foundry.applications.handlebars.renderTemplate(
           dialog.render({ force: true });
 
   });
-  console.log(message)
-  console.log(obronaRzut)
+const maSukces = obronaRzut.isSuccess;
+let wynikObrony = -1;
+
+if (maSukces) {
+  wynikObrony = obronaRzut.extraSuccesses;
+}
+
+const index = message.system.cel.findIndex(obj => obj.id === targetID);
+if (index !== -1) {
+  const celArray = foundry.utils.deepClone(message.system.cel);
+
+  celArray[index].obrona = wynikObrony;
+
+  await message.update({
+    "system.cel": celArray
+  });
+}
+
+  const template = "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
+  const messageContent = await foundry.applications.handlebars.renderTemplate(
+    template,
+    message.system,
+  );
+  await message.setFlag("wiedzmin_yze","obronaCzar",true)
+  await message.update({ content:messageContent }, { wiedzminUpdate: true });
+ 
 
 }
 
@@ -1065,10 +1120,7 @@ async function startTemplatePreview(templateData) {
         x: snapped.x,
         y: snapped.y,
       });
-      template.renderFlags.set({
-        refreshMeasurements: true,
-      });
-      console.log(template)
+  template._refreshMeasurements()
     }
   };
 
@@ -1084,9 +1136,7 @@ async function startTemplatePreview(templateData) {
         template.document.shapes[0].updateSource({
           rotation: direction,
         });
-        template.renderFlags.set({
-          refreshMeasurements: true,
-        });
+        template._refreshMeasurements()
       }
     }
   };
