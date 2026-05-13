@@ -264,7 +264,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             // 🔹 modifier from dialog
-            const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+            const mod = Number(dialog.element.querySelector("input[name='modifier']").value) || 0;
 
             // 🔹 selected talents
             const checked = Array.from(

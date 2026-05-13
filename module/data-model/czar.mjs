@@ -118,6 +118,7 @@ export class czarDataModel extends foundry.abstract.TypeDataModel {
             unik: "Unik",
             wola: "Wola",
             kondycja: "Kondycja",
+            parowanie: "Parowanie",
             inny: "Inny",
           },
           required: true,

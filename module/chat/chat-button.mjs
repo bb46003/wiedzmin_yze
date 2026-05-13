@@ -111,10 +111,10 @@ async function forsujRzut(event, message) {
       oldsucesses: normalSuccesses + adrenalinaSuccesses,
     },
   );
-
+const oryginalMessage = game.messages.get(data.messageID);
   event.target.disabled = true;
   if (data.messageID !== "" && data.messageID !== undefined) {
-    const oryginalMessage = game.messages.get(data.messageID);
+    
     if (!oryginalMessage) return;
     const obronaCzar = oryginalMessage.flags?.wiedzmin_yze?.obronaCzar;
     if(obronaCzar){
@@ -173,7 +173,11 @@ if (index !== -1) {
     const newContent = doc.body.innerHTML;
 
     await oryginalMessage.update({ content: newContent });
+  }else{
+     await oryginalMessage.update({ "system.forsowac": false });
+     oryginalMessage.render({force:true});
   }
+ 
 }
 async function otworzTalent(ev) {
   const target = ev.target;
@@ -305,7 +309,7 @@ async function zadajObrazenia(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
-  const dodatkoweObrazenia = await Promise((resolve) => {
+  const dodatkoweObrazenia = await new Promise((resolve) => {
     new foundry.applications.api.DialogV2({
       window: { title: `Dodatkowe obrażenia` },
       content: `
@@ -343,7 +347,13 @@ async function zadajObrazenia(event, message) {
       cel.map(async (target) => {
         const celToken = canvas.tokens.get(target.id);
         const celActor = celToken.actor;
-          const wyparowanoObrazen = data?.wyparowane[target.id] || 0;
+        let wyparowanoObrazen = data?.wyparowane;
+        if(wyparowanoObrazen){
+          wyparowanoObrazen = wyparowanoObrazen[target?.id];
+        }else{
+          wyparowanoObrazen = 0;
+        }
+        
   const calkowiteObrazenia =
     obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
 
@@ -361,10 +371,20 @@ async function zadajObrazenia(event, message) {
           obecneZycie - (zadaneObrzenia - redukcjaObrazen) > obecneZycie
             ? obecneZycie
             : obecneZycie - (zadaneObrzenia - redukcjaObrazen);
-
+        if(game.user.isGM){
         await celActor.update({
           "system.zycie.value": noweZycie < 0 ? 0 : noweZycie,
-        });
+        });}else{
+
+          const dataUpdate = {
+            actorId: celActor.id,
+            update: {"system.zycie.value": noweZycie < 0 ? 0 : noweZycie, }
+          }
+          game.socket.emit("system.wiedzmin_yze", {
+            type: "zadajObrazenia",
+            updateData: dataUpdate
+            }); 
+        }
 
         zadaneObrazenia.push({
           cel: celActor.name,
@@ -392,6 +412,8 @@ async function zadajObrazenia(event, message) {
         <br> Obrażenia zadane: ${z.obrazenia}, Życie przed: ${z.zyciePrzed}, Życie po: ${z.zyciePo}
       `;
     });
+      const calkowiteObrazenia =
+    obrazenia + modifikatorObrazen + data.bonusDoObrazen + dodatkoweObrazenia;
     ChatMessage.create({
       speaker: { actor: actor.id },
       content: `Całkowite zadane obrażenia: ${calkowiteObrazenia}.
@@ -509,12 +531,15 @@ async function parowanie(event, message) {
 
   let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
 
-  const { powiazaneTalenty: inneTalenty } =
+    const { powiazaneTalenty: inneTalenty } =
     await targetActor.system.sprawdzTalenty("sila", []);
-
+  let mod = 0;
+  if(message.system?.czar){
+    mod = message.system.czar.system.obrona.modyfikator || 0;
+  }
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
-    { czymParujesz: czymParujesz, talenty: inneTalenty },
+    { czymParujesz: czymParujesz, talenty: inneTalenty, mod: mod },
   );
 
   const wyparowanoObrazen = await new Promise((resolve) => {
@@ -579,7 +604,36 @@ async function parowanie(event, message) {
       ],
     }).render({ force: true });
   });
+  if(message.system.czar){
+    
+let wynikObrony = -1;
 
+if (wyparowanoObrazen > 0) {
+  wynikObrony = wyparowanoObrazen
+}
+
+const index = message.system.cel.findIndex(obj => obj.id === targetId);
+if (index !== -1) {
+  const celArray = foundry.utils.deepClone(message.system.cel);
+
+  celArray[index].obrona = wynikObrony;
+
+  await message.update({
+    "system.cel": celArray
+  });
+}
+
+  const template = "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
+  const messageContent = await foundry.applications.handlebars.renderTemplate(
+    template,
+    message.system,
+  );
+  await message.setFlag("wiedzmin_yze","obronaCzar",true)
+  await message.setFlag("wiedzmin_yze", "targetActor", {[targetActor.id]: targetId});
+  await message.update({ content:messageContent }, { wiedzminUpdate: true });
+  }else{
+  
+  
   await message.update({
     "system.wyparowane": wyparowanoObrazen,
   });
@@ -597,6 +651,7 @@ async function parowanie(event, message) {
   );
 
   await message.update({ content: updatedContent });
+}
 }
 async function unik(event, message) {
   const targetId = event.target.dataset.targetid;
@@ -797,61 +852,86 @@ async function rzutObrazeniaCzar(event, message) {
 
 async function zadajObrazeniaCzar(event, message) {
   const data = message.system;
-  const cel = data.cel;
+  const messageCele = data.cel;
   const obrazenia = data.czar.system.obrazenia.podstawowe;
-  const dodatkoweObrazenia = await new Promise((resolve) => {
-    if (data.extraSuccesses <= 0) {
-      resolve(0);
-      return;
-    }
-    const dialog = new foundry.applications.api.DialogV2({
-      window: { title: `Dodatkowe obrażenia` },
-      content: `
-        <div class="form-group">
-        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
-        </div>
-        <div class="form-group">
-          <label for="extraSuccesses">Dodatkowe sukcesy:</label>
-          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max="${data.extraSuccesses}" min="0">
-        </div>
-      `,
-      buttons: [
-        {
-          action: "confirm",
-          label: "Potwierdź",
-          default: true,
-          callback: async (_event, _button, dialog) => {
-            const extraSuccesses =
-              parseInt(
-                dialog.element.querySelector("input[name='extraSuccesses']")
-                  .value,
-              ) || 0;
-            resolve(extraSuccesses);
-          },
-        },
-      ],
-    }).render({ force: true });
+  const extraSuccesses = data.extraSuccesses;
+  const context = {
+    cel: messageCele,
+    obrazenia: obrazenia,
+    extraSuccesses: extraSuccesses,
+  }
+    const czar = data.czar;
+  const template = "systems/wiedzmin_yze/templates/dialogs/wiedzmin-rozdanie-obrazen.hbs";
+  const messageContent = await foundry.applications.handlebars.renderTemplate(
+    template,
+    context
+  ); 
+  const dialog = new foundry.applications.api.DialogV2({
+            window: { title: "Wiedzmin Roll" },
+            content: messageContent,
+            buttons: [
+              {
+                action: "confirm",
+                label: "Potwierdź",
+                default: true,
+                callback: async (_event, _button, dialog) => {
+                  const cele = dialog.element.querySelectorAll(".target-token");
+                  const wydaneSukcesyInput = dialog.element.querySelector("input[name='extraSuccesses']")
+                  const wydaneSukcesy = Number(wydaneSukcesyInput?.value) || 0;
+                  const obrazenia = czar.system.obrazenia.podstawowe + wydaneSukcesy * czar.system.obrazenia.zaDodatkoweSuksecy;
+                  let content = `Zadano ${obrazenia} obrażeń czarem ${czar.name}.`;
+                  cele.forEach(async (cel) => {
+                    const targetID = cel.dataset.targetid;
+                    const input = Number(cel.querySelector("input").value) || 0;
+                    const targetToken = canvas.tokens.get(targetID);
+                    const tokenActor = targetToken.actor;
+                    const index = messageCele.findIndex(obj => obj.id === targetID);
+                    const obrona = messageCele[index]?.obrona;
+                    let zddaneObrazenia = obrazenia;
+                    if(obrona >= extraSuccesses+1){
+                        content += `<br>Cel ${tokenActor.name} całkowicie uniknął obrażeń.`;
+                    }else{
+                      if (czar.system.obrona.typ === "unik") {
+                        content += `<br>Cel ${tokenActor.name} otrzymał ${obrazenia} obrażeń.`;
+                      }
+                      else if(czar.system.obrona.typ === "parowanie"){
+                        zddaneObrazenia = Math.max(0, obrazenia - obrona);
+                        content += `<br>Cel ${tokenActor.name} otrzymał ${zddaneObrazenia} obrażeń po parowaniu.`;
+                      }
+                      const obecneZycie = tokenActor.system.zycie.value;
+                      const noweZycie = obecneZycie - zddaneObrazenia < 0 ? 0 : obecneZycie - zddaneObrazenia;
+                      if(game.user.isGM){
 
-    dialog._onRender = function () {
-      const input = dialog.element.querySelector(
-        "input[name='extraSuccesses']",
-      );
-      const max = Number(input.max);
-      input.addEventListener("change", function () {
-        if (this.value > max) {
-          this.value = max;
-          ui.notifications.warn(
-            `Nie możesz wykorzystać więcej niż ${max} dodatkowych sukcesów.`,
-          );
-        } else if (this.value < 0) {
-          this.value = 0;
-        }
-      });
-    };
-  });
-  const obrazeniaZaDodatkoweSukcesy = dodatkoweObrazenia * data.czar.system.obrazenia.zaDodatkoweSuksecy;
-  const calkowiteObrazenia = obrazenia + obrazeniaZaDodatkoweSukcesy;
-
+                        await tokenActor.update({"system.zycie.value": noweZycie });
+                      }else{
+                        const dataUpdate = {
+                          actorId: tokenActor.id,
+                          update: {"system.zycie.value": noweZycie }
+                        }
+                        game.socket.emit("system.wiedzmin_yze", {
+                          type: "zadajObrazenia",
+                          updateData: dataUpdate
+                          });                       
+                      }
+                    }
+                  })
+                  ChatMessage.create({
+                    speaker: { actor: message.speaker.actor },
+                    content: content,
+                  });
+                  event.target.disabled = true;
+                   await message.update({ "system.zadanoObrazenia": true });
+  const template2 = "systems/wiedzmin_yze/templates/chat/wiedzmin-czar.hbs";
+  const messageContent = await foundry.applications.handlebars.renderTemplate(
+    template2,
+    message.system,
+  );
+  await message.update({ content: messageContent }, { wiedzminUpdate: true });
+                }
+              }
+            ]
+            });
+      dialog.render({ force: true });
 
 }
 async function  rzutObronnyCzar(event, message) {
@@ -976,7 +1056,7 @@ const content = await foundry.applications.handlebars.renderTemplate(
           dialog._onRender = function () {
                   const input = dialog.element.querySelector("input[name='modifier']");
                   const modyfikator = message.system.czar.system.obrona.modyfikator;
-                  input.value = -1* modyfikator
+                  input.value =  modyfikator
           }
           dialog.render({ force: true });
 

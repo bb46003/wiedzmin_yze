@@ -1,0 +1,26 @@
+<div>
+    <div>
+        <p>Cele czaru:</p>
+        {{#each cel}}
+            <div class="target-token" data-targetID="{{this.id}}">
+                <image src="{{this.img}}" width="50" height="50" />
+                <label>{{this.name}}</label>
+                {{#if (eq this.obrona -1)}}
+                    <p>Porażka na Obronie przed czarem</p>
+                {{else}}
+                    <p>Cel odniusł sukces na teście Obrony uzyskując {{this.obrona}} sukcesów.</p>
+                {{/if}}
+                <div>
+                    <label>Dodatkowe modyfikatory:</label>
+                    <input type="number" class="mod" data-targetID="{{this.id}}" value="0">
+                </div>
+            </div>
+        {{/each}}
+    </div>
+    {{#if (gt extraSuccesses 0)}}
+        <div class="form-group">
+          <label for="extraSuccesses">Przydziel dodatkowe sukcesy jak obrażenia:</label>
+          <input type="number" name="extraSuccesses" id="extraSuccesses" value="0" max=`{{data.extraSuccesses}}` min="0">
+        </div>
+    {{/if}}
+</div>

@@ -1,4 +1,5 @@
 <div class="wiedzmin-roll-chat">
+      
   <h4>
       Wynik rzutu na Czar
     <br />        <button
@@ -109,14 +110,17 @@
     </div>
 
   </div>
+    {{#if isSuccess}}
   <div>
+
     {{#if cel}}
       <p>Cel: </p>
       <div class="target-info">
         {{#each cel}}
           <div class="target-token" data-targetID="{{this.id}}">
             <image src="{{this.img}}" width="50" height="50" />
-            <p>{{this.name}}</p>
+            <label>{{this.name}}</label>
+    
             {{#if (eq this.obrona 0)}}
               
               {{#if (eq ../czar.system.obrona.typ "brak")}}
@@ -125,25 +129,29 @@
                 {{#if (eq ../czar.system.obrona.typ "unik")}}
                   <button class="obrona_czar" data-obrona="unik" data-targetID="{{this.id}}">
                     <img class="unik-icon" src="systems\wiedzmin_yze\assets\jump.png" data-tooltip="Unik"></img>
-                  </button>
-                {{/if}}
-                {{#if (eq ../czar.system.obrona.typ "wola")}}
-                  <button class="obrona_czar" data-obrona="wola"  data-targetID="{{this.id}}">
-                    <p data-tooltip="Wola">Wola</p>
-                  </button>
-                {{/if}}
-                {{#if (eq ../czar.system.obrona.typ "kondycja")}}
-                <button class="obrona_czar" data-obrona="kondycja" data-targetID="{{this.id}}">
-                  <p data-tooltip="Kondycja">Kondycja</p>
-                </button>
-                {{else}}
-                  <p>Cel wykonuje test na 
-                  {{#if (eq ../czar.system.obrona.typ "inny")}} 
-                    {{../czar.system.obrona.inny}}
+                  </button>                
                   {{else}}
-                    {{../czar.system.obrona.typ}}
-                  {{/if}}
-                  </p>
+                    {{#if (eq ../czar.system.obrona.typ "wola")}}
+                      <button class="obrona_czar" data-obrona="wola"  data-targetID="{{this.id}}">
+                        <p data-tooltip="Wola">Wola</p>
+                      </button>
+                      {{else}}
+                        {{#if (eq ../czar.system.obrona.typ "parowanie")}}
+                          <button class="parowanie" data-obrona="parowanie"  data-targetID="{{this.id}}">
+                            <p data-tooltip="Parowanie">Parowanie</p>
+                          </button>
+                          {{else}}
+                            {{#if (eq ../czar.system.obrona.typ "kondycja")}}
+                              <button class="obrona_czar" data-obrona="kondycja" data-targetID="{{this.id}}">
+                                <p data-tooltip="Kondycja">Kondycja</p>
+                              </button>
+                              {{else}}
+                                <p>Cel wykonuje test na                  
+                                  {{../czar.system.obrona.inny}}
+                                </p>
+                            {{/if}}
+                        {{/if}}
+                    {{/if}}
                 {{/if}}
                 <p> Z Modyfikatorem {{../czar.system.obrona.modyfikator}}</p>
               {{/if}}        
@@ -178,5 +186,6 @@
     </button>
 
   </div>
+  {{/if}}
   {{/if}}
 </div>

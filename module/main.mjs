@@ -16,6 +16,7 @@ import { pancerzSheet } from "./sheets/items/pancerz.mjs";
 import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
 import { WiedzminRegionDocument } from "./document/region.mjs";
+import { SocketHandler } from "./socketHandler.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -82,6 +83,8 @@ Hooks.once("init", async function () {
   ];
 
   foundry.applications.handlebars.loadTemplates(templates);
+  game.wiedzmin_YZE = {socketHandler: new SocketHandler()};
+
 
   console.log("Wiedzmin YZE został zainicjiwany");
 });
@@ -135,4 +138,17 @@ Hooks.on("renderTokenHUD", (hud, html) => {
     palette.appendChild(header);
   }
   palette.style.height = "285px"
+});
+
+Hooks.once("ready", async () => {
+  const currentLang = game.settings.get("core", "language");
+
+  if (currentLang !== "pl") {
+    console.log(`Language is ${currentLang}, switching to Polish...`);
+
+    await game.settings.set("core", "language", "pl");
+
+    // reload to apply changes
+    window.location.reload();
+  }
 });
