@@ -1,3 +1,4 @@
+import { umiejki } from "../config/fachy.mjs";
 import { staticID, toLabelObject } from "../utils.mjs";
 
 const { api, sheets } = foundry.applications;
@@ -219,7 +220,13 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       (item) => item.type === "profesja",
     )[0];
     if (profesja) {
-      return profesja?.flags?.wiedzmin_yze?.wybraneUmiejki || [];
+      const umiejkiZawodowe = profesja.system.umiejetnosciZawodowe.filter((umiejka) => umiejka.wybor === false).map(umiejka => umiejka.umiejka);
+      const wybrane = profesja?.flags?.wiedzmin_yze?.wybraneUmiejki;
+      if(wybrane){
+        umiejkiZawodowe.push(...wybrane);
+      }
+
+      return umiejkiZawodowe || [];
     } else {
       return [];
     }

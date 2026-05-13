@@ -314,7 +314,7 @@ async function zadajObrazenia(event, message) {
       window: { title: `Dodatkowe obrażenia` },
       content: `
         <div class="form-group">
-        <label> Dostene jest ${data.extraSuccesses} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
+        <label> Dostene jest ${data.successes-1} dodatkowych sukcesów. Czy chcesz je wykorzystać do zwiększenia obrażeń?</label>
         </div>
         <div class="form-group">
           <label for="extraSuccesses">Dodatkowe sukcesy:</label>
@@ -343,8 +343,8 @@ async function zadajObrazenia(event, message) {
   const zadaneObrazenia = [];
 
   if (cel.length > 0) {
-    await Promise.all(
-      cel.map(async (target) => {
+   
+     await Promise.all( cel.map(async (target) => {
         const celToken = canvas.tokens.get(target.id);
         const celActor = celToken.actor;
         let wyparowanoObrazen = data?.wyparowane;
@@ -394,8 +394,8 @@ async function zadajObrazenia(event, message) {
           redukcjaObrazen: redukcjaObrazen,
           maPancerz: maPancerz,
         });
-      }),
-    );
+      })
+    )
     let obrazeniaContent = "";
     zadaneObrazenia.forEach((z) => {
       obrazeniaContent += `<br> Cel: ${z.cel}`;
@@ -453,7 +453,7 @@ async function rzutObrazen(event, message) {
       modifikatorObrazen += item.system.zwiekszoneObrazenia;
     }
   }
-  const dodatkoweObrazenia = await Promise((resolve) => {
+  const dodatkoweObrazenia = await new Promise((resolve) => {
     new foundry.applications.api.DialogV2({
       window: { title: `Dodatkowe obrażenia` },
       content: `

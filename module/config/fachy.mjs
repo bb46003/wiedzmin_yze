@@ -43,7 +43,7 @@ export const umiejki = /** @type {const} */ ({
     umiejkaKey: "fach",
   },
   zwinnosc: { label: "wiedzmin.atrubut.zwinnosc", atrybKey: "zrecznosc" },
-  wakla_dystansowa: {
+  walka_dystansowa: {
     label: "wiedzmin.atrubut.walka_dystansowa",
     atrybKey: "zrecznosc",
   },
