@@ -881,3 +881,28 @@
   border-bottom: 1px solid #666;
   color: #c0a060;
 }
+.wiedzmin-roll-chat{
+    .dice-roll{
+          cursor: auto;
+    }
+    .roll.die.d6{
+          border: 4px grey solid;
+    border-radius: 15px;
+    border-bottom-style: ridge;
+    border-top-style: groove;
+    border-left-style: groove;
+    border-right-style: ridge;
+    }
+  .roll-sucess, .roll-pech{
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+  }
+  .roll-failure{
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+    background: black;
+
+  }
+}

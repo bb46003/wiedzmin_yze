@@ -49,54 +49,7 @@
 
     <div class="dice-formula">{{formula}}</div>
 
-    <div class="dice-tooltip">
-      <div class="wrapper">
-
-        {{#if normalDice}}
-          <section class="tooltip-part">
-            <div class="dice">
-              <header class="part-header flexrow">
-                <span class="part-formula">
-
-                  Zwykłe Kosci
-                  {{normalDice.rolls.length}}d6
-                </span>
-              </header>
-
-              <ol class="dice-rolls">
-                {{#each normalDice.rolls}}
-                  <li class="roll die d6 {{classes}}">
-                    {{result}}
-                  </li>
-                {{/each}}
-              </ol>
-            </div>
-          </section>
-        {{/if}}
-
-        {{#if adrenalinaDice}}
-          <section class="tooltip-part">
-            <div class="dice">
-              <header class="part-header flexrow">
-                <span class="part-formula">
-                  Kości Adrenaliny
-                  {{adrenalinaDice.rolls.length}}d6
-                </span>
-              </header>
-
-              <ol class="dice-rolls">
-                {{#each adrenalinaDice.rolls}}
-                  <li class="roll die d6 {{classes}}">
-                    {{result}}
-                  </li>
-                {{/each}}
-              </ol>
-            </div>
-          </section>
-        {{/if}}
-
-      </div>
-    </div>
+     {{> "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs"}}
 
   </div>
   {{#if (and forsowac (not pech))}}

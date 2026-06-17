@@ -125,6 +125,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.actor.system.ekwipunek),
       field: this.actor.system.schema.fields.ekwipunek,
     };
+        context.notatnki = {
+      value: this.actor.system.notatnki,
+      enriched: await enrich(this.actor.system.notatnki),
+      field: this.actor.system.schema.fields.notatnki,
+    };
     const brakForsowania = await this.forsowanie();
     Object.assign(context, { brakForsowania });
     const bronie = await this.prepareBronie();

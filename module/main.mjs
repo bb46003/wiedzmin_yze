@@ -80,6 +80,7 @@ Hooks.once("init", async function () {
     "systems/wiedzmin_yze/templates/postac/equipment.hbs",
     "systems/wiedzmin_yze/templates/postac/notes.hbs",
     "systems/wiedzmin_yze/templates/items/talenty-opcje.hbs",
+    "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs"
   ];
 
   foundry.applications.handlebars.loadTemplates(templates);

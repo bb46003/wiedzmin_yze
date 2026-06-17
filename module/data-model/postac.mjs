@@ -175,6 +175,11 @@ export class postacDataModel extends foundry.abstract.TypeDataModel {
         initial: "",
         required: true,
       }),
+      notatnki: new HTMLField({
+        label: "wiedzmin.opis",
+        initial: "",
+        required: true,
+      }),
       szybkosc: new SchemaField({
         podstawa: new NumberField({
           required: true,
