@@ -17,6 +17,7 @@ import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
 import { WiedzminRegionDocument } from "./document/region.mjs";
 import { SocketHandler } from "./socketHandler.mjs";
+import { wiedzmin_yze_Combar } from "./document/combat.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -59,7 +60,7 @@ Hooks.once("init", async function () {
   };
   CONFIG.ActiveEffect.legacyTransferral = false;
   ActiveEffectWiedzmin_YZE._configureStatusEffects();
-
+	CONFIG.Combat.documentClass = wiedzmin_yze_Combar;
   CONFIG.Dice.rolls.push(WiedzminRoll);
   CONFIG.Token.rulerClass = WiedzminTokenRuler;
   utils.registerSystemSheet(foundry.documents.Actor, postacSheet, "postac");
