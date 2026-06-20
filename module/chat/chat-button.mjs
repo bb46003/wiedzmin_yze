@@ -106,7 +106,7 @@ async function forsujRzut(event, message) {
   await newRoll.toMessage(
     {},
     {
-      iloscPrzerzuconych: `${newBasePool}d6`,
+      iloscPrzerzuconych: `${newBasePool}dn`,
       newFormula: newFormula,
       oldsucesses: normalSuccesses + adrenalinaSuccesses,
     },
@@ -1022,8 +1022,8 @@ const content = await foundry.applications.handlebars.renderTemplate(
                   const basePool = attributeVal + umiejka + mod + talentBonus;
                   const formula =
                     adrenalina > 0
-                      ? `${basePool}d6 + ${adrenalina}d6`
-                      : `${basePool}d6`;
+                      ? `${basePool}dn + ${adrenalina}da`
+                      : `${basePool}dn`;
                   let flavor = "Test";
                   if (maTelentBlokujacy) {
                     flavor = "Forsowanie";

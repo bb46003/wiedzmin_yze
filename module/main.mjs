@@ -17,6 +17,7 @@ import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
 import { WiedzminRegionDocument } from "./document/region.mjs";
 import { SocketHandler } from "./socketHandler.mjs";
+import { Wiedzmin_YZE_Adrenalina_Dice, Wiedzmin_YZE_Dice } from "./wiedzmin_dice.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -85,8 +86,8 @@ Hooks.once("init", async function () {
 
   foundry.applications.handlebars.loadTemplates(templates);
   game.wiedzmin_YZE = {socketHandler: new SocketHandler()};
-
-
+ CONFIG.Dice.terms["n"] = Wiedzmin_YZE_Dice;
+  CONFIG.Dice.terms["a"] = Wiedzmin_YZE_Adrenalina_Dice;
   console.log("Wiedzmin YZE został zainicjiwany");
 });
 Hooks.on("renderChatMessageHTML", addChatListeners);
@@ -153,3 +154,44 @@ Hooks.once("ready", async () => {
     window.location.reload();
   }
 });
+
+		Hooks.once("diceSoNiceReady", async dice3d => {
+			dice3d.addSystem({ id: "wiedzmin_yze", name: "Wiedzmin YZE" }, true);
+
+			dice3d.addColorset({
+				name: "wiedzmin_yze",
+				description: "Wiedzmin YZE Normal Dice",
+				category: "Colors",
+				foreground: "#ffffff",
+				background: "#000000",
+				outline: "gray",
+				texture: "none",
+			});
+
+			dice3d.addDicePreset({
+				type: "dn",
+				labels: [
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/white_wither.webp",
+				],
+				system: "wiedzmin_yze",
+
+			},"d6");
+      dice3d.addDicePreset({
+				type: "da",
+				labels: [
+					"systems/wiedzmin_yze/assets/wild_gone.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/black.webp",
+					"systems/wiedzmin_yze/assets/red_wither.webp",
+				],
+				system: "wiedzmin_yze",
+
+			},"d6");
+        })

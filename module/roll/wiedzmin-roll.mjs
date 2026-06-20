@@ -91,8 +91,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
             const basePool = attributeVal + skill + mod + talentBonus;
             const formula =
               adrenalina > 0
-                ? `${basePool}d6 + ${adrenalina}d6`
-                : `${basePool}d6`;
+                ? `${basePool}dn + ${adrenalina}da`
+                : `${basePool}dn`;
             let flavor = "Test";
             if (!maTelentBlokujacy) {
               flavor = "Forsowanie";
@@ -189,8 +189,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
               talentBonus;
             const formula =
               adrenalina > 0
-                ? `${basePool}d6 + ${adrenalina}d6`
-                : `${basePool}d6`;
+                ? `${basePool}dn + ${adrenalina}da`
+                : `${basePool}dn`;
             let flavor = "Test";
             if (!maTelentBlokujacy) {
               flavor = "Forsowanie";
@@ -305,8 +305,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
               0;
             const formula =
               adrenalina > 0
-                ? `${basePool}d6 + ${adrenalina}d6`
-                : `${basePool}d6`;
+                ? `${basePool}dn + ${adrenalina}da`
+                : `${basePool}dn`;
             let flavor = "Attack";
             if (!maTelentBlokujacy) {
               flavor = "Forsowanie";
@@ -362,7 +362,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     const basePool =
       atrybut + umiejetnosc + modifier + bonusZTalentow + bonusZBroni;
     const formula =
-      adrenalina > 0 ? `${basePool}d6 + ${adrenalina}d6` : `${basePool}d6`;
+      adrenalina > 0 ? `${basePool}dn + ${adrenalina}dn` : `${basePool}da`;
     const roll = new WiedzminRoll(
       formula,
       {},
@@ -408,7 +408,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     const basePool =
       atrybut + umiejetnosc + modifier + bonusZTalentow - bonus - modOstrzalu;
     const formula =
-      adrenalina > 0 ? `${basePool}d6 + ${adrenalina}d6` : `${basePool}d6`;
+      adrenalina > 0 ? `${basePool}dn + ${adrenalina}da` : `${basePool}dn`;
     const roll = new WiedzminRoll(
       formula,
       {},
@@ -512,8 +512,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
               attribute + skill + mody + talentBonus + dodatkowaMoc;
             const formula =
               adrenalina > 0
-                ? `${basePool}d6 + ${adrenalina}d6`
-                : `${basePool}d6`;
+                ? `${basePool}dn + ${adrenalina}da`
+                : `${basePool}dn`;
             const roll = new WiedzminRoll(
               formula,
               {},
