@@ -29,6 +29,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       atakBronia: postacSheet.#atakBronia,
       rzucCzar: postacSheet.#rzucCzar,
       parowanie: postacSheet.#parowanie,
+      inicjatywa: postacSheet.#inicjatywa
     },
     form: {
       submitOnChange: true,
@@ -813,7 +814,9 @@ Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`,
       });
     }
   }
-
+  static async #inicjatywa(ev){
+     await this.actor.rollInitiative();
+  }
   static async _onEditText(_event, target) {
     const { fieldPath, propertyPath } = target.dataset;
     // If there is a document (e.g. an item) to be found in a parent element, assume the field is relative to that

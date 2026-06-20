@@ -35,10 +35,17 @@
     grid-row: 2;
     .dodatkowe {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 0.5fr;
       gap: 10px;
       font-size: 13px;
       align-items: end;
+      .inicjatywa-roll{
+        display: flex;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    font-size: x-large;
+      }
       .moc-label {
         font-size: 13px;
         a,
