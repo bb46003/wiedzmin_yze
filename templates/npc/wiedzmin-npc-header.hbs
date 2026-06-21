@@ -1,0 +1,71 @@
+<section class="sheet-header">
+    <div class="image-container">
+        <img
+            class="profile-img"
+            src="{{actor.img}}"
+            data-edit="img"
+            data-action="editImage"
+            data-edit="img"
+        />
+    </div>
+    <div class="identity-npc">
+        <div class="flexrow">
+        <label>Nazwa</label>
+        <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
+        </div>
+        <div class="flexrow">
+            <div class="flexcol staty">
+                <label>{{ systemFields.zycie.fields.value.label}}</label>
+                {{formInput
+                    systemFields.zycie.fields.value
+                    value=system.zycie.value
+                    type="number"
+                }}
+            </div>
+            <p>/</p>
+            <div class="flexcol staty">
+                <label>{{ systemFields.zycie.fields.max.label}}</label>
+                {{formInput
+                    systemFields.zycie.fields.max
+                    value=system.zycie.max
+                    type="number"
+                }}
+            </div>
+        </div>
+        <div class="flexrow">
+            <label>{{ systemFields.inicjatywa.label}}</label>
+            {{formInput
+                systemFields.inicjatywa
+                value=system.inicjatywa
+                type="number"
+            }}
+        </div>
+        <div class="flexrow">
+            <div class="flexcol staty">
+                <label>{{ systemFields.punkty_mocy.fields.value.label}}</label>
+                {{log systemFields}}
+                {{formInput
+                    systemFields.punkty_mocy.fields.value
+                    value=system.punkty_mocy.value
+                    type="number"
+                }}
+            </div>
+             <p>/</p>
+            <div class="flexcol staty">
+                <label>{{ systemFields.punkty_mocy.fields.max.label}}</label>
+                {{formInput
+                    systemFields.punkty_mocy.fields.max
+                    value=system.punkty_mocy.max
+                    type="number"
+                }}
+            </div>
+        </div>
+        <div class="flexrow">
+                <label>{{ systemFields.wielkosc.label}}</label>
+                {{formInput
+                    systemFields.wielkosc
+                    value=system.wielkosc
+                }}
+            </div>
+    </div>
+</section>

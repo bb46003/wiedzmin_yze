@@ -913,3 +913,36 @@
 
   }
 }
+.npc{
+      .window-content {
+display: grid;
+        grid-template-rows: 280px auto;
+        grid-template-columns: auto auto;
+        gap: 8px;
+        height: 100%;
+        overflow-y: auto;
+        width: auto;
+      }
+    .identity-npc{
+        width: 50%;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        margin: auto;
+    p{
+            text-align: center;
+            max-width: 10px;
+            font-size: xx-large;
+    }
+    .flexcol.staty{
+            max-width: 160px;
+            align-items: center;
+    }
+    label{
+      max-width: 160px;
+    }
+    input, select{
+      max-width: 160px;
+    }
+}
+}

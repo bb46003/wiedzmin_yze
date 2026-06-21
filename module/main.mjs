@@ -19,6 +19,7 @@ import { WiedzminRegionDocument } from "./document/region.mjs";
 import { SocketHandler } from "./socketHandler.mjs";
 import { Wiedzmin_YZE_Adrenalina_Dice, Wiedzmin_YZE_Dice } from "./wiedzmin_dice.mjs";
 import { wiedzmin_yze_Combar } from "./document/combat.mjs";
+import { NPCSheet } from "./sheets/npc.mjs";
 
 globalThis.wiedzmin_yze = {
   config: utils.moduleToObject(config),
@@ -34,6 +35,7 @@ Hooks.once("init", async function () {
 
   CONFIG.Actor.dataModels = {
     postac: models.postacDataModel,
+    npc: models.NPCDataModel
   };
   CONFIG.Item.dataModels = {
     talenty: models.talentyDataModel,
@@ -65,6 +67,7 @@ Hooks.once("init", async function () {
   CONFIG.Dice.rolls.push(WiedzminRoll);
   CONFIG.Token.rulerClass = WiedzminTokenRuler;
   utils.registerSystemSheet(foundry.documents.Actor, postacSheet, "postac");
+  utils.registerSystemSheet(foundry.documents.Actor, NPCSheet,"npc");
   utils.registerSystemSheet(foundry.documents.Item, talentySheet, "talenty");
   utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
   utils.registerSystemSheet(foundry.documents.Item, profesjeSheet, "profesja");
