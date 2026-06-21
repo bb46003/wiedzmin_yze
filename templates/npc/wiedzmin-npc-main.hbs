@@ -34,6 +34,18 @@
           data-type="zdolnosci"
           class="fa fa-plus"
         ></a></h4>
+        {{#each zdolnosci as |z|}}
+        <div class="flexrow">
+  <a data-action="doCzatu">{{z.nazwa.value}}</a>
+
+  {{formInput
+    z.opis.field
+    value=z.opis.value
+    enriched=z.opis.enriched
+    toggled="true"
+  }}
+  </div>
+{{/each}}
     </div>
   </div>
   <div class="opis">

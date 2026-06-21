@@ -131,15 +131,15 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     }
     token.update({ height: scale, width: scale });
   }
-async dodajAZ(type) {
+async dodajAZ(type, name) {
   const az = this[type] ?? [];
   let nowy = {};
-
+  
   if (type === "zdolnosci") {
-    nowy.nazwa = "Zdolność";
+    nowy.nazwa = name ?? "Zdolność";
     nowy.opis = "";
   } else if (type === "ataki") {
-    nowy.nazwa = "Atak";
+    nowy.nazwa = name ?? "Atak";
     nowy.obrazenia = 1;
     nowy.atak = 1;
   }

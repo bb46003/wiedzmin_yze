@@ -920,7 +920,7 @@
     grid-template-columns: auto;
     gap: 8px;
     height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
     width: auto;
     .sheet-header {
       grid-column: unset;
@@ -952,12 +952,15 @@
     }
   }
   .main {
-    display: grid;
-           grid-template-columns: 395px 395px;
+          display: grid;
+        grid-template-columns: 390px 390px;
+        overflow-y: auto;
+        overflow-x: hidden;
+                height: 92%;
     h4 {
       text-align: center;
     }
-    .bronie{
+    .bronie, .zdolnosci{
           margin-bottom: 10px;
           .flexrow{
           display: flex;
@@ -966,6 +969,18 @@
     a{font-size: x-large;}
 
     }
+  }
+  .zdolnosci{
+    display: flex;
+    gap: 10px;
+    .flexrow{
+      align-items: center;
+    }
+  }
+  prose-mirror{
+    border: 1px black;
+    border-style: groove;
+    border-radius: 15px;
   }
   }
 }
