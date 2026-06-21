@@ -89,6 +89,10 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       ),
+      obrona: new NumberField({
+        initial: 0,
+        label: "Obrona"
+      })
     };
   }
   /** @override */
@@ -127,9 +131,23 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     }
     token.update({ height: scale, width: scale });
   }
-  async dodsjAZ(type){
-        const ograniczonyAtrybut = this[type] ?? [];
-        let nowy = {};
+async dodajAZ(type) {
+  const az = this[type] ?? [];
+  let nowy = {};
 
+  if (type === "zdolnosci") {
+    nowy.nazwa = "Zdolność";
+    nowy.opis = "";
+  } else if (type === "ataki") {
+    nowy.nazwa = "Atak";
+    nowy.obrazenia = 1;
+    nowy.atak = 1;
   }
+
+  az.push(nowy);
+
+  await this.parent.update({
+    [`system.${type}`]: az
+  });
+}
 }

@@ -87,6 +87,6 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
   static async #dodajAZ(ev){
     const target = ev.target;
     const type = target.dataset.type;
-    await this.actor.system.dodsjAZ(type)
+    await this.actor.system.dodajAZ(type)
   }
 }

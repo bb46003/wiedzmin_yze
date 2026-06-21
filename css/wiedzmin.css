@@ -953,9 +953,19 @@
   }
   .main {
     display: grid;
-    grid-template-columns: auto auto;
+           grid-template-columns: 395px 395px;
     h4 {
       text-align: center;
     }
+    .bronie{
+          margin-bottom: 10px;
+          .flexrow{
+          display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    a{font-size: x-large;}
+
+    }
+  }
   }
 }

@@ -66,15 +66,23 @@
         }}
       </div>
     </div>
+     <div class="flexrow">
+      <label>{{systemFields.obrona.label}}</label>
+              {{formInput
+          systemFields.obrona
+          value=system.obrona
+          type="number"
+        }}
+     </div>
     <div class="flexrow">
       <label>{{systemFields.wielkosc.label}}</label>
       {{formInput systemFields.wielkosc value=system.wielkosc}}
     </div>
     <div class="flexrow">
       {{#if (ne system.tabela_atakow "")}}
-        <a data-action="atakZTabeli">{{systemFields.wielkosc.label}}</a>
+        <a data-action="atakZTabeli">{{systemFields.tabela_atakow.label}}</a>
       {{else}}
-        <label>{{systemFields.wielkosc.label}}</label>
+        <label>{{systemFields.tabela_atakow.label}}</label>
       {{/if}}
       {{formInput systemFields.tabela_atakow value=system.tabela_atakow}}
     </div>
