@@ -7,11 +7,11 @@ export class SocketHandler {
     game.socket.on("system.wiedzmin_yze", async (data) => {
       switch (data.type) {
         case "zadajObrazenia": {
-          if(game.user.isGM){
-          const targetActor = await game.actors.get(data.updateData.actorId);
-          const updateData = data.updateData.update;
-          await targetActor.update(updateData);
-          break;
+          if (game.user.isGM) {
+            const targetActor = await game.actors.get(data.updateData.actorId);
+            const updateData = data.updateData.update;
+            await targetActor.update(updateData);
+            break;
           }
         }
       }

@@ -1,0 +1,48 @@
+<section class="main">
+  <div class="przedmioty-zdolnosci">
+    <div class="bronie">
+      <h4>Bronie<a
+          data-action="dodajAZ"
+          data-type="ataki"
+          class="fa fa-plus"
+        ></a></h4>
+      {{#each system.ataki as |atak index|}}
+        <div class="flexrow">
+          <a data-action="atak" data-id="{{index}}">{{atak.nazwa}}</a>
+          <div class="flexcol">
+            <label>Ilość Kości do Trafienia</label>
+            <input
+              name="system.ataki[{{index}}]"
+              min="1"
+              value="{{atak.atak}}"
+            />
+          </div>
+          <div class="flexcol">
+            <label>Ilość Obrażeń</label>
+            <input
+              name="system.ataki[{{index}}]"
+              min="1"
+              value="{{atak.obrazenia}}"
+            />
+          </div>
+        </div>
+      {{/each}}
+    </div>
+    <div class="zdolnosci">
+      <h4>Zdolności<a
+          data-action="dodajAZ"
+          data-type="zdolnosci"
+          class="fa fa-plus"
+        ></a></h4>
+    </div>
+  </div>
+  <div class="opis">
+    <h4>Opis</h4>
+    {{formInput
+      opis.field
+      value=opis.value
+      enriched=opis.enriched
+      toggled="true"
+    }}
+  </div>
+</section>

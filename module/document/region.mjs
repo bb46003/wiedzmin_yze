@@ -32,21 +32,21 @@ export class WiedzminRegionDocument extends CONFIG.Region.documentClass {
   async _updateMessageTargets(regionObj, messageID) {
     // ⚠️ IMPORTANT: wait one frame for token detection
     await new Promise((resolve) => requestAnimationFrame(resolve));
-const message = game.messages.get(messageID);
+    const message = game.messages.get(messageID);
 
-// careful: it should be system.cel, not systems.cele
-const cele = message.system.cel ?? [];
+    // careful: it should be system.cel, not systems.cele
+    const cele = message.system.cel ?? [];
 
-const tokens = Array.from(regionObj.document.tokens).map((t) => {
-  const found = cele.find(c => c.id === t.id);
+    const tokens = Array.from(regionObj.document.tokens).map((t) => {
+      const found = cele.find((c) => c.id === t.id);
 
-  return {
-    id: t.id,
-    img: t.texture.src,
-    name: t.name,
-    obrona: found ? found.obrona : 0
-  };
-});
+      return {
+        id: t.id,
+        img: t.texture.src,
+        name: t.name,
+        obrona: found ? found.obrona : 0,
+      };
+    });
     if (!message) return;
     const actor = game.actors.get(message.system.actorID);
     const czar = actor.items.get(message.system.czar._id);

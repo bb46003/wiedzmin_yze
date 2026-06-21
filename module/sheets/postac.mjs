@@ -29,7 +29,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       atakBronia: postacSheet.#atakBronia,
       rzucCzar: postacSheet.#rzucCzar,
       parowanie: postacSheet.#parowanie,
-      inicjatywa: postacSheet.#inicjatywa
+      inicjatywa: postacSheet.#inicjatywa,
     },
     form: {
       submitOnChange: true,
@@ -126,7 +126,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.actor.system.ekwipunek),
       field: this.actor.system.schema.fields.ekwipunek,
     };
-        context.notatnki = {
+    context.notatnki = {
       value: this.actor.system.notatnki,
       enriched: await enrich(this.actor.system.notatnki),
       field: this.actor.system.schema.fields.notatnki,
@@ -226,9 +226,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       (item) => item.type === "profesja",
     )[0];
     if (profesja) {
-      const umiejkiZawodowe = profesja.system.umiejetnosciZawodowe.filter((umiejka) => umiejka.wybor === false).map(umiejka => umiejka.umiejka);
+      const umiejkiZawodowe = profesja.system.umiejetnosciZawodowe
+        .filter((umiejka) => umiejka.wybor === false)
+        .map((umiejka) => umiejka.umiejka);
       const wybrane = profesja?.flags?.wiedzmin_yze?.wybraneUmiejki;
-      if(wybrane){
+      if (wybrane) {
         umiejkiZawodowe.push(...wybrane);
       }
 
@@ -814,8 +816,8 @@ Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`,
       });
     }
   }
-  static async #inicjatywa(ev){
-     await this.actor.rollInitiative();
+  static async #inicjatywa(ev) {
+    await this.actor.rollInitiative();
   }
   static async _onEditText(_event, target) {
     const { fieldPath, propertyPath } = target.dataset;

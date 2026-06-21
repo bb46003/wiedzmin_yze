@@ -13,16 +13,19 @@ export class postacActor extends foundry.documents.Actor {
         "prototypeToken.disposition": 1, // Friendly
       });
     }
-    }
-  async rollInitiative(){
-    //dla potworów przeba będzie likla wywołan inicjatywy zrobić 
-    
-    const jestWalka = game.combats?.active?.combatants.find(actor=> actor.actorId === this.id);
-    if(jestWalka){
-    return super.rollInitiative()
-    }else{
-      ui.notifications.warn("Nie ma aktywnej Walki i nie możesz rzucić na Inicjatywę")
+  }
+  async rollInitiative() {
+    //dla potworów przeba będzie likla wywołan inicjatywy zrobić
+
+    const jestWalka = game.combats?.active?.combatants.find(
+      (actor) => actor.actorId === this.id,
+    );
+    if (jestWalka) {
+      return super.rollInitiative();
+    } else {
+      ui.notifications.warn(
+        "Nie ma aktywnej Walki i nie możesz rzucić na Inicjatywę",
+      );
     }
   }
-
 }

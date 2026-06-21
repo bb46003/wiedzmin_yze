@@ -34,7 +34,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
     atrybutKey = "",
     item,
     secondArtibute,
-    messageID = ""
+    messageID = "",
   } = {}) {
     const hasSecondAttribute =
       secondArtibute && Object.keys(secondArtibute).length > 0;
@@ -110,7 +110,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 atrybutKey: atrybutKeyUse,
                 item: selectedItems,
                 type: "roll",
-                messageID: messageID
+                messageID: messageID,
               },
             );
 
@@ -264,7 +264,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
           default: true,
           callback: async (_event, _button, dialog) => {
             // 🔹 modifier from dialog
-            const mod = Number(dialog.element.querySelector("input[name='modifier']").value) || 0;
+            const mod =
+              Number(
+                dialog.element.querySelector("input[name='modifier']").value,
+              ) || 0;
 
             // 🔹 selected talents
             const checked = Array.from(
@@ -748,7 +751,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
             name: token.name,
             id: target.id,
             img: token.document.texture.src,
-            obrona: 0
+            obrona: 0,
           };
         })
       : [];

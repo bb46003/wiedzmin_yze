@@ -17,7 +17,10 @@ import { WiedzminTokenRuler } from "./token-ruler.mjs";
 import { czarSheet } from "./sheets/items/czar.mjs";
 import { WiedzminRegionDocument } from "./document/region.mjs";
 import { SocketHandler } from "./socketHandler.mjs";
-import { Wiedzmin_YZE_Adrenalina_Dice, Wiedzmin_YZE_Dice } from "./wiedzmin_dice.mjs";
+import {
+  Wiedzmin_YZE_Adrenalina_Dice,
+  Wiedzmin_YZE_Dice,
+} from "./wiedzmin_dice.mjs";
 import { wiedzmin_yze_Combar } from "./document/combat.mjs";
 import { NPCSheet } from "./sheets/npc.mjs";
 
@@ -35,7 +38,7 @@ Hooks.once("init", async function () {
 
   CONFIG.Actor.dataModels = {
     postac: models.postacDataModel,
-    npc: models.NPCDataModel
+    npc: models.NPCDataModel,
   };
   CONFIG.Item.dataModels = {
     talenty: models.talentyDataModel,
@@ -63,11 +66,11 @@ Hooks.once("init", async function () {
   };
   CONFIG.ActiveEffect.legacyTransferral = false;
   ActiveEffectWiedzmin_YZE._configureStatusEffects();
-	CONFIG.Combat.documentClass = wiedzmin_yze_Combar;
+  CONFIG.Combat.documentClass = wiedzmin_yze_Combar;
   CONFIG.Dice.rolls.push(WiedzminRoll);
   CONFIG.Token.rulerClass = WiedzminTokenRuler;
   utils.registerSystemSheet(foundry.documents.Actor, postacSheet, "postac");
-  utils.registerSystemSheet(foundry.documents.Actor, NPCSheet,"npc");
+  utils.registerSystemSheet(foundry.documents.Actor, NPCSheet, "npc");
   utils.registerSystemSheet(foundry.documents.Item, talentySheet, "talenty");
   utils.registerSystemSheet(foundry.documents.Item, rasaSheet, "rasa");
   utils.registerSystemSheet(foundry.documents.Item, profesjeSheet, "profesja");
@@ -85,12 +88,12 @@ Hooks.once("init", async function () {
     "systems/wiedzmin_yze/templates/postac/equipment.hbs",
     "systems/wiedzmin_yze/templates/postac/notes.hbs",
     "systems/wiedzmin_yze/templates/items/talenty-opcje.hbs",
-    "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs"
+    "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs",
   ];
 
   foundry.applications.handlebars.loadTemplates(templates);
-  game.wiedzmin_YZE = {socketHandler: new SocketHandler()};
- CONFIG.Dice.terms["n"] = Wiedzmin_YZE_Dice;
+  game.wiedzmin_YZE = { socketHandler: new SocketHandler() };
+  CONFIG.Dice.terms["n"] = Wiedzmin_YZE_Dice;
   CONFIG.Dice.terms["a"] = Wiedzmin_YZE_Adrenalina_Dice;
   console.log("Wiedzmin YZE został zainicjiwany");
 });
@@ -120,20 +123,17 @@ Hooks.on("clientSettingChanged", (setting) => {
   }
 });
 
-
 Hooks.on("renderTokenHUD", (hud, html) => {
-  const palette = html.querySelector('.palette.status-effects');
+  const palette = html.querySelector(".palette.status-effects");
   if (!palette) return;
 
   // prevent duplicates
-  if (palette.querySelector('.wiedzmin-header-effects')) return;
+  if (palette.querySelector(".wiedzmin-header-effects")) return;
 
   // create header
   const header = document.createElement("div");
   header.className = "wiedzmin-header-effects";
   header.textContent = "Statusy z Wiedzmina";
-
-
 
   // find first custom effect
   const firstCustom = palette.querySelector('[data-status-id="glod"]');
@@ -143,7 +143,7 @@ Hooks.on("renderTokenHUD", (hud, html) => {
   } else {
     palette.appendChild(header);
   }
-  palette.style.height = "285px"
+  palette.style.height = "285px";
 });
 
 Hooks.once("ready", async () => {
@@ -159,43 +159,47 @@ Hooks.once("ready", async () => {
   }
 });
 
-		Hooks.once("diceSoNiceReady", async dice3d => {
-			dice3d.addSystem({ id: "wiedzmin_yze", name: "Wiedzmin YZE" }, true);
+Hooks.once("diceSoNiceReady", async (dice3d) => {
+  dice3d.addSystem({ id: "wiedzmin_yze", name: "Wiedzmin YZE" }, true);
 
-			dice3d.addColorset({
-				name: "wiedzmin_yze",
-				description: "Wiedzmin YZE Normal Dice",
-				category: "Colors",
-				foreground: "#ffffff",
-				background: "#000000",
-				outline: "gray",
-				texture: "none",
-			});
+  dice3d.addColorset({
+    name: "wiedzmin_yze",
+    description: "Wiedzmin YZE Normal Dice",
+    category: "Colors",
+    foreground: "#ffffff",
+    background: "#000000",
+    outline: "gray",
+    texture: "none",
+  });
 
-			dice3d.addDicePreset({
-				type: "dn",
-				labels: [
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/white_wither.webp",
-				],
-				system: "wiedzmin_yze",
-
-			},"d6");
-      dice3d.addDicePreset({
-				type: "da",
-				labels: [
-					"systems/wiedzmin_yze/assets/wild_gone.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/black.webp",
-					"systems/wiedzmin_yze/assets/red_wither.webp",
-				],
-				system: "wiedzmin_yze",
-
-			},"d6");
-        })
+  dice3d.addDicePreset(
+    {
+      type: "dn",
+      labels: [
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/white_wither.webp",
+      ],
+      system: "wiedzmin_yze",
+    },
+    "d6",
+  );
+  dice3d.addDicePreset(
+    {
+      type: "da",
+      labels: [
+        "systems/wiedzmin_yze/assets/wild_gone.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/black.webp",
+        "systems/wiedzmin_yze/assets/red_wither.webp",
+      ],
+      system: "wiedzmin_yze",
+    },
+    "d6",
+  );
+});

@@ -2,7 +2,6 @@ import { staticID } from "../utils.mjs";
 import { postacActor } from "./actors/postac.mjs";
 
 export class ActiveEffectWiedzmin_YZE extends foundry.documents.ActiveEffect {
-
   /**
    * Apply both core and system-specific changes
    */
@@ -55,7 +54,7 @@ export class ActiveEffectWiedzmin_YZE extends foundry.documents.ActiveEffect {
 
     if (!status) {
       throw new Error(
-        `Invalid status ID "${statusId}" provided to ActiveEffect#fromStatusEffect`
+        `Invalid status ID "${statusId}" provided to ActiveEffect#fromStatusEffect`,
       );
     }
 
@@ -85,7 +84,7 @@ export class ActiveEffectWiedzmin_YZE extends foundry.documents.ActiveEffect {
 
     if (effectData.statuses.length > 1 && !status._id) {
       throw new Error(
-        "Status effects with implicit statuses must have a static _id"
+        "Status effects with implicit statuses must have a static _id",
       );
     }
 
@@ -117,43 +116,39 @@ export class ActiveEffectWiedzmin_YZE extends foundry.documents.ActiveEffect {
     };
 
     // ✅ start from original effects
-    const effects = CONFIG.statusEffects.map((e) =>
-      foundry.utils.deepClone(e)
-    );
+    const effects = CONFIG.statusEffects.map((e) => foundry.utils.deepClone(e));
 
     // ✅ override / extend STATUS_EFFECTS
     for (const [id, data] of Object.entries(
-      wiedzmin_yze.config.STATUS_EFFECTS
+      wiedzmin_yze.config.STATUS_EFFECTS,
     )) {
       const original = effects.find((e) => e.id === id);
 
-const merged = foundry.utils.mergeObject(
-  foundry.utils.deepClone(original ?? {}),
-  {
-    id,
-    ...data,
-    system: foundry.utils.mergeObject(
-      original?.system ?? {},
-      data.system ?? {},
-      { inplace: false },
-    ),
-  },
-  { inplace: false }
-);
+      const merged = foundry.utils.mergeObject(
+        foundry.utils.deepClone(original ?? {}),
+        {
+          id,
+          ...data,
+          system: foundry.utils.mergeObject(
+            original?.system ?? {},
+            data.system ?? {},
+            { inplace: false },
+          ),
+        },
+        { inplace: false },
+      );
 
-effects.forEach(effect =>{
-if(!effect.changes){
-  effect.changes = []
-}
-})
+      effects.forEach((effect) => {
+        if (!effect.changes) {
+          effect.changes = [];
+        }
+      });
 
       addEffect(effects, merged);
     }
 
     // ✅ add CONDITIONS
-    for (const [id, data] of Object.entries(
-      wiedzmin_yze.config.CONDITIONS
-    )) {
+    for (const [id, data] of Object.entries(wiedzmin_yze.config.CONDITIONS)) {
       addEffect(effects, { id, ...data });
     }
 
@@ -170,7 +165,7 @@ if(!effect.changes){
 
     await wiedzmin_yze.models.Condition._preCreateConditions(
       documents,
-      operation
+      operation,
     );
   }
 }

@@ -15,6 +15,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     classes: ["postac-sheet", "npc"],
     position: { width: 820, height: 850 },
     actions: {
+      dodajAZ: NPCSheet.#dodajAZ
     },
     form: {
       submitOnChange: true,
@@ -25,7 +26,10 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       id: "tabs",
       template: `systems/wiedzmin_yze/templates/npc/wiedzmin-npc-header.hbs`,
     },
-   
+    main: {
+      id: "tabs",
+      template: "systems/wiedzmin_yze/templates/npc/wiedzmin-npc-main.hbs",
+    },
   };
   static TABS = {
     items: {
@@ -65,6 +69,24 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       enriched: await enrich(this.actor.system.opis),
       field: this.actor.system.schema.fields.opis,
     };
+    context.systemFields.tabela_atakow.choices =
+      await this.prepareTabeleLosowe();
     return context;
+  }
+
+  async prepareTabeleLosowe() {
+    const tabele = game.tables;
+    const data = {};
+    if (tabele) {
+      tabele.forEach((tabela) => {
+        data[tabela.uuid] = tabela.name;
+      });
+    }
+    return data;
+  }
+  static async #dodajAZ(ev){
+    const target = ev.target;
+    const type = target.dataset.type;
+    await this.actor.system.dodsjAZ(type)
   }
 }
