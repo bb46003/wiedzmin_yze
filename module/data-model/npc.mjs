@@ -63,6 +63,28 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
           }),
         }),
       ),
+      czary: new ArrayField(
+        new SchemaField({
+          nazwa: new StringField({
+            initial: "Nowy Atak",
+            label: "Nazwa Ataku",
+            required: true,
+          }),
+          atak: new NumberField({
+            initial: 1,
+            label: "Ilość Kości Ataku",
+            min: 1,
+          }),
+          obrazenia: new NumberField({
+            initial: 0,
+            label: "Ilość Kości Obrażeń",
+            min: 0,
+          }),
+          id: new StringField({
+            initial: ""
+          })
+        }),
+      ),
       opis: new HTMLField({
         label: "Opis",
         initial: "",
@@ -131,7 +153,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     }
     token.update({ height: scale, width: scale });
   }
-async dodajAZ(type, name) {
+async dodajAZ(type, name, obnazenia, id) {
   const az = this[type] ?? [];
   let nowy = {};
   
@@ -142,6 +164,11 @@ async dodajAZ(type, name) {
     nowy.nazwa = name ?? "Atak";
     nowy.obrazenia = 1;
     nowy.atak = 1;
+  }else if( type === "czary"){
+        nowy.nazwa = name ?? "Czar";
+    nowy.obrazenia = obrazenia ?? 1;
+    nowy.atak = 1;
+    nowy.id = id ?? ""
   }
 
   az.push(nowy);
@@ -149,5 +176,10 @@ async dodajAZ(type, name) {
   await this.parent.update({
     [`system.${type}`]: az
   });
+}
+async usunAZ(type, id){
+  const stat = this[type];
+  stat.splice(id,1)
+    await this.parent.update({[`system.${type}`]: stat});
 }
 }

@@ -16,7 +16,10 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     position: { width: 820, height: 850 },
     actions: {
       dodajAZ: NPCSheet.#dodajAZ,
-      atakZTabeli: NPCSheet.#atakZTabeli
+      atakZTabeli: NPCSheet.#atakZTabeli,
+      itemContextMenu: NPCSheet.#itemContextMenu,
+      usun: NPCSheet.#usun
+
     },
     form: {
       submitOnChange: true,
@@ -62,6 +65,8 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       await this.prepareTabeleLosowe();
     const zdolnosci = await this.prepareZdolnosci()
      Object.assign(context, {zdolnosci});
+         const czary = await this.prepareCzary();
+    Object.assign(context, { czary });
     return context;
   }
 
@@ -97,6 +102,28 @@ async prepareZdolnosci() {
 
   return data;
 }
+  async prepareCzary() {
+    const czary = this.actor.items.filter((item) => item.type === "czar");
+    const data = {};
+    czary.forEach((czar) => {
+      const itemID = czar.id;
+      const img = czar.img;
+      const name = czar.name;
+      const poziom = czar.system.poziom;
+      const koszt = czar.system.koszt;
+      const zasieg = czar.system.zasieg;
+
+      data[itemID] = {
+        img,
+        name,
+        poziom,
+        koszt,
+        zasieg,
+      };
+    });
+
+    return data;
+  }
     async  enrich(html) {
       if (html) {
         return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
@@ -136,7 +163,6 @@ static async #atakZTabeli(){
     if(!itemData.type){
       itemData.type = droppedItem.type;
     }
-   console.log(itemData.type)
     switch (itemData.type) {
       case "RollTable":
         await this.actor.update({"system.tabela_atakow": droppedItem.uuid})
@@ -145,6 +171,81 @@ static async #atakZTabeli(){
         const bronName = itemData.name;
         await this.actor.system.dodajAZ("ataki", bronName)
         break;
+      case "czar":
+        const bronName = itemData.name;
+        const zadajeObrazenia = itemData.system?.obrazenia?.zadajeObrazenia
+        let obrazenia = 0;
+        if(zadajeObrazenia){
+          obrazenia = itemData.system?.obrazenia?.podstawowe;
+        }
+        const czar =  await actor.createEmbeddedDocuments("Item", [itemData]);
+        await this.actor.system.dodajAZ("czary", bronName, obrazenia, czar.id)
+        break;
     }
   }
+    static async #itemContextMenu(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const button = ev.target;
+    const itemId = button.parentElement.dataset.item;
+    const item = this.actor.items.get(itemId);
+    // Remove old menu if exists
+    document.querySelector(".custom-context-menu")?.remove();
+
+    // Create element instead of raw string (safer and cleaner)
+    const menu = document.createElement("div");
+    menu.classList.add("custom-context-menu");
+  
+    if (item.type === "czar") {
+      menu.innerHTML = `
+    <div class="menu-option" data-action="open">Otwórz Czar</div>
+    <div class="menu-option" data-action="delete">Usuń Czar</div>
+  `;
+    }
+
+    // Position at mouse location
+    menu.style.position = "absolute";
+    menu.style.left = `${ev.pageX}px`;
+    menu.style.top = `${ev.pageY}px`;
+    menu.style.zIndex = 1000;
+
+    document.body.appendChild(menu);
+
+    // Attach click handler
+    menu.addEventListener("click", async (e) => {
+      const action = e.target.dataset.action;
+      if (!action) return;
+
+      if (action === "open") {
+        const item = this.actor.items.get(itemId);
+        item?.sheet.render(true);
+      }
+
+      if (action === "delete") {
+        const item = this.actor.items.get(itemId);
+        await item?.delete();
+      }
+
+      menu.remove();
+    });
+
+    // Close when clicking elsewhere
+    setTimeout(() => {
+      document.addEventListener("click", () => menu.remove(), { once: true });
+    }, 10);
+  }
+
+  static async #usun(ev){
+    const target = ev.target;
+    const itemId = target.dataset?.item;
+    const type = target.dataset.type;
+    const index = target.dataset.index;
+    if(itemId){
+      const item = this.actor.items.get(itemId);
+      await item?.delete();
+    }
+    await this.actor.system.usunAZ(type, index)
+  }
+
 }
