@@ -952,35 +952,42 @@
     }
   }
   .main {
-          display: grid;
-        grid-template-columns: 390px 390px;
-        overflow-y: auto;
-        overflow-x: hidden;
-                height: 92%;
+    display: grid;
+    grid-template-columns: 390px 390px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 92%;
     h4 {
       text-align: center;
     }
-    .bronie, .zdolnosci{
-          margin-bottom: 10px;
-          .flexrow{
-          display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    a{font-size: x-large;}
-
+    .bronie,
+    .zdolnosci, .czary {
+      margin-bottom: 10px;
+      .flexrow {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        a {
+          font-size: x-large;
+        }
+      }
+    }
+    .zdolnosci {
+      display: flex;
+      gap: 10px;
+      .flexrow {
+        align-items: center;
+      }
+    }
+    prose-mirror {
+      border: 1px black;
+      border-style: groove;
+      border-radius: 15px;
     }
   }
-  .zdolnosci{
-    display: flex;
-    gap: 10px;
-    .flexrow{
-      align-items: center;
+      .threeDots {
+      max-width: min-content;
+      margin-right: 10px;
+      font-size: 16px;
     }
-  }
-  prose-mirror{
-    border: 1px black;
-    border-style: groove;
-    border-radius: 15px;
-  }
-  }
 }

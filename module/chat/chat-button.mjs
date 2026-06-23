@@ -315,8 +315,15 @@ async function zadajObrazenia(event, message) {
   if (!actor) return;
   const cel = data.cel;
   const bronId = data.bronId;
-  const bron = actor.items.get(bronId);
-  const obrazenia = bron.system.obrazenia;
+  let bron;
+  let obrazenia;
+  if(typeof bronId === String){
+  bron = actor.items.get(bronId);
+   obrazenia = bron.system.obrazenia;
+  }else{
+    bron = bronId;
+    obrazenia = bronId.obrazenia
+  }
   const telenty = data.item;
   let modifikatorObrazen = 0;
   for (const uuid of telenty) {
@@ -461,8 +468,16 @@ async function rzutObrazen(event, message) {
   const actor = game.actors.get(data.actorID);
   if (!actor) return;
   const bronId = data.bronId;
-  const bron = actor.items.get(bronId);
-  const obrazenia = bron.system.obrazenia;
+  let bron;
+  let obrazenia;
+  if(typeof bronId === String){
+  bron = actor.items.get(bronId);
+   obrazenia = bron.system.obrazenia;
+  }else{
+    bron = bronId;
+    obrazenia = bronId.obrazenia
+  }
+ 
   const telenty = data.item;
   let modifikatorObrazen = 0;
   for (const uuid of telenty) {

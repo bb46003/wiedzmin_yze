@@ -8,12 +8,12 @@
         ></a></h4>
       {{#each system.ataki as |atak index|}}
         <div class="flexrow">
-          <a data-action="atak" data-id="{{index}}">{{atak.nazwa}}</a>
-          <a class="fa fas-minus" data-action="usun"  data-index="{{index}}" data-type="ataki"></a>
+          <a data-action="rzut" data-type="ataki" data-index="{{index}}">{{atak.nazwa}}</a>
+          <a class="fa fa-minus" data-action="usun"  data-index="{{index}}" data-type="ataki"></a>
           <div class="flexcol">
             <label>Ilość Kości do Trafienia</label>
             <input
-              name="system.ataki[{{index}}].atak"
+              name="system.ataki.{{index}}.atak"
               min="1"
               value="{{atak.atak}}"
             />
@@ -21,7 +21,7 @@
           <div class="flexcol">
             <label>Ilość Obrażeń</label>
             <input
-              name="system.ataki[{{index}}].obrazenia"
+              name="system.ataki.{{index}}.obrazenia"
               min="1"
               value="{{atak.obrazenia}}"
             />
@@ -29,39 +29,37 @@
         </div>
       {{/each}}
     </div>
-    {{#if (neq czary {})}}
+    {{#if czary }}
         <div class="czary">
       <h4>Czary<a
           data-action="dodajAZ"
           data-type="czary"
           class="fa fa-plus"
         ></a></h4>
+  <div class="poziomMocy">
+    <label>Poziom Mocy</label>
+    {{formInput systemFields.poziomMocy value=system.poziomMocy}}
+  </div>
       {{#each system.czary as |czar index|}}
         <div class="flexrow">
-          <a data-action="czar" data-id="{{index}}">{{czar.nazwa}}</a>
-          {{#if (neq czar.id "")}}
+          <a data-action="rzut" data-type="czary" data-id="{{czar.id}}" data-index="{{index}} ">{{czar.nazwa}}</a>
+          {{log czar}}
+          {{#if (ne czar.id "")}}
                         <a
                 class="threeDots"
                 data-action="itemContextMenu"
                 data-item="{{czar.id}}"
                 data-index="{{index}}"
-              >
+              >              <i class="fas fa-ellipsis-v"></i>
+                        </a>
           {{/if}}
-          <a class="fa fas-minus" data-action="usun" data-item="{{czar.id}}" data-index="{{index}}" data-type="czary"></a>
+          <a class="fa fa-minus" data-action="usun" data-item="{{czar.id}}" data-index="{{index}}" data-type="czary"></a>
           <div class="flexcol">
             <label>Ilość Kości do Rzucenia Czaru</label>
             <input
-              name="system.czary[{{index}}].atak"
+              name="system.czary.{{index}}.atak"
               min="1"
               value="{{czar.atak}}"
-            />
-          </div>
-          <div class="flexcol">
-            <label>Ilość Obrażeń</label>
-            <input
-              name="system.ataki[{{index}}].obrazenia"
-              min="1"
-              value="{{czar.obrazenia}}"
             />
           </div>
         </div>
@@ -77,7 +75,7 @@
         {{#each zdolnosci as |z|}}
         <div class="flexrow">
   <a data-action="doCzatu">{{z.nazwa.value}}</a>
-  <a class="fa fas-minus" data-action="usun" data-index="{{index}}" data-type="zdolnosci"></a>
+  <a class="fa fa-minus" data-action="usun" data-index="{{index}}" data-type="zdolnosci"></a>
 
   {{formInput
     z.opis.field

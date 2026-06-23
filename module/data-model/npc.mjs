@@ -81,8 +81,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
             min: 0,
           }),
           id: new StringField({
-            initial: ""
-          })
+            initial: "",
+          }),
         }),
       ),
       opis: new HTMLField({
@@ -113,8 +113,17 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       ),
       obrona: new NumberField({
         initial: 0,
-        label: "Obrona"
-      })
+        label: "Obrona",
+      }),
+            poziomMocy: new StringField({
+        initial: "brak",
+        choices: {
+          brak: "Brak",
+          adept: "Adept",
+          mistrz: "Mistrz",
+          arcymistrz: "Arcymistrz",
+        },
+      }),
     };
   }
   /** @override */
@@ -153,33 +162,103 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     }
     token.update({ height: scale, width: scale });
   }
-async dodajAZ(type, name, obnazenia, id) {
-  const az = this[type] ?? [];
-  let nowy = {};
-  
-  if (type === "zdolnosci") {
-    nowy.nazwa = name ?? "Zdolność";
-    nowy.opis = "";
-  } else if (type === "ataki") {
-    nowy.nazwa = name ?? "Atak";
-    nowy.obrazenia = 1;
-    nowy.atak = 1;
-  }else if( type === "czary"){
-        nowy.nazwa = name ?? "Czar";
-    nowy.obrazenia = obrazenia ?? 1;
-    nowy.atak = 1;
-    nowy.id = id ?? ""
+  async dodajAZ(type, name, obrazenia, id) {
+    const az = this[type] ?? [];
+    let nowy = {};
+
+    if (type === "zdolnosci") {
+      nowy.nazwa = name ?? "Zdolność";
+      nowy.opis = "";
+    } else if (type === "ataki") {
+      nowy.nazwa = name ?? "Atak";
+      nowy.obrazenia = 1;
+      nowy.atak = 1;
+    } else if (type === "czary") {
+      nowy.nazwa = name ?? "Czar";
+      nowy.obrazenia = obrazenia ?? 1;
+      nowy.atak = 1;
+      nowy.id = id ?? "";
+    }
+
+    az.push(nowy);
+
+    await this.parent.update({
+      [`system.${type}`]: az,
+    });
   }
+  async usunAZ(type, id) {
+    const stat = this[type];
+    stat.splice(id, 1);
+    await this.parent.update({ [`system.${type}`]: stat });
+  }
+  async NPCRzut(type, item, index){
+    const az = this[type] ?? [];
+    const iloscKosci = az[index].atak;
+    if(type === "czary"){
+    const czar = item;
+    const dostepnaMoc = this.punkty_mocy.value;
+    const kosztBazowy = item.system.koszt.bazowy;
+    if (kosztBazowy > dostepnaMoc) {
+      ui.notifications.error(
+        "Nie masz wystarczająco Punktów Mocy, by rzucić ten czar!",
+      );
+      return;
+    }
+    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
+      attribute: iloscKosci,
+      skill: 0,
+      adrenalina: 0,
+      atrubutLabel: " NPC Rzuca Czar",
+      umiejkaLabel: "",
+      actorID: this.parent.id,
+      item: [],
+      secondArtibute: 0,
+      atrybutKey: "",
+      umiejkaKey: "",
+      czarID: item.id,
+      dostepnaMoc: dostepnaMoc,
+    });
+    }else{
+      const weaponId = {name: az[index].nazwa, obrazenia: az[index].obrazenia}
+      const roll = await globalThis.wiedzmin_yze.WiedzminRoll.atakBronia({
+      attribute: iloscKosci,
+      skill: 0,
+      adrenalina: 0,
+      atrubutLabel: " NPC Atakuje",
+      umiejkaLabel: "",
+      actorID: this.parent.id,
+      item: [],
+      secondArtibute: "",
+      atrybutKey: "",
+      umiejkaKey: "",
+      weaponId: weaponId,
 
-  az.push(nowy);
+      // 👇 NEW DATA
+      attributesList:[{key: "", value:iloscKosci, label: az[index].nazwa}],
+      skillsList:[{key: "Brak", value: 0, parent: "", label: "Brak"}],
+    });
 
-  await this.parent.update({
-    [`system.${type}`]: az
-  });
-}
-async usunAZ(type, id){
-  const stat = this[type];
-  stat.splice(id,1)
-    await this.parent.update({[`system.${type}`]: stat});
-}
+    if (roll) await roll.toMessage();
+    }
+
+
+  }
+    async wydawaniePM(kosztBazowy, dodatkowaMoc) {
+    const obecnaMoc = this.punkty_mocy.value;
+    let nowaMoc = obecnaMoc - kosztBazowy - dodatkowaMoc;
+
+    if (nowaMoc <= 0) {
+      nowaMoc = 0;
+    }
+
+    await this.parent.update({ "system.punkty_mocy.value": nowaMoc });
+  }
+    async obrazeniaZCzaru(obrazenia) {
+    const obecneZdrowie = this.zycie.value;
+    let noweZdrowie = obecneZdrowie - obrazenia;
+    if (noweZdrowie < 0) {
+      noweZdrowie = 0;
+    }
+    await this.parent.update({ "system.zycie.value": noweZdrowie });
+  }
 }

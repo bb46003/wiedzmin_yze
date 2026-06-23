@@ -1,8 +1,9 @@
-<section 
-class="tab bronie lewa {{tabs.bronie.cssClass}}" 
-data-tab="bronie"
- action-data="tab"
-  data-group="items">
+<section
+  class="tab bronie lewa {{tabs.bronie.cssClass}}"
+  data-tab="bronie"
+  action-data="tab"
+  data-group="items"
+>
   <h3>Bronie</h3>
   <table>
     <thead>
@@ -66,13 +67,13 @@ data-tab="bronie"
       {{#each pancerz}}
         <tr>
           <td class="nazwaBroni">
-            {{#if (eq this.efekt "parowanie")}}             
-            <a class="item-open" data-id="{{@key}}"data-action="parowanie">
-              {{this.name}}      
+            {{#if (eq this.efekt "parowanie")}}
+              <a class="item-open" data-id="{{@key}}" data-action="parowanie">
+                {{this.name}}
               </a>
-              {{else}}
+            {{else}}
               <span> {{this.name}}</span>
-              {{/if}}
+            {{/if}}
             <a
               class="threeDots"
               data-action="itemContextMenu"
@@ -88,4 +89,5 @@ data-tab="bronie"
         </tr>
       {{/each}}
     </tbody>
+  </table>
 </section>

@@ -232,7 +232,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
     skillsList = [],
   } = {}) {
     const actor = await game.actors.get(actorID);
-    const weapon = actor.items.get(weaponId);
+    let weapon
+    if( typeof weaponId === String){
+      weapon = actor.items.get(weaponId)
+    }else{
+      weapon = weaponId
+    }
     const maTelentBlokujacy = !item.some(
       (item) => item.system?.usuwaForsowanie === true,
     );
@@ -254,13 +259,13 @@ export class WiedzminRoll extends foundry.dice.Roll {
     );
     const cel = game.user.targets;
     new foundry.applications.api.DialogV2({
-      window: { title: `Attack: ${weapon.name}` },
+      window: { title: `Atak: ${weapon.name}` },
       classes: ["wiedzmin-dialog", "atak"],
       content,
       buttons: [
         {
           action: "roll",
-          label: "Attack",
+          label: "Atak",
           default: true,
           callback: async (_event, _button, dialog) => {
             // 🔹 modifier from dialog
@@ -296,7 +301,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               wybranyAtrybut.selectedOptions[0].dataset.label;
             const wybranaUmiejkaLabel =
               wybranaUmiejka.selectedOptions[0].dataset.label;
-            const celnoscBroni = weapon.system.celnosc;
+            const celnoscBroni = weapon?.system?.celnosc ?? 0;
             const basePool =
               atrybutWartosc +
               umiejkaWartosc +
@@ -311,7 +316,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 ? `${basePool}dn + ${adrenalina}da`
                 : `${basePool}dn`;
             let flavor = "Attack";
-            if (!maTelentBlokujacy) {
+            if (!maTelentBlokujacy || actor.type ==="npc") {
               flavor = "Forsowanie";
             }
             const roll = new WiedzminRoll(
@@ -325,7 +330,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 actorID,
                 item: selectedItems,
                 type: "atak", // 🔥 IMPORTANT
-                weaponId: weapon.id,
+                weaponId: weapon,
                 weaponName: weapon.name,
                 cel: cel,
                 bonusDoObrazen: bonusDoObrazen,
@@ -723,9 +728,12 @@ export class WiedzminRoll extends foundry.dice.Roll {
 
     let umiejkaLabel = this.options.umiejkaLabel;
     const actor = await game.actors.get(this.options.actorID);
-    const fach = game.i18n.localize(
+    let fach = "";
+    if(actor.type !== "npc"){
+    fach = game.i18n.localize(
       wiedzmin_yze.config.fachy[actor.system.specjalizacjaFach].label,
     );
+  }
     if (this.options.umiejkaKey === "fach" && !umiejkaLabel.includes(fach)) {
       umiejkaLabel += " " + fach;
     }

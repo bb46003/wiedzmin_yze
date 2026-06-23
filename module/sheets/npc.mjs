@@ -18,8 +18,9 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       dodajAZ: NPCSheet.#dodajAZ,
       atakZTabeli: NPCSheet.#atakZTabeli,
       itemContextMenu: NPCSheet.#itemContextMenu,
-      usun: NPCSheet.#usun
-
+      usun: NPCSheet.#usun,
+      rzut: NPCSheet.#rzut,
+      doCzatu: NPCSheet.#doCzatu,
     },
     form: {
       submitOnChange: true,
@@ -63,9 +64,9 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     };
     context.systemFields.tabela_atakow.choices =
       await this.prepareTabeleLosowe();
-    const zdolnosci = await this.prepareZdolnosci()
-     Object.assign(context, {zdolnosci});
-         const czary = await this.prepareCzary();
+    const zdolnosci = await this.prepareZdolnosci();
+    Object.assign(context, { zdolnosci });
+    const czary = await this.prepareCzary();
     Object.assign(context, { czary });
     return context;
   }
@@ -80,28 +81,28 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     }
     return data;
   }
-async prepareZdolnosci() {
-  const zdolnosci = this.actor.system.zdolnosci ?? [];
-  const fields = this.actor.system.schema.fields.zdolnosci.element.fields;
+  async prepareZdolnosci() {
+    const zdolnosci = this.actor.system.zdolnosci ?? [];
+    const fields = this.actor.system.schema.fields.zdolnosci.element.fields;
 
-  const data = [];
+    const data = [];
 
-  for (const zdolnosc of zdolnosci) {
-    data.push({
-      nazwa: {
-        value: zdolnosc.nazwa,
-        field: fields.nazwa,
-      },
-      opis: {
-        value: zdolnosc.opis,
-        enriched: await this.enrich(zdolnosc.opis),
-        field: fields.opis,
-      },
-    });
+    for (const zdolnosc of zdolnosci) {
+      data.push({
+        nazwa: {
+          value: zdolnosc.nazwa,
+          field: fields.nazwa,
+        },
+        opis: {
+          value: zdolnosc.opis,
+          enriched: await this.enrich(zdolnosc.opis),
+          field: fields.opis,
+        },
+      });
+    }
+
+    return data;
   }
-
-  return data;
-}
   async prepareCzary() {
     const czary = this.actor.items.filter((item) => item.type === "czar");
     const data = {};
@@ -124,66 +125,31 @@ async prepareZdolnosci() {
 
     return data;
   }
-    async  enrich(html) {
-      if (html) {
-        return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
-          html,
-          {
-            secrets: game.user.isOwner,
-            async: true,
-          },
-        );
-      } else {
-        return html;
-      }
+  async enrich(html) {
+    if (html) {
+      return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        html,
+        {
+          secrets: game.user.isOwner,
+          async: true,
+        },
+      );
+    } else {
+      return html;
     }
-  static async #dodajAZ(ev){
+  }
+  static async #dodajAZ(ev) {
     const target = ev.target;
     const type = target.dataset.type;
-    await this.actor.system.dodajAZ(type)
+    await this.actor.system.dodajAZ(type);
   }
-static async #atakZTabeli(){
-  const uuidTabeli = this.actor.system.tabela_atakow;
-  const tabela = await fromUuid(uuidTabeli);
-  await tabela.draw({ displayChat: true });
-}
-  async _onDrop(event) {
-    event.preventDefault();
-
-    const data = event.dataTransfer;
-    const actor = this.actor;
-    let stworzPrzedmiot = false;
-    if (!data) return;
-
-    const droppedItem = JSON.parse(data.getData("text/plain"));
-
-
-    const itemDoc = await fromUuid(droppedItem.uuid);
-    let itemData = itemDoc.toObject(); // IMPORTANT
-    if(!itemData.type){
-      itemData.type = droppedItem.type;
-    }
-    switch (itemData.type) {
-      case "RollTable":
-        await this.actor.update({"system.tabela_atakow": droppedItem.uuid})
-        break;
-      case "bron":
-        const bronName = itemData.name;
-        await this.actor.system.dodajAZ("ataki", bronName)
-        break;
-      case "czar":
-        const bronName = itemData.name;
-        const zadajeObrazenia = itemData.system?.obrazenia?.zadajeObrazenia
-        let obrazenia = 0;
-        if(zadajeObrazenia){
-          obrazenia = itemData.system?.obrazenia?.podstawowe;
-        }
-        const czar =  await actor.createEmbeddedDocuments("Item", [itemData]);
-        await this.actor.system.dodajAZ("czary", bronName, obrazenia, czar.id)
-        break;
-    }
+  static async #atakZTabeli() {
+    const uuidTabeli = this.actor.system.tabela_atakow;
+    const tabela = await fromUuid(uuidTabeli);
+    await tabela.draw({ displayChat: true });
   }
-    static async #itemContextMenu(ev) {
+ 
+  static async #itemContextMenu(ev) {
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -196,7 +162,7 @@ static async #atakZTabeli(){
     // Create element instead of raw string (safer and cleaner)
     const menu = document.createElement("div");
     menu.classList.add("custom-context-menu");
-  
+
     if (item.type === "czar") {
       menu.innerHTML = `
     <div class="menu-option" data-action="open">Otwórz Czar</div>
@@ -225,6 +191,9 @@ static async #atakZTabeli(){
       if (action === "delete") {
         const item = this.actor.items.get(itemId);
         await item?.delete();
+        const index = button.dataset.index;
+        await this.actor.system.usunAZ("czary", index);
+
       }
 
       menu.remove();
@@ -236,16 +205,99 @@ static async #atakZTabeli(){
     }, 10);
   }
 
-  static async #usun(ev){
+  static async #usun(ev) {
     const target = ev.target;
     const itemId = target.dataset?.item;
     const type = target.dataset.type;
     const index = target.dataset.index;
-    if(itemId){
+    if (itemId) {
       const item = this.actor.items.get(itemId);
       await item?.delete();
     }
-    await this.actor.system.usunAZ(type, index)
+    await this.actor.system.usunAZ(type, index);
+  }
+  static async #rzut(ev) {
+    const target = ev.target;
+    const type = target.dataset.type;
+    let id = "";
+    let item;
+    if(type === "czary"){
+      id = target.dataset.id
+      item = await this.actor.items.get(id);
+    }
+    const index = Number(target.dataset.index);
+    await this.actor.system.NPCRzut(type, item, index);
+  }
+  static async #doCzatu(ev) {}
+   async _onDrop(event) {
+    event.preventDefault();
+
+    const data = event.dataTransfer;
+    const actor = this.actor;
+    let stworzPrzedmiot = false;
+    if (!data) return;
+
+    const droppedItem = JSON.parse(data.getData("text/plain"));
+
+    const itemDoc = await fromUuid(droppedItem.uuid);
+    let itemData = itemDoc.toObject(); // IMPORTANT
+    if (!itemData.type) {
+      itemData.type = droppedItem.type;
+    }
+     const bronName = itemData.name;
+    switch (itemData.type) {
+      case "RollTable":
+        await this.actor.update({ "system.tabela_atakow": droppedItem.uuid });
+        break;
+      case "bron":
+       
+        await this.actor.system.dodajAZ("ataki", bronName);
+        break;
+      case "czar":
+        const zadajeObrazenia = itemData.system?.obrazenia?.zadajeObrazenia;
+        let obrazenia = 0;
+        if (zadajeObrazenia) {
+          obrazenia = itemData.system?.obrazenia?.podstawowe;
+        }
+        const czar = await actor.createEmbeddedDocuments("Item", [itemData]);
+        await this.actor.system.dodajAZ("czary", bronName, obrazenia, czar[0].id);
+        break;
+    }
+  }
+_processFormData(event, form, formData) {
+   const target = event?.target;
+  const name = target?.name;
+  const data = { object: {} };
+  if (typeof name === "string") {
+    data.object[name] = target?.value;
   }
 
+  const match = name.match(/^system\.(ataki|czary|zdolnosci)\./);
+  if (!match) {
+    return super._processFormData(event, form, data);
+  }
+
+  const [, rootKey] = match;
+  const split = name.split(".");
+  const index = Number(split[2]);
+
+  // current full object (e.g. one "atak")
+  const current = this.actor.system[rootKey]?.[index];
+
+
+  // 🔥 fill missing fields
+  for (const key in current) {
+    const fullPath = `system.${rootKey}.${index}.${key}`;
+
+    // if this field was NOT changed → inject old value
+    if (!(fullPath in formData)) {
+      if(fullPath !== name){
+      data.object[fullPath] = current[key];
+      }
+    }
+  }
+
+  return super._processFormData(event, form, data);
 }
+}
+
