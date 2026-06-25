@@ -8,8 +8,17 @@
         ></a></h4>
       {{#each system.ataki as |atak index|}}
         <div class="flexrow">
-          <a data-action="rzut" data-type="ataki" data-index="{{index}}">{{atak.nazwa}}</a>
-          <a class="fa fa-minus" data-action="usun"  data-index="{{index}}" data-type="ataki"></a>
+          <a
+            data-action="rzut"
+            data-type="ataki"
+            data-index="{{index}}"
+          >{{atak.nazwa}}</a>
+          <a
+            class="fa fa-minus"
+            data-action="usun"
+            data-index="{{index}}"
+            data-type="ataki"
+          ></a>
           <div class="flexcol">
             <label>Ilość Kości do Trafienia</label>
             <input
@@ -29,42 +38,53 @@
         </div>
       {{/each}}
     </div>
-    {{#if czary }}
-        <div class="czary">
-      <h4>Czary<a
-          data-action="dodajAZ"
-          data-type="czary"
-          class="fa fa-plus"
-        ></a></h4>
-  <div class="poziomMocy">
-    <label>Poziom Mocy</label>
-    {{formInput systemFields.poziomMocy value=system.poziomMocy}}
-  </div>
-      {{#each system.czary as |czar index|}}
-        <div class="flexrow">
-          <a data-action="rzut" data-type="czary" data-id="{{czar.id}}" data-index="{{index}} ">{{czar.nazwa}}</a>
-          {{log czar}}
-          {{#if (ne czar.id "")}}
-                        <a
+    {{#if czary}}
+      <div class="czary">
+        <h4>Czary<a
+            data-action="dodajAZ"
+            data-type="czary"
+            class="fa fa-plus"
+          ></a></h4>
+        <div class="poziomMocy">
+          <label>Poziom Mocy</label>
+          {{formInput systemFields.poziomMocy value=system.poziomMocy}}
+        </div>
+        {{#each system.czary as |czar index|}}
+          <div class="flexrow">
+            <a
+              data-action="rzut"
+              data-type="czary"
+              data-id="{{czar.id}}"
+              data-index="{{index}} "
+            >{{czar.nazwa}}</a>
+            {{#if (ne czar.id "")}}
+              <a
                 class="threeDots"
                 data-action="itemContextMenu"
                 data-item="{{czar.id}}"
                 data-index="{{index}}"
-              >              <i class="fas fa-ellipsis-v"></i>
-                        </a>
-          {{/if}}
-          <a class="fa fa-minus" data-action="usun" data-item="{{czar.id}}" data-index="{{index}}" data-type="czary"></a>
-          <div class="flexcol">
-            <label>Ilość Kości do Rzucenia Czaru</label>
-            <input
-              name="system.czary.{{index}}.atak"
-              min="1"
-              value="{{czar.atak}}"
-            />
+              >
+                <i class="fas fa-ellipsis-v"></i>
+              </a>
+            {{/if}}
+            <a
+              class="fa fa-minus"
+              data-action="usun"
+              data-item="{{czar.id}}"
+              data-index="{{index}}"
+              data-type="czary"
+            ></a>
+            <div class="flexcol">
+              <label>Ilość Kości do Rzucenia Czaru</label>
+              <input
+                name="system.czary.{{index}}.atak"
+                min="1"
+                value="{{czar.atak}}"
+              />
+            </div>
           </div>
-        </div>
-      {{/each}}
-    </div>
+        {{/each}}
+      </div>
     {{/if}}
     <div class="zdolnosci">
       <h4>Zdolności<a
@@ -72,19 +92,25 @@
           data-type="zdolnosci"
           class="fa fa-plus"
         ></a></h4>
-        {{#each zdolnosci as |z|}}
+      {{#each zdolnosci as |z index|}}
         <div class="flexrow">
-  <a data-action="doCzatu">{{z.nazwa.value}}</a>
-  <a class="fa fa-minus" data-action="usun" data-index="{{index}}" data-type="zdolnosci"></a>
+          <a data-action="doCzatu" data-index="{{index}}">{{z.nazwa.value}}</a>
+          <a
+            class="fa fa-minus"
+            data-action="usun"
+            data-index="{{index}}"
+            data-type="zdolnosci"
+          ></a>
 
-  {{formInput
-    z.opis.field
-    value=z.opis.value
-    enriched=z.opis.enriched
-    toggled="true"
-  }}
-  </div>
-{{/each}}
+          {{formInput
+            z.opis.field
+            name=(concat "system.zdolnosci." index ".opis")
+            value=z.opis.value
+            enriched=z.opis.enriched
+            toggled="true"
+          }}
+        </div>
+      {{/each}}
     </div>
   </div>
   <div class="opis">

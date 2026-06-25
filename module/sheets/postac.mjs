@@ -30,6 +30,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       rzucCzar: postacSheet.#rzucCzar,
       parowanie: postacSheet.#parowanie,
       inicjatywa: postacSheet.#inicjatywa,
+      dodajPrzedmiot: postacSheet.#dodajPrzedmiot,
     },
     form: {
       submitOnChange: true,
@@ -831,7 +832,54 @@ Z obecnego poziomu ${adrenalina} do ${nowaAdrenalina}`,
     const editor = new TextEditorApplication({ document: doc, field });
     editor.render({ force: true });
   }
-
+  static async #dodajPrzedmiot(ev) {
+    const target = ev.target.closest(".dodaj-przedmiot");
+    const itemType = target.dataset.type;
+    const actor = this.actor;
+    const itemName = game.i18n.localize(`TYPES.Item.${itemType}`);
+    const itemData = { type: itemType, name: itemName, system: {} };
+    if (itemType === "talenty") {
+      const userData = await new Promise((resolve) => {
+        const dialog = new foundry.applications.api.DialogV2({
+          window: { title: `Nowy Talent}` },
+          content: `
+      <div class="flexcol">
+      <div>Wpisz koszt PD Talentu którytworzysz</div>
+      <input name="pd", type="number" min="0"></input>
+      <div>Podaj Nazwę Talentu, który tworzysz</div>
+      <input name="name" type="text"></input>
+      </div>
+      `,
+          buttons: [
+            {
+              action: "ok",
+              label: "Zastosuj",
+              default: true,
+              callback: async (_event, _button, dialog) => {
+                const PD = dialog.element.querySelector("input[name=pd]");
+                const pdValue = Number(PD.value);
+                const name = dialog.element.querySelector("input[name=name]");
+                const nameValue = name.value;
+                resolve({ pdValue: pdValue, name: nameValue });
+              },
+            },
+          ],
+        }).render({ force: true });
+      });
+      itemData.system.kosztTalentu = userData.pdValue;
+      if (userData.name !== "") {
+        itemData.name = userData.name;
+      }
+      const item = await actor.createEmbeddedDocuments("Item", [itemData]);
+      if (userData.pdValue > 0) {
+        this.actor.system.wydanieXP(userData.pdValue, itemData);
+      }
+      item[0].sheet.render({ force: true });
+    } else {
+      const item = await actor.createEmbeddedDocuments("Item", [itemData]);
+      item[0].sheet.render({ force: true });
+    }
+  }
   async dodanieProfesji(itemData) {
     const daneItem = itemData.system;
     const umiejkiDowyboru = daneItem.umiejetnosciZawodowe

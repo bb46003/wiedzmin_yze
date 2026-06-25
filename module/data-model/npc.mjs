@@ -115,7 +115,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         initial: 0,
         label: "Obrona",
       }),
-            poziomMocy: new StringField({
+      poziomMocy: new StringField({
         initial: "brak",
         choices: {
           brak: "Brak",
@@ -191,59 +191,62 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     stat.splice(id, 1);
     await this.parent.update({ [`system.${type}`]: stat });
   }
-  async NPCRzut(type, item, index){
+  async NPCRzut(type, item, index) {
     const az = this[type] ?? [];
     const iloscKosci = az[index].atak;
-    if(type === "czary"){
-    const czar = item;
-    const dostepnaMoc = this.punkty_mocy.value;
-    const kosztBazowy = item.system.koszt.bazowy;
-    if (kosztBazowy > dostepnaMoc) {
-      ui.notifications.error(
-        "Nie masz wystarczająco Punktów Mocy, by rzucić ten czar!",
-      );
-      return;
-    }
-    const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
-      attribute: iloscKosci,
-      skill: 0,
-      adrenalina: 0,
-      atrubutLabel: " NPC Rzuca Czar",
-      umiejkaLabel: "",
-      actorID: this.parent.id,
-      item: [],
-      secondArtibute: 0,
-      atrybutKey: "",
-      umiejkaKey: "",
-      czarID: item.id,
-      dostepnaMoc: dostepnaMoc,
-    });
-    }else{
-      const weaponId = {name: az[index].nazwa, obrazenia: az[index].obrazenia}
+    if (type === "czary") {
+      const czar = item;
+      const dostepnaMoc = this.punkty_mocy.value;
+      const kosztBazowy = item.system.koszt.bazowy;
+      if (kosztBazowy > dostepnaMoc) {
+        ui.notifications.error(
+          "Nie masz wystarczająco Punktów Mocy, by rzucić ten czar!",
+        );
+        return;
+      }
+      const roll = await globalThis.wiedzmin_yze.WiedzminRoll.rzucanieCzaru({
+        attribute: iloscKosci,
+        skill: 0,
+        adrenalina: 0,
+        atrubutLabel: " NPC Rzuca Czar",
+        umiejkaLabel: "",
+        actorID: this.parent.id,
+        item: [],
+        secondArtibute: 0,
+        atrybutKey: "",
+        umiejkaKey: "",
+        czarID: item.id,
+        dostepnaMoc: dostepnaMoc,
+      });
+    } else {
+      const weaponId = {
+        name: az[index].nazwa,
+        obrazenia: az[index].obrazenia,
+      };
       const roll = await globalThis.wiedzmin_yze.WiedzminRoll.atakBronia({
-      attribute: iloscKosci,
-      skill: 0,
-      adrenalina: 0,
-      atrubutLabel: " NPC Atakuje",
-      umiejkaLabel: "",
-      actorID: this.parent.id,
-      item: [],
-      secondArtibute: "",
-      atrybutKey: "",
-      umiejkaKey: "",
-      weaponId: weaponId,
+        attribute: iloscKosci,
+        skill: 0,
+        adrenalina: 0,
+        atrubutLabel: " NPC Atakuje",
+        umiejkaLabel: "",
+        actorID: this.parent.id,
+        item: [],
+        secondArtibute: "",
+        atrybutKey: "",
+        umiejkaKey: "",
+        weaponId: weaponId,
 
-      // 👇 NEW DATA
-      attributesList:[{key: "", value:iloscKosci, label: az[index].nazwa}],
-      skillsList:[{key: "Brak", value: 0, parent: "", label: "Brak"}],
-    });
+        // 👇 NEW DATA
+        attributesList: [
+          { key: "", value: iloscKosci, label: az[index].nazwa },
+        ],
+        skillsList: [{ key: "Brak", value: 0, parent: "", label: "Brak" }],
+      });
 
-    if (roll) await roll.toMessage();
+      if (roll) await roll.toMessage();
     }
-
-
   }
-    async wydawaniePM(kosztBazowy, dodatkowaMoc) {
+  async wydawaniePM(kosztBazowy, dodatkowaMoc) {
     const obecnaMoc = this.punkty_mocy.value;
     let nowaMoc = obecnaMoc - kosztBazowy - dodatkowaMoc;
 
@@ -253,7 +256,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
 
     await this.parent.update({ "system.punkty_mocy.value": nowaMoc });
   }
-    async obrazeniaZCzaru(obrazenia) {
+  async obrazeniaZCzaru(obrazenia) {
     const obecneZdrowie = this.zycie.value;
     let noweZdrowie = obecneZdrowie - obrazenia;
     if (noweZdrowie < 0) {

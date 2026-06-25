@@ -957,11 +957,13 @@
     overflow-y: auto;
     overflow-x: hidden;
     height: 92%;
+    gap: 10px;
     h4 {
       text-align: center;
     }
     .bronie,
-    .zdolnosci, .czary {
+    .zdolnosci,
+    .czary {
       margin-bottom: 10px;
       .flexrow {
         display: flex;
@@ -975,6 +977,7 @@
     .zdolnosci {
       display: flex;
       gap: 10px;
+      flex-direction: column;
       .flexrow {
         align-items: center;
       }
@@ -985,9 +988,9 @@
       border-radius: 15px;
     }
   }
-      .threeDots {
-      max-width: min-content;
-      margin-right: 10px;
-      font-size: 16px;
-    }
+  .threeDots {
+    max-width: min-content;
+    margin-right: 10px;
+    font-size: 16px;
+  }
 }

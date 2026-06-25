@@ -203,7 +203,6 @@ async function otworzTalent(ev) {
   if (item.type === "czar") {
     const czar = await item.sheet.render({ force: true });
     czar.element.querySelector(".talents-section").classList.add("disable");
-    console.log(czar);
   } else {
     new foundry.applications.api.DialogV2({
       window: { title: `Talent ${itemName}` },
@@ -317,12 +316,12 @@ async function zadajObrazenia(event, message) {
   const bronId = data.bronId;
   let bron;
   let obrazenia;
-  if(typeof bronId === String){
-  bron = actor.items.get(bronId);
-   obrazenia = bron.system.obrazenia;
-  }else{
+  if (typeof bronId === String) {
+    bron = actor.items.get(bronId);
+    obrazenia = bron.system.obrazenia;
+  } else {
     bron = bronId;
-    obrazenia = bronId.obrazenia
+    obrazenia = bronId.obrazenia;
   }
   const telenty = data.item;
   let modifikatorObrazen = 0;
@@ -470,14 +469,14 @@ async function rzutObrazen(event, message) {
   const bronId = data.bronId;
   let bron;
   let obrazenia;
-  if(typeof bronId === String){
-  bron = actor.items.get(bronId);
-   obrazenia = bron.system.obrazenia;
-  }else{
+  if (typeof bronId === String) {
+    bron = actor.items.get(bronId);
+    obrazenia = bron.system.obrazenia;
+  } else {
     bron = bronId;
-    obrazenia = bronId.obrazenia
+    obrazenia = bronId.obrazenia;
   }
- 
+
   const telenty = data.item;
   let modifikatorObrazen = 0;
   for (const uuid of telenty) {

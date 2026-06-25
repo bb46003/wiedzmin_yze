@@ -89,12 +89,32 @@ Hooks.once("init", async function () {
     "systems/wiedzmin_yze/templates/postac/notes.hbs",
     "systems/wiedzmin_yze/templates/items/talenty-opcje.hbs",
     "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs",
+    "systems/wiedzmin_yze/templates/chat/wiedzmin-npc-zdolnosc.hbs",
   ];
 
   foundry.applications.handlebars.loadTemplates(templates);
   game.wiedzmin_YZE = { socketHandler: new SocketHandler() };
   CONFIG.Dice.terms["n"] = Wiedzmin_YZE_Dice;
   CONFIG.Dice.terms["a"] = Wiedzmin_YZE_Adrenalina_Dice;
+  CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
+    {
+        // Rollable damage
+        // Format [[/damage <formula> [<slashing|piercing|bludgeoning>]]]
+        // Formula supports multiple die types, e.g. D10+D6+2
+        pattern: new RegExp(String.raw`\[\[\/damage\s([+\-]?${DICE_FORMULA})\s?(slashing|piercing|bludgeoning)?(?:\s(.+?))?\]\]`, "gm"),
+        enricher: (match, options) => {
+            const a = document.createElement("a");
+            a.classList.add("inline-damage-roll");
+            a.dataset.damage = match[1];
+            a.dataset.damageType = DoDOptionalRuleSettings.damageTypes ? "DoD.damageTypes." + (match[2] ?? "none") : "DoD.damageTypes.none";
+            if (options.actor) a.dataset.actorId = options.actor.uuid;
+            if (match[3]) a.dataset.action = match[3];
+
+            a.innerHTML = `<i class="fas fa-dice-d20" style="float:none"></i>` + match[1] + " " + game.i18n.localize(a.dataset.damageType);
+            return a;
+        }
+    }
+])
   console.log("Wiedzmin YZE został zainicjiwany");
 });
 Hooks.on("renderChatMessageHTML", addChatListeners);

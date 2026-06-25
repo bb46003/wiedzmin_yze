@@ -148,7 +148,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     const tabela = await fromUuid(uuidTabeli);
     await tabela.draw({ displayChat: true });
   }
- 
+
   static async #itemContextMenu(ev) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -193,7 +193,6 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
         await item?.delete();
         const index = button.dataset.index;
         await this.actor.system.usunAZ("czary", index);
-
       }
 
       menu.remove();
@@ -221,15 +220,30 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     const type = target.dataset.type;
     let id = "";
     let item;
-    if(type === "czary"){
-      id = target.dataset.id
+    if (type === "czary") {
+      id = target.dataset.id;
       item = await this.actor.items.get(id);
     }
     const index = Number(target.dataset.index);
     await this.actor.system.NPCRzut(type, item, index);
   }
-  static async #doCzatu(ev) {}
-   async _onDrop(event) {
+  static async #doCzatu(ev) {
+    const target = ev.target;
+    const index = target.dataset.index;
+    const zdolnosc = this.actor.system.zdolnosci[index];
+    const template =
+      "systems/wiedzmin_yze/templates/chat/wiedzmin-npc-zdolnosc.hbs";
+    const messageContent = await foundry.applications.handlebars.renderTemplate(
+      template,
+      { zdolnosc: zdolnosc },
+    );
+    console.log(zdolnosc);
+    ChatMessage.create({
+      speaker: { actor: this.actor.id },
+      content: messageContent,
+    });
+  }
+  async _onDrop(event) {
     event.preventDefault();
 
     const data = event.dataTransfer;
@@ -244,13 +258,12 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     if (!itemData.type) {
       itemData.type = droppedItem.type;
     }
-     const bronName = itemData.name;
+    const bronName = itemData.name;
     switch (itemData.type) {
       case "RollTable":
         await this.actor.update({ "system.tabela_atakow": droppedItem.uuid });
         break;
       case "bron":
-       
         await this.actor.system.dodajAZ("ataki", bronName);
         break;
       case "czar":
@@ -260,44 +273,47 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
           obrazenia = itemData.system?.obrazenia?.podstawowe;
         }
         const czar = await actor.createEmbeddedDocuments("Item", [itemData]);
-        await this.actor.system.dodajAZ("czary", bronName, obrazenia, czar[0].id);
+        await this.actor.system.dodajAZ(
+          "czary",
+          bronName,
+          obrazenia,
+          czar[0].id,
+        );
         break;
     }
   }
-_processFormData(event, form, formData) {
-   const target = event?.target;
-  const name = target?.name;
-  const data = { object: {} };
-  if (typeof name === "string") {
-    data.object[name] = target?.value;
-  }
+  _processFormData(event, form, formData) {
+    const target = event?.target;
+    const name = target?.name;
+    const data = { object: {} };
+    if (typeof name === "string") {
+      data.object[name] = target?.value;
+    }
 
-  const match = name.match(/^system\.(ataki|czary|zdolnosci)\./);
-  if (!match) {
-    return super._processFormData(event, form, data);
-  }
+    const match = name.match(/^system\.(ataki|czary|zdolnosci)\./);
+    if (!match) {
+      return super._processFormData(event, form, data);
+    }
 
-  const [, rootKey] = match;
-  const split = name.split(".");
-  const index = Number(split[2]);
+    const [, rootKey] = match;
+    const split = name.split(".");
+    const index = Number(split[2]);
 
-  // current full object (e.g. one "atak")
-  const current = this.actor.system[rootKey]?.[index];
+    // current full object (e.g. one "atak")
+    const current = this.actor.system[rootKey]?.[index];
 
+    // 🔥 fill missing fields
+    for (const key in current) {
+      const fullPath = `system.${rootKey}.${index}.${key}`;
 
-  // 🔥 fill missing fields
-  for (const key in current) {
-    const fullPath = `system.${rootKey}.${index}.${key}`;
-
-    // if this field was NOT changed → inject old value
-    if (!(fullPath in formData)) {
-      if(fullPath !== name){
-      data.object[fullPath] = current[key];
+      // if this field was NOT changed → inject old value
+      if (!(fullPath in formData)) {
+        if (fullPath !== name) {
+          data.object[fullPath] = current[key];
+        }
       }
     }
+
+    return super._processFormData(event, form, data);
   }
-
-  return super._processFormData(event, form, data);
 }
-}
-

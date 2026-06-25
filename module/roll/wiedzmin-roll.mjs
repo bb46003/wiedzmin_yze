@@ -232,11 +232,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
     skillsList = [],
   } = {}) {
     const actor = await game.actors.get(actorID);
-    let weapon
-    if( typeof weaponId === String){
-      weapon = actor.items.get(weaponId)
-    }else{
-      weapon = weaponId
+    let weapon;
+    if (typeof weaponId === String) {
+      weapon = actor.items.get(weaponId);
+    } else {
+      weapon = weaponId;
     }
     const maTelentBlokujacy = !item.some(
       (item) => item.system?.usuwaForsowanie === true,
@@ -316,7 +316,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 ? `${basePool}dn + ${adrenalina}da`
                 : `${basePool}dn`;
             let flavor = "Attack";
-            if (!maTelentBlokujacy || actor.type ==="npc") {
+            if (!maTelentBlokujacy || actor.type === "npc") {
               flavor = "Forsowanie";
             }
             const roll = new WiedzminRoll(
@@ -729,11 +729,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
     let umiejkaLabel = this.options.umiejkaLabel;
     const actor = await game.actors.get(this.options.actorID);
     let fach = "";
-    if(actor.type !== "npc"){
-    fach = game.i18n.localize(
-      wiedzmin_yze.config.fachy[actor.system.specjalizacjaFach].label,
-    );
-  }
+    if (actor.type !== "npc") {
+      fach = game.i18n.localize(
+        wiedzmin_yze.config.fachy[actor.system.specjalizacjaFach].label,
+      );
+    }
     if (this.options.umiejkaKey === "fach" && !umiejkaLabel.includes(fach)) {
       umiejkaLabel += " " + fach;
     }

@@ -5,7 +5,17 @@
   data-tab="czary"
 >
 
-  <h3>Czary</h3>
+  <h3>
+    Czary
+    <a
+      class="dodaj-przedmiot"
+      data-action="dodajPrzedmiot"
+      data-type="czar"
+      data-tooltip="Dodaj Czar"
+    >
+      <i class="fa fa-plus"></i>
+    </a>
+  </h3>
   <div class="poziomMocy">
     <label>Poziom Mocy</label>
     {{formInput systemFields.poziomMocy value=system.poziomMocy}}

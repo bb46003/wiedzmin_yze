@@ -5,7 +5,17 @@
   data-group="items"
 >
 
-  <h3>Talenty</h3>
+  <h3>
+    Talenty
+    <a
+      class="dodaj-przedmiot"
+      data-action="dodajPrzedmiot"
+      data-type="talenty"
+      data-tooltip="Dodaj Talen"
+    >
+      <i class="fa fa-plus"></i>
+    </a>
+  </h3>
   <div class="talents-list">
     {{#each talenty as |talent key|}}
       <div class="talent" data-item="{{key}}">
