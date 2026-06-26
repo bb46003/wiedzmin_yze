@@ -10,6 +10,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
 
     /** @type {NPCSheet} */
     this.actor;
+    this.tokenDisplay = false;
   }
   static DEFAULT_OPTIONS = {
     classes: ["postac-sheet", "npc"],
@@ -21,6 +22,8 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       usun: NPCSheet.#usun,
       rzut: NPCSheet.#rzut,
       doCzatu: NPCSheet.#doCzatu,
+      inicjatywa: NPCSheet.#inicjatywa,
+      toggle: NPCSheet.#toggle,
     },
     form: {
       submitOnChange: true,
@@ -68,6 +71,9 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { zdolnosci });
     const czary = await this.prepareCzary();
     Object.assign(context, { czary });
+    Object.assign(context, { tokenDisplay: this.tokenDisplay });
+    Object.assign(context, { tokenImg: this.actor.prototypeToken.texture.src });
+    console.log(context.tokenImg);
     return context;
   }
 
@@ -138,10 +144,50 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       return html;
     }
   }
+  static async #toggle(ev) {
+    const target = ev.target;
+    this.tokenDisplay = target.checked;
+    this.render(true);
+  }
   static async #dodajAZ(ev) {
     const target = ev.target;
     const type = target.dataset.type;
-    await this.actor.system.dodajAZ(type);
+    const userData = await new Promise((resolve) => {
+      const dialog = new foundry.applications.api.DialogV2({
+        window: { title: `Nowy Element NPC` },
+        content: `
+      <div class="flexcol">
+      <div>Podaj Nazwę elmentu, który tworzysz</div>
+      <input name="name" type="text"></input>
+      </div>
+      `,
+        buttons: [
+          {
+            action: "ok",
+            label: "Zastosuj",
+            default: true,
+            callback: async (_event, _button, dialog) => {
+              const name = dialog.element.querySelector("input[name=name]");
+              const nameValue = name.value;
+              resolve(nameValue);
+            },
+          },
+        ],
+      }).render({ force: true });
+    });
+    if (type === "czary") {
+      const itemName = game.i18n.localize(`TYPES.Item.czar`);
+      let elementName = userData;
+      if (userData === "") {
+        elementName = itemName;
+      }
+      const itemData = { type: "czar", name: elementName };
+      const item = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      item[0].sheet.render({ force: true });
+      await this.actor.system.dodajAZ(type, elementName, 1, item[0].id);
+    } else {
+      await this.actor.system.dodajAZ(type, userData, 1, "");
+    }
   }
   static async #atakZTabeli() {
     const uuidTabeli = this.actor.system.tabela_atakow;
@@ -216,6 +262,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     await this.actor.system.usunAZ(type, index);
   }
   static async #rzut(ev) {
+    console.log(ev);
     const target = ev.target;
     const type = target.dataset.type;
     let id = "";
@@ -227,6 +274,9 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     const index = Number(target.dataset.index);
     await this.actor.system.NPCRzut(type, item, index);
   }
+  static async #inicjatywa(ev) {
+    await this.actor.rollInitiative();
+  }
   static async #doCzatu(ev) {
     const target = ev.target;
     const index = target.dataset.index;
@@ -237,11 +287,56 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
       template,
       { zdolnosc: zdolnosc },
     );
-    console.log(zdolnosc);
     ChatMessage.create({
       speaker: { actor: this.actor.id },
       content: messageContent,
     });
+  }
+
+  async _onRender(document, options) {
+    await super._onRender(document, options);
+    const id = document.rootId;
+    const element = document.document.apps[id].element;
+    const wszystkieA = element.querySelectorAll("a.element");
+    const actor = this.actor;
+    wszystkieA.forEach((a) => {
+      a.addEventListener("contextmenu", async (event) => {
+        await this.updateNazwa(a, actor);
+      });
+    });
+  }
+  async updateNazwa(el, actor) {
+    event.preventDefault();
+
+    const type = el.dataset.type;
+    const index = Number(el.dataset.index);
+    const entry = actor.system?.[type]?.[index];
+    const currentName = entry.nazwa;
+
+    // dialog + update in ONE flow
+    new foundry.applications.api.DialogV2({
+      window: { title: "Zmień nazwę" },
+      content: `
+          <div class="form-group">
+            <label>Nowa Nazwa:</label>
+            <input type="text" name="name" placeholder="${currentName}" autofocus />
+          </div>
+        `,
+      buttons: [
+        {
+          action: "ok",
+          default: true,
+          label: "Zapisz",
+          callback: async (_event, _button, dialog) => {
+            const value =
+              dialog.element.querySelector('input[name="name"]').value;
+            await this.actor.update({
+              [`system.${type}.${index}.nazwa`]: value,
+            });
+          },
+        },
+      ],
+    }).render({ force: true });
   }
   async _onDrop(event) {
     event.preventDefault();
@@ -283,37 +378,40 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     }
   }
   _processFormData(event, form, formData) {
+    console.log(event, form, formData);
     const target = event?.target;
     const name = target?.name;
+
     const data = { object: {} };
+    if (formData.object?.["prototypeToken.texture.src"]) {
+      data.object["prototypeToken.texture.src"] =
+        formData.object?.["prototypeToken.texture.src"];
+    }
+    if (formData?.object?.img) {
+      data.object["img"] = formData.object.img;
+    }
     if (typeof name === "string") {
       data.object[name] = target?.value;
-    }
 
-    const match = name.match(/^system\.(ataki|czary|zdolnosci)\./);
-    if (!match) {
-      return super._processFormData(event, form, data);
-    }
+      const match = name.match(/^system\.(ataki|czary|zdolnosci)\./);
+      if (!match) {
+        return super._processFormData(event, form, data);
+      }
 
-    const [, rootKey] = match;
-    const split = name.split(".");
-    const index = Number(split[2]);
+      const [, rootKey] = match;
+      const split = name.split(".");
+      const index = Number(split[2]);
 
-    // current full object (e.g. one "atak")
-    const current = this.actor.system[rootKey]?.[index];
-
-    // 🔥 fill missing fields
-    for (const key in current) {
-      const fullPath = `system.${rootKey}.${index}.${key}`;
-
-      // if this field was NOT changed → inject old value
-      if (!(fullPath in formData)) {
-        if (fullPath !== name) {
-          data.object[fullPath] = current[key];
+      const current = this.actor.system[rootKey]?.[index];
+      for (const key in current) {
+        const fullPath = `system.${rootKey}.${index}.${key}`;
+        if (!(fullPath in formData)) {
+          if (fullPath !== name) {
+            data.object[fullPath] = current[key];
+          }
         }
       }
     }
-
     return super._processFormData(event, form, data);
   }
 }

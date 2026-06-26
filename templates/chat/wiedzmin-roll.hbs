@@ -1,13 +1,17 @@
 <div class="wiedzmin-roll-chat">
   <h4>
+    {{#if (eq actorType "npc")}}
+      Wynik rzutu na {{atrubutLabel}}
+    {{else}}
     {{#if (not forsowac)}}
       Forsowany wynik rzutu na
     {{else}}
       Wynik rzutu na
     {{/if}}
+   
     {{atrubutLabel}}
-    {{umiejkaLabel}}</h4>
-
+    {{umiejkaLabel}}
+ {{/if}}</h4>
   {{#if item}}
     <span>Wykorzytując Talenty
       {{#each item}}

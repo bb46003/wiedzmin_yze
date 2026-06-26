@@ -1,12 +1,30 @@
 <section class="sheet-header">
   <div class="image-container">
+    {{#if (not tokenDisplay)}}
     <img
       class="profile-img"
-      src="{{actor.img}}"
+      src="{{@root.actor.img}}"
       data-edit="img"
       data-action="editImage"
       data-edit="img"
     />
+    {{else}}
+    <img
+      class="profile-img"
+      src="{{@root.tokenImg}}"
+      data-action="editImage"
+      data-edit="prototypeToken.texture.src"
+    />
+    {{/if}}
+      <div class="toggle-wrapper">
+  <span class="label">Obraz</span>
+  <label class="switch">
+    <input type="checkbox" data-action="toggle" {{#if tokenDisplay}}checked{{/if}}>
+    <span class="slider"></span>
+  </label>
+
+  <span class="label">Token</span>
+</div>
   </div>
   <div class="identity">
     <label>Miano</label>

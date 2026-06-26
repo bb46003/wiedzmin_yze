@@ -31,6 +31,7 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
       parowanie: postacSheet.#parowanie,
       inicjatywa: postacSheet.#inicjatywa,
       dodajPrzedmiot: postacSheet.#dodajPrzedmiot,
+      toggle: postacSheet.#toggle,
     },
     form: {
       submitOnChange: true,
@@ -140,6 +141,8 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { pancerz });
     const czary = await this.prepareCzary();
     Object.assign(context, { czary });
+    Object.assign(context, { tokenDisplay: this.tokenDisplay });
+    Object.assign(context, { tokenImg: this.actor.prototypeToken.texture.src });
 
     return context;
   }
@@ -475,7 +478,11 @@ export class postacSheet extends api.HandlebarsApplicationMixin(
     const atrybut = ev.target.dataset.atrybut;
     this.actor.system.rzutAtrybut(atrybut);
   }
-
+  static async #toggle(ev) {
+    const target = ev.target;
+    this.tokenDisplay = target.checked;
+    this.render(true);
+  }
   static async #rzut_talen(ev) {
     const target = ev.target;
     const itemID = target.parentNode.dataset.item;

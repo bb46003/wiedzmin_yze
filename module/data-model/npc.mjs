@@ -124,6 +124,16 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
           arcymistrz: "Arcymistrz",
         },
       }),
+      szybkosc: new SchemaField({
+        podstawa: new NumberField({
+          required: true,
+          nullable: false,
+          integer: true,
+          initial: 5,
+          min: 0,
+          label: "Szybkość",
+        }),
+      }),
     };
   }
   /** @override */
@@ -131,8 +141,19 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     this.prepareZdrowie();
     this.prepareWielkoscTokena();
+    this._maxPunktyMocy();
+    this._maxZycia();
   }
-
+  _maxZycia() {
+    if (this.zycie.value > this.zycie.max) {
+      this.zycie.value = this.zycie.max;
+    }
+  }
+  _maxPunktyMocy() {
+    if (this.punkty_mocy.value > this.punkty_mocy.max) {
+      this.punkty_mocy.value = this.punkty_mocy.max;
+    }
+  }
   prepareZdrowie() {
     const potega = this.potega;
     switch (potega) {
@@ -193,7 +214,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
   }
   async NPCRzut(type, item, index) {
     const az = this[type] ?? [];
-    const iloscKosci = az[index].atak;
+    const iloscKosci = az[index]?.atak;
     if (type === "czary") {
       const czar = item;
       const dostepnaMoc = this.punkty_mocy.value;
@@ -218,7 +239,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         czarID: item.id,
         dostepnaMoc: dostepnaMoc,
       });
-    } else {
+    } else if (type === "ataki") {
       const weaponId = {
         name: az[index].nazwa,
         obrazenia: az[index].obrazenia,
@@ -244,6 +265,20 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       });
 
       if (roll) await roll.toMessage();
+    } else {
+      const obrona = this.obrona;
+      await globalThis.wiedzmin_yze.WiedzminRoll.create({
+        attribute: obrona,
+        skill: null,
+        adrenalina: 0,
+        atrubutLabel: "Obrona",
+        umiejkaLabel: "",
+        actorID: this.parent.id,
+        umiejkaKey: "",
+        atrybutKey: "",
+        item: [],
+        secondArtibute: "",
+      });
     }
   }
   async wydawaniePM(kosztBazowy, dodatkowaMoc) {

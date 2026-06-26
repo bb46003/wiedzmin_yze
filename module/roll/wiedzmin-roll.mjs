@@ -94,8 +94,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 ? `${basePool}dn + ${adrenalina}da`
                 : `${basePool}dn`;
             let flavor = "Test";
-            if (!maTelentBlokujacy) {
-              flavor = "Forsowanie";
+            let forsowanie = true;
+            if (!maTelentBlokujacy || actor.type === "npc") {
+              forsowanie = false;
             }
             const roll = new WiedzminRoll(
               formula,
@@ -103,6 +104,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               {
                 adrenalina,
                 flavor: flavor,
+                forsowanie: forsowanie,
                 atrubutLabel: atrubutLabelUse,
                 umiejkaLabel: umiejkaLabel,
                 actorID: actorID,
@@ -192,8 +194,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
                 ? `${basePool}dn + ${adrenalina}da`
                 : `${basePool}dn`;
             let flavor = "Test";
-            if (!maTelentBlokujacy) {
-              flavor = "Forsowanie";
+            let forsowanie = true;
+            if (!maTelentBlokujacy || actor.type === "npc") {
+              forsowanie = false;
             }
             const roll = new WiedzminRoll(
               formula,
@@ -201,6 +204,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               {
                 adrenalina,
                 flavor: flavor,
+                forsowanie: forsowanie,
                 atrubutLabel: atrubutLabelUse,
                 umiejkaLabel: umiejkaLabel,
                 actorID: actorID,
@@ -315,9 +319,10 @@ export class WiedzminRoll extends foundry.dice.Roll {
               adrenalina > 0
                 ? `${basePool}dn + ${adrenalina}da`
                 : `${basePool}dn`;
-            let flavor = "Attack";
+            let flavor = "Atakk";
+            let forsowanie = true;
             if (!maTelentBlokujacy || actor.type === "npc") {
-              flavor = "Forsowanie";
+              forsowanie = false;
             }
             const roll = new WiedzminRoll(
               formula,
@@ -325,6 +330,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               {
                 adrenalina,
                 flavor: flavor,
+                forsowanie: forsowanie,
                 atrubutLabel: wybranyAtrybutLabel,
                 umiejkaLabel: wybranaUmiejkaLabel,
                 actorID,
@@ -457,7 +463,8 @@ export class WiedzminRoll extends foundry.dice.Roll {
       ui.notifications.error("Nie znaleziono czaru u Postaci");
       return;
     }
-    const flavor = "Forsowanie";
+    const forsowanie = false;
+    const flavor = "Rzut ";
     const content = await foundry.applications.handlebars.renderTemplate(
       this.DIALOG_TEMPLATE_RZUCANIE_CZAROW,
       {
@@ -528,6 +535,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
               {
                 adrenalina,
                 flavor: flavor,
+                forsowanie: forsowanie,
                 atrubutLabel: atrubutLabel,
                 umiejkaLabel: umiejkaLabel,
                 actorID: actor.id,
@@ -713,13 +721,9 @@ export class WiedzminRoll extends foundry.dice.Roll {
     if (!this._successes && this._successes !== 0) {
       this._analyze();
     }
-    let forsowanie = true;
+    let forsowanie = this.options.forsowanie ?? false;
     let formula = this._formula;
-    if (flavor === "Test" || flavor === "DodatkoweForsowanie") {
-      forsowanie = true;
-    } else if (flavor === "Forsowanie") {
-      forsowanie = false;
-    }
+
     if (options.newFormula) {
       formula = options.newFormula;
     }
@@ -785,9 +789,11 @@ export class WiedzminRoll extends foundry.dice.Roll {
       czar = await actor.items.get(this.options?.czarID);
     }
     return {
+      actorType: actor.type,
       formula: formula,
       total: this.total,
       flavor: flavor ?? this.options.flavor,
+      forsowanie: this.options?.forsowanie ?? false,
       umiejkaLabel: umiejkaLabel,
       atrubutLabel: this.options.atrubutLabel,
       umiejkaKey: this.options.umiejkaKey,

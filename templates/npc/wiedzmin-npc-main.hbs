@@ -5,6 +5,7 @@
           data-action="dodajAZ"
           data-type="ataki"
           class="fa fa-plus"
+          data-tooltip="Dodaj nowy element"
         ></a></h4>
       {{#each system.ataki as |atak index|}}
         <div class="flexrow">
@@ -12,6 +13,8 @@
             data-action="rzut"
             data-type="ataki"
             data-index="{{index}}"
+            class="element"
+            data-tooltip="Kliknij Lewym aby użyć, prawym aby zmieić Nazwę"
           >{{atak.nazwa}}</a>
           <a
             class="fa fa-minus"
@@ -44,6 +47,7 @@
             data-action="dodajAZ"
             data-type="czary"
             class="fa fa-plus"
+            data-tooltip="Dodaj nowy element"
           ></a></h4>
         <div class="poziomMocy">
           <label>Poziom Mocy</label>
@@ -55,7 +59,9 @@
               data-action="rzut"
               data-type="czary"
               data-id="{{czar.id}}"
-              data-index="{{index}} "
+              data-index="{{index}}"
+              class="element"
+              data-tooltip="Kliknij Lewym aby użyć, prawym aby zmieić Nazwę"
             >{{czar.nazwa}}</a>
             {{#if (ne czar.id "")}}
               <a
@@ -91,10 +97,16 @@
           data-action="dodajAZ"
           data-type="zdolnosci"
           class="fa fa-plus"
+          data-tooltip="Dodaj nowy element"
         ></a></h4>
       {{#each zdolnosci as |z index|}}
         <div class="flexrow">
-          <a data-action="doCzatu" data-index="{{index}}">{{z.nazwa.value}}</a>
+          <a
+            data-action="doCzatu"
+            data-index="{{index}}"
+            class="element"
+            data-tooltip="Kliknij Lewym aby użyć, prawym aby zmieić Nazwę"
+          >{{z.nazwa.value}}</a>
           <a
             class="fa fa-minus"
             data-action="usun"

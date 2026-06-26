@@ -334,6 +334,8 @@
     border: 4px solid black;
     border-radius: 20px;
     align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
   }
   .sheet-header {
     margin-bottom: 20px;
@@ -916,7 +918,7 @@
 .npc {
   .window-content {
     display: grid;
-    grid-template-rows: min-content 450px;
+    grid-template-rows: min-content 64%;
     grid-template-columns: auto;
     gap: 8px;
     height: 100%;
@@ -928,11 +930,11 @@
     }
   }
   .identity-npc {
-    width: 50%;
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
+    width: 70%;
+    display: grid;
     margin: auto;
+    grid-template-columns: 240px 240px;
+    gap: 25px;
     p {
       text-align: center;
       max-width: 10px;
@@ -942,9 +944,13 @@
       max-width: 160px;
       align-items: center;
     }
+    .flexrow.podwojne {
+      align-items: flex-end;
+    }
     label,
     a {
       max-width: 160px;
+      text-align: center;
     }
     input,
     select {
@@ -956,7 +962,6 @@
     grid-template-columns: 390px 390px;
     overflow-y: auto;
     overflow-x: hidden;
-    height: 92%;
     gap: 10px;
     h4 {
       text-align: center;
@@ -981,11 +986,22 @@
       .flexrow {
         align-items: center;
       }
+      prose-mirror {
+        border: 1px black;
+        border-style: groove;
+        border-radius: 15px;
+      }
     }
-    prose-mirror {
-      border: 1px black;
-      border-style: groove;
-      border-radius: 15px;
+    .opis {
+      width: 98%;
+      height: 100%;
+
+      prose-mirror {
+        border: 1px black;
+        border-style: groove;
+        border-radius: 15px;
+        min-height: 92%;
+      }
     }
   }
   .threeDots {
@@ -993,4 +1009,59 @@
     margin-right: 10px;
     font-size: 16px;
   }
+}
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label {
+  font-size: 14px;
+}
+
+/* switch container */
+.switch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+}
+
+/* hide checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* slider background */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+
+/* knob */
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  top: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+/* checked state */
+.switch input:checked + .slider {
+  background-color: #4caf50;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(30px);
 }

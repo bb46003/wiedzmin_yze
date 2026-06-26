@@ -15,7 +15,8 @@ export class WiedzminTokenRuler extends BaseRuler {
     const context = super._getWaypointLabelContext(waypoint, state);
     if (context?.cost?.units === "m") {
       const movement = this.token?.actor?.system.szybkosc.podstawa;
-      const dash = this.token.actor.system.atrybuty.zrecznosc.value;
+      const dash =
+        this.token?.actor.system?.atrybuty?.zrecznosc?.value ?? movement;
       const total = Number(context.cost.total);
       if (total > movement + dash) {
         context.rangeClass = "out-of-range";
@@ -37,7 +38,8 @@ export class WiedzminTokenRuler extends BaseRuler {
       return super._getGridHighlightStyle(waypoint, offset);
     }
     const movement = this.token.actor.system.szybkosc.podstawa;
-    const dash = this.token.actor.system.atrybuty.zrecznosc.value;
+    const dash =
+      this.token?.actor.system?.atrybuty?.zrecznosc?.value ?? movement;
     const cost = waypoint.measurement.cost;
     if (cost > movement + dash) {
       return WiedzminTokenRuler.GRID_HIGHLIGHT_STYLES.outOfRange;

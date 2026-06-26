@@ -28,4 +28,29 @@ export class postacActor extends foundry.documents.Actor {
       );
     }
   }
+  async _onUpdate(data, options, user) {
+    const changeName = data?.name ?? false;
+    if (changeName && this.type === "postac") {
+      const tokenName = data.name;
+      const actor = this;
+      await actor.prototypeToken.update({ name: tokenName });
+      const dependedTokens = actor.getDependentTokens();
+      for (const scene of dependedTokens) {
+        for (const token of scene[0].tokens) {
+          if (token.actorId === actor.id) {
+            await token.update({ name: tokenName });
+          }
+        }
+      }
+    }
+    const tokenImg = data?.prototypeToken?.texture?.src ?? false;
+    if (tokenImg && this.type === "postac") {
+      const tokenImg = data.prototypeToken.texture.src;
+      const actor = this;
+      const dependedTokens = actor.getDependentTokens();
+      for (const token of dependedTokens) {
+        await token.update({ ["texture.src"]: tokenImg });
+      }
+    }
+  }
 }
