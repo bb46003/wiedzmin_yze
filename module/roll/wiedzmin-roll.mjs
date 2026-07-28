@@ -67,7 +67,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
           label: "Roll",
           default: true,
           callback: async (_event, _button, dialog) => {
-            const mod = Number(dialog.form?.elements?.modifier?.value) || 0;
+            const mod = Number(dialog.element.querySelector("input[name=modifier]").value) || 0;
             let attributeVal = attribute;
             let atrubutLabelUse = atrubutLabel;
             let atrybutKeyUse = atrybutKey;
@@ -272,7 +272,6 @@ export class WiedzminRoll extends foundry.dice.Roll {
           label: "Atak",
           default: true,
           callback: async (_event, _button, dialog) => {
-            // 🔹 modifier from dialog
             const mod =
               Number(
                 dialog.element.querySelector("input[name='modifier']").value,

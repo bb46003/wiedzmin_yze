@@ -316,7 +316,7 @@ async function zadajObrazenia(event, message) {
   const bronId = data.bronId;
   let bron;
   let obrazenia;
-  if (typeof bronId === String) {
+  if (typeof bronId === "string") {
     bron = actor.items.get(bronId);
     obrazenia = bron.system.obrazenia;
   } else {
@@ -469,7 +469,7 @@ async function rzutObrazen(event, message) {
   const bronId = data.bronId;
   let bron;
   let obrazenia;
-  if (typeof bronId === String) {
+  if (typeof bronId === "string") {
     bron = actor.items.get(bronId);
     obrazenia = bron.system.obrazenia;
   } else {

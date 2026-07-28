@@ -18,7 +18,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
       zycie: new SchemaField({
-        value: new NumberField({ label: "Zdrowie Obecne", initial: undefined }),
+        value: new NumberField({ label: "Zdrowie Obecne", initial: 0 }),
         max: new NumberField({ label: "Zdrowie Maksymalne", initial: 0 }),
       }),
       inicjatywa: new NumberField({
@@ -28,7 +28,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         label: "Inicjatywa",
       }),
       punkty_mocy: new SchemaField({
-        value: new NumberField({ label: "Punkty Mocy", initial: undefined }),
+        value: new NumberField({ label: "Punkty Mocy", initial: 0 }),
         max: new NumberField({ label: "Maksymalne Punkty Mocy", initial: 0 }),
       }),
       potęga: new StringField({
@@ -257,7 +257,6 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         umiejkaKey: "",
         weaponId: weaponId,
 
-        // 👇 NEW DATA
         attributesList: [
           { key: "", value: iloscKosci, label: az[index].nazwa },
         ],

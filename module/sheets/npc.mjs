@@ -73,7 +73,6 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     Object.assign(context, { czary });
     Object.assign(context, { tokenDisplay: this.tokenDisplay });
     Object.assign(context, { tokenImg: this.actor.prototypeToken.texture.src });
-    console.log(context.tokenImg);
     return context;
   }
 
@@ -188,6 +187,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     } else {
       await this.actor.system.dodajAZ(type, userData, 1, "");
     }
+    this.render({froce:true})
   }
   static async #atakZTabeli() {
     const uuidTabeli = this.actor.system.tabela_atakow;
@@ -262,7 +262,6 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     await this.actor.system.usunAZ(type, index);
   }
   static async #rzut(ev) {
-    console.log(ev);
     const target = ev.target;
     const type = target.dataset.type;
     let id = "";
@@ -297,6 +296,11 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     await super._onRender(document, options);
     const id = document.rootId;
     const element = document.document.apps[id].element;
+    element.classList.remove("light");
+    element.classList.remove("dark");
+    const appTheme = game.settings.get("core", "uiConfig").colorScheme
+      .applications;
+    element.classList.add(appTheme);
     const wszystkieA = element.querySelectorAll("a.element");
     const actor = this.actor;
     wszystkieA.forEach((a) => {
@@ -304,6 +308,12 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
         await this.updateNazwa(a, actor);
       });
     });
+  const atakZTabeli = element.querySelector('select[name="system.tabela_atakow"]');
+    atakZTabeli.addEventListener("change", async (ev) =>{
+      const target = ev.target;
+      await this.actor.update({"system.tabela_atakow": target.value})
+      this.render({force:true})
+    })
   }
   async updateNazwa(el, actor) {
     event.preventDefault();
@@ -333,6 +343,7 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
             await this.actor.update({
               [`system.${type}.${index}.nazwa`]: value,
             });
+            this.render({force:true})
           },
         },
       ],
@@ -378,7 +389,6 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     }
   }
   _processFormData(event, form, formData) {
-    console.log(event, form, formData);
     const target = event?.target;
     const name = target?.name;
 
