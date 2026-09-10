@@ -371,7 +371,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
       bron = actor.items.get(czymParujeszID);
     }
 
-    const bonusZBroni = bron?.system?.wartosc_efektu || 0;
+    const bonusZBroni = bron?.system?.wartosc_efektu ?? bonus;
     const basePool =
       atrybut + umiejetnosc + modifier + bonusZTalentow + bonusZBroni;
     const formula =
