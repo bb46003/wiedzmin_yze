@@ -362,17 +362,15 @@ async function zadajObrazenia(event, message) {
   });
 
   const zadaneObrazenia = [];
-
+let wyparowanoObrazen = data?.wyparowane;
   if (cel.length > 0) {
     await Promise.all(
       cel.map(async (target) => {
         const celToken = canvas.tokens.get(target.id);
         const celActor = celToken.actor;
-        let wyparowanoObrazen = data?.wyparowane;
-        if (wyparowanoObrazen) {
+        
+       if (Array.isArray(wyparowanoObrazen)) {
           wyparowanoObrazen = wyparowanoObrazen[target?.id];
-        } else {
-          wyparowanoObrazen = 0;
         }
 
         const calkowiteObrazenia =
