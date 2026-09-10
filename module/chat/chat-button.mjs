@@ -535,12 +535,16 @@ async function parowanie(event, message) {
 
   const targetActor = targetToken.actor;
   if (!targetActor) return;
-
+  
   const czytarcza = targetActor.items.filter(
     (i) => i.type === "pancerz" && i.system.efekt === "parowanie",
   );
 
-  const czymParujesz = [{ name: "Ręka", id: "reka", bonus: 0 }];
+  const czymParujesz = [{ 
+    name: "Ręka", 
+    id: "reka", 
+    bonus:  targetActor.type !== "postac" ? targetActor.system.obrona : 0 
+  }];
 
   if (czytarcza.length !== 0) {
     czymParujesz.push(
@@ -552,23 +556,29 @@ async function parowanie(event, message) {
     );
   }
 
-  const bronie = targetActor.items.filter((i) => i.type === "bron");
+  let bronie = targetActor.items.filter((i) => i.type === "bron");
   bronie.forEach((b) => {
     czymParujesz.push({ name: b.name, id: b.id, bonus: 0 });
   });
-
+  if( targetActor.type !== "postac"){
+    bronie = targetActor.system.ataki;
+      bronie.forEach((b) => {
+    czymParujesz.push({ name: b.name, id: "", bonus: b.atak });
+  });
+  }
   const maTelentBlokujacy = targetActor.items.some(
     (item) => item.system?.usuwaForsowanie === true,
   );
 
   let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
-
-  const { powiazaneTalenty: inneTalenty } =
-    await targetActor.system.sprawdzTalenty("sila", []);
+  flavor = targetActor.type === "postac" ? flavor : "Test"
+  const { powiazaneTalenty: inneTalenty } = targetActor.type === "postac" ?
+    await targetActor.system?.sprawdzTalenty("sila", []) : [];
   let mod = 0;
   if (message.system?.czar) {
     mod = message.system.czar.system.obrona.modyfikator || 0;
   }
+
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/wiedzmin_yze/templates/dialogs/parowanie-dialog.hbs",
     { czymParujesz: czymParujesz, talenty: inneTalenty, mod: mod },
@@ -597,9 +607,9 @@ async function parowanie(event, message) {
                 dialog.element.querySelector("input[name='modifier']")?.value,
               ) || 0;
 
-            const atrybut = targetActor.system.atrybuty.sila.value;
+            const atrybut = targetActor.system?.atrybuty?.sila?.value ?? 0;
             const umiejetnosc =
-              targetActor.system.atrybuty.sila.umiejetnosci.walka_wrecz;
+              targetActor.system?.atrybuty?.sila?.umiejetnosci?.walka_wrecz ?? 0;
 
             const checked = Array.from(
               dialog.element.querySelectorAll('input[name="stosuje"]:checked'),
@@ -610,7 +620,7 @@ async function parowanie(event, message) {
               return inneTalenty[index]; // ✅ fixed
             });
 
-            const adrenalina = targetActor.system.adrenalina.value;
+            const adrenalina = targetActor.system?.adrenalina?.value ?? 0;
 
             const result = await globalThis.wiedzmin_yze.WiedzminRoll.parowanie(
               {
@@ -696,13 +706,13 @@ async function unik(event, message) {
   );
 
   let flavor = maTelentBlokujacy ? "Forsowanie" : "Test";
-
-  const { powiazaneTalenty: inneTalenty } =
-    await targetActor.system.sprawdzTalenty("zrecznosc", []);
+  flavor = targetActor.type === "postac" ? flavor : "Test"
+  const { powiazaneTalenty: inneTalenty } = targetActor.type === "postac" ?
+    await targetActor.system?.sprawdzTalenty("zrecznosc", []) : [];
   const atrybutKey = "zrecznosc";
   const umiejkaKey = "zwinnosc";
-  const atrybut = targetActor.system.atrybuty.zrecznosc.value;
-  const umiejka = targetActor.system.atrybuty.zrecznosc.umiejetnosci.zwinnosc;
+  const atrybut = targetActor.type === "postac" ? targetActor.system.atrybuty.zrecznosc.value : targetActor.system.obrona;
+  const umiejka =  targetActor.type === "postac" ? targetActor.system.atrybuty.zrecznosc.umiejetnosci.zwinnosc : 0;
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/wiedzmin_yze/templates/dialogs/uniki-dialog.hbs",
     { talenty: inneTalenty },
@@ -740,7 +750,7 @@ async function unik(event, message) {
             });
             const unikaszOstrzalu =
               dialog.element.querySelector(".ostrzal").checked;
-            const adrenalina = targetActor.system.adrenalina.value;
+            const adrenalina = targetActor.type === "pstec" ? targetActor.system.adrenalina.value : 0;
 
             const result = await globalThis.wiedzmin_yze.WiedzminRoll.unik({
               atrybutKey: atrybutKey,
@@ -778,7 +788,7 @@ async function unik(event, message) {
       event.target.parentElement.parentElement.parentElement.parentElement.querySelector(
         "button.zadaj-obrazenia",
       );
-    zadajObr.disabled = true;
+      if(zadajObr) zadajObr.disabled = true;
   }
 
   const button = event.target.parentElement.querySelector("button.parowanie");

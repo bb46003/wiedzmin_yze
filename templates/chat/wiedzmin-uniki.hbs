@@ -1,6 +1,6 @@
 <div class="wiedzmin-roll-chat">
   <h4>
-    {{#if (not forsowac)}}
+    {{#if (forsowac)}}
       Forsowany wynik rzutu na Unik przed
       {{@root.czymJestesAtakowany}}
     {{else}}
@@ -52,7 +52,7 @@
      {{> "systems/wiedzmin_yze/templates/chat/wiedzmin-kosci.hbs"}}
 
   </div>
-  {{#if (and forsowac (not pech))}}
+  {{#if (and (and (not forsowac) (not pech) (eq actorType "postac")))}}
     <div class="forsowanie">
       <button class="forsuj-button" data-action="forsuj">Forsuj</button>
     </div>
