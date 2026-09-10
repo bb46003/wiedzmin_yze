@@ -199,8 +199,8 @@ export class NPCSheet extends api.HandlebarsApplicationMixin(
     ev.preventDefault();
     ev.stopPropagation();
 
-    const button = ev.target;
-    const itemId = button.parentElement.dataset.item;
+    const button = ev.target.closest("a");
+    const itemId = button.dataset.item;
     const item = this.actor.items.get(itemId);
     // Remove old menu if exists
     document.querySelector(".custom-context-menu")?.remove();
