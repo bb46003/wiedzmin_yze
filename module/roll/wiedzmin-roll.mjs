@@ -151,6 +151,7 @@ export class WiedzminRoll extends foundry.dice.Roll {
         item,
       },
     );
+    const actor = await game.actors.get(actorID);
     new foundry.applications.api.DialogV2({
       window: { title: "Czerpanie Mocy" },
       content,
